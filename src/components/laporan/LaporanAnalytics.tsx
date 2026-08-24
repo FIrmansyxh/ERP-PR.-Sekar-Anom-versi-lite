@@ -28,6 +28,7 @@ import {
 } from '../../types';
 import { formatRupiah } from '../../utils/formatters';
 import { GRADE_COLOR_MAP } from '../../data/initialHargaData';
+import { downloadCsvFile } from '../../utils/printDownload';
 
 interface LaporanAnalyticsProps {
   petaniList: Petani[];
@@ -84,58 +85,97 @@ export const LaporanAnalytics: React.FC<LaporanAnalyticsProps> = ({
     const farmerMap: Record<string, { nama: string; totalKg: number; totalRp: number; countBal: number }> = {};
 
     transaksiList.forEach((tx) => {
-      if (!farmerMap[tx.petani_id]) {
-        farmerMap[tx.petani_id] = {
+      const key = tx.petani_id || tx.nama_petani;
+      if (!farmerMap[key]) {
+        farmerMap[key] = {
           nama: tx.nama_petani,
           totalKg: 0,
           totalRp: 0,
           countBal: 0,
         };
       }
-      farmerMap[tx.petani_id].totalKg += tx.berat_kg;
-      farmerMap[tx.petani_id].totalRp += tx.harga_final;
-      farmerMap[tx.petani_id].countBal += 1;
+      farmerMap[key].totalKg += (tx.berat_kg || 0);
+      farmerMap[key].totalRp += (tx.harga_final || 0);
+      const balInTx = tx.total_bal || (tx.items && tx.items.length) || (tx.barang_ids && tx.barang_ids.length) || 1;
+      farmerMap[key].countBal += balInTx;
     });
+
+    // Reconcile with exact bal count in inventaris bal gudang
+    if (barangList && barangList.length > 0) {
+      Object.keys(farmerMap).forEach((key) => {
+        const balInGudang = barangList.filter((b) => b.petani_id === key || b.nama_petani === farmerMap[key].nama).length;
+        if (balInGudang > 0) {
+          farmerMap[key].countBal = balInGudang;
+        }
+      });
+    }
 
     return Object.values(farmerMap)
       .sort((a, b) => b.totalKg - a.totalKg)
       .slice(0, 5);
-  }, [transaksiList]);
+  }, [transaksiList, barangList]);
 
   // CSV Exporter Utility
   const handleExportCSV = (type: 'transaksi' | 'stok' | 'pengiriman' | 'sample') => {
-    let csvContent = 'data:text/csv;charset=utf-8,';
     let filename = `laporan_${type}_${new Date().toISOString().split('T')[0]}.csv`;
 
     if (type === 'transaksi') {
-      csvContent += 'No Transaksi,Tanggal,Nama Petani,Nomor Kartu,No Bal,Grade,Berat (KG),Harga/Kg,Potongan,Total Bersih\n';
-      transaksiList.forEach((tx) => {
-        csvContent += `"${tx.transaksi_id}","${tx.tanggal_transaksi}","${tx.nama_petani}","${tx.nomor_kartu}","${tx.no_bal}","${tx.kode_grade}",${tx.berat_kg},${tx.harga_per_kg},${tx.total_potongan},${tx.harga_final}\n`;
-      });
+      const headers = ['No Transaksi', 'Tanggal', 'Nama Petani', 'Nomor Kartu', 'No Bal', 'Grade', 'Berat (KG)', 'Harga/Kg', 'Potongan', 'Total Bersih'];
+      const rows = transaksiList.map((tx) => [
+        tx.transaksi_id,
+        tx.tanggal_transaksi,
+        tx.nama_petani,
+        tx.nomor_kartu,
+        tx.no_bal,
+        tx.kode_grade,
+        tx.berat_kg,
+        tx.harga_per_kg,
+        tx.total_potongan,
+        tx.harga_final,
+      ]);
+      downloadCsvFile(filename, headers, rows);
     } else if (type === 'stok') {
-      csvContent += 'Barcode,No Bal,Grade,Berat (KG),Status Stok,Lokasi Gudang,Petani Asal,Tanggal Masuk,Tanggal Keluar\n';
-      barangList.forEach((b) => {
-        csvContent += `"${b.barcode}","${b.no_bal}","${b.kode_grade}",${b.berat_kg},"${b.status_stok}","${b.lokasi_gudang}","${b.nama_petani || ''}","${b.tanggal_masuk}","${b.tanggal_keluar || ''}"\n`;
-      });
+      const headers = ['Barcode', 'No Bal', 'Grade', 'Berat (KG)', 'Status Stok', 'Lokasi Gudang', 'Petani Asal', 'Tanggal Masuk', 'Tanggal Keluar'];
+      const rows = barangList.map((b) => [
+        b.barcode,
+        b.no_bal,
+        b.kode_grade,
+        b.berat_kg,
+        b.status_stok,
+        b.lokasi_gudang,
+        b.nama_petani || '',
+        b.tanggal_masuk,
+        b.tanggal_keluar || '',
+      ]);
+      downloadCsvFile(filename, headers, rows);
     } else if (type === 'pengiriman') {
-      csvContent += 'No Surat Jalan,Tanggal Kirim,Pabrik Tujuan,Total Bal,Total Berat (KG),Driver,Plat Truk,Ref Sample\n';
-      pengirimanList.forEach((k) => {
-        csvContent += `"${k.no_surat_jalan}","${k.tanggal_kirim}","${k.tujuan}",${k.total_bal},${k.total_berat_kg},"${k.driver_nama || ''}","${k.plat_nomor || ''}","${k.sample_id_ref || ''}"\n`;
-      });
+      const headers = ['No Surat Jalan', 'Tanggal Kirim', 'Pabrik Tujuan', 'Total Bal', 'Total Berat (KG)', 'Driver', 'Plat Truk', 'Ref Sample'];
+      const rows = pengirimanList.map((k) => [
+        k.no_surat_jalan,
+        k.tanggal_kirim,
+        k.tujuan,
+        k.total_bal,
+        k.total_berat_kg,
+        k.driver_nama || '',
+        k.plat_nomor || '',
+        k.sample_id_ref || '',
+      ]);
+      downloadCsvFile(filename, headers, rows);
     } else if (type === 'sample') {
-      csvContent += 'ID Sample,Tanggal Kirim,Tujuan Lab/Pabrik,Grade,Berat (Gram),Sumber Gudang,Status Respon,Tanggal Respon,Catatan\n';
-      sampleList.forEach((s) => {
-        csvContent += `"${s.sample_id}","${s.tanggal_kirim}","${s.tujuan}","${s.kode_grade}",${s.berat_sample_gram},"${s.sumber}","${s.status}","${s.tanggal_respon || ''}","${(s.catatan || '').replace(/"/g, '""')}"\n`;
-      });
+      const headers = ['ID Sample', 'Tanggal Kirim', 'Tujuan Lab/Pabrik', 'Grade', 'Berat (Gram)', 'Sumber Gudang', 'Status Respon', 'Tanggal Respon', 'Catatan'];
+      const rows = sampleList.map((s) => [
+        s.sample_id,
+        s.tanggal_kirim,
+        s.tujuan,
+        s.kode_grade,
+        s.berat_sample_gram,
+        s.sumber,
+        s.status,
+        s.tanggal_respon || '',
+        s.catatan || '',
+      ]);
+      downloadCsvFile(filename, headers, rows);
     }
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (

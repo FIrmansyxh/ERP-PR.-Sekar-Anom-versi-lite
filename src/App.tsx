@@ -53,6 +53,9 @@ import { DashboardAnalyticView } from './components/laporan/DashboardAnalyticVie
 // PRD Bab 8: Laporan Pembelian Barang
 import { LaporanPembelianBarangView } from './components/laporan/LaporanPembelianBarangView';
 
+// Laporan Okupansi & Stok Inventaris Gudang
+import { LaporanGudangView } from './components/laporan/LaporanGudangView';
+
 // PRD 4.1: Master Petani
 import { PetaniTable } from './components/petani/PetaniTable';
 import { PetaniFormModal } from './components/petani/PetaniFormModal';
@@ -420,6 +423,51 @@ export default function App() {
     showToast(`Transaksi ${newTx.transaksi_id} (${balCount} Bal, ${newTx.berat_kg} Kg) berhasil dicatat & masuk gudang!`);
   };
 
+  const handleDeleteTransaksi = (transaksiId: string) => {
+    const txToDelete = transaksiList.find((t) => t.transaksi_id === transaksiId);
+    if (!txToDelete) return;
+
+    // 1. Remove from transaksiList
+    const updatedTxList = transaksiList.filter((t) => t.transaksi_id !== transaksiId);
+    setTransaksiList(updatedTxList);
+    saveTransaksiData(updatedTxList);
+
+    // 2. Remove generated bal from barangList
+    const txItemBalIds = new Set(
+      (txToDelete.items || []).map((i) => i.barang_id || i.no_bal)
+    );
+    const updatedBarangList = barangList.filter((b) => {
+      if (b.transaksi_id === transaksiId) return false;
+      if (b.barang_id && txItemBalIds.has(b.barang_id)) return false;
+      if (b.no_bal && (b.no_bal === txToDelete.no_bal || txItemBalIds.has(b.no_bal))) return false;
+      return true;
+    });
+    setBarangList(updatedBarangList);
+    saveBarangData(updatedBarangList);
+
+    // 3. Recalculate Petani statistics
+    const balCount = txToDelete.total_bal || (txToDelete.items ? txToDelete.items.length : 1);
+    const updatedPetaniList = petaniList.map((p) => {
+      if (p.petani_id === txToDelete.petani_id) {
+        const totalBal = Math.max(0, (p.statistik?.total_setoran_bal || 0) - balCount);
+        const totalKg = Math.max(0, (p.statistik?.total_berat_kg || 0) - txToDelete.berat_kg);
+        return {
+          ...p,
+          statistik: {
+            ...p.statistik,
+            total_setoran_bal: totalBal,
+            total_berat_kg: totalKg,
+          },
+        };
+      }
+      return p;
+    });
+    setPetaniList(updatedPetaniList);
+    savePetaniData(updatedPetaniList);
+
+    showToast(`Transaksi ${transaksiId} dan data bal terkait berhasil dihapus.`);
+  };
+
   // --- PRD 6.2: Pengiriman Sample Handlers ---
   const handleSaveNewSample = (sample: PengirimanSample) => {
     const updated = [sample, ...sampleList];
@@ -619,6 +667,19 @@ export default function App() {
               />
             )}
 
+            {/* Laporan Okupansi & Stok Gudang */}
+            {activeModuleId === 'modul-6-laporan-gudang' && (
+              <LaporanGudangView
+                gudangList={gudangList}
+                barangList={barangList}
+                petaniList={petaniList}
+                transaksiList={transaksiList}
+                userRole={currentRole}
+                onNavigateToGudang={() => handleSelectModule('modul-7-gudang')}
+                onNavigateToBarang={() => handleSelectModule('modul-2-barang')}
+              />
+            )}
+
             {/* PRD 4.1: Master Petani */}
             {activeModuleId === 'modul-1-petani' && (
               <PetaniTable
@@ -683,6 +744,7 @@ export default function App() {
                 gudangList={gudangList}
                 userRole={currentRole}
                 onSaveTransaksi={handleSaveTransaksi}
+                onDeleteTransaksi={handleDeleteTransaksi}
               />
             )}
 

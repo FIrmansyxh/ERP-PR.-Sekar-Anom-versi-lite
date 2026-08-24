@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { 
   FileText, 
   Search, 
@@ -13,9 +13,11 @@ import {
   Filter,
   CheckCircle2,
   TrendingUp,
-  X
+  X,
+  FileSpreadsheet
 } from 'lucide-react';
 import { TransaksiPembelian, Petani } from '../../types';
+import { downloadCsvFile, downloadElementAsPdf, printHtmlElementDirectly } from '../../utils/printDownload';
 
 interface LaporanPembelianBarangViewProps {
   transaksiList: TransaksiPembelian[];
@@ -44,8 +46,29 @@ export const LaporanPembelianBarangView: React.FC<LaporanPembelianBarangViewProp
     supplier: 'ALL',
   });
 
-  // Print Modal State
+  // Print & PDF States
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const printReportRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadPdf = async () => {
+    if (!printReportRef.current) return;
+    setIsGeneratingPdf(true);
+    try {
+      await downloadElementAsPdf(
+        printReportRef.current,
+        `Laporan_Pembelian_Barang_${new Date().toISOString().slice(0, 10)}.pdf`,
+        { orientation: 'landscape' }
+      );
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
+  const handleDirectPrint = () => {
+    if (!printReportRef.current) return;
+    printHtmlElementDirectly(printReportRef.current, 'Laporan Pembelian Barang - PR. SEKAR ANOM');
+  };
 
   // Unique list of Kupons & Suppliers for dropdowns
   const uniqueKupons = useMemo(() => {
@@ -175,7 +198,7 @@ export const LaporanPembelianBarangView: React.FC<LaporanPembelianBarangViewProp
     };
   }, [filteredData]);
 
-  // Export CSV
+  // Export CSV / Excel Compatible
   const handleExportCSV = () => {
     if (filteredData.length === 0) return;
 
@@ -194,41 +217,51 @@ export const LaporanPembelianBarangView: React.FC<LaporanPembelianBarangViewProp
       'Jumlah Bayar (Rp)',
     ];
 
-    const rows = filteredData.map((row, idx) => {
+    const rows: (string | number)[][] = filteredData.map((row, idx) => {
       const bruto = row.jenis_timbang === 'bruto' ? (row.berat_terukur_kg || row.berat_kg + 2) : 0;
       const subtotalHrgBeli = row.total_harga_beli || (row.berat_kg * row.harga_per_kg);
       const jmlBayar = row.harga_final || (subtotalHrgBeli - (row.total_potongan || 7000));
 
       return [
         idx + 1,
-        `"${row.tanggal_transaksi ? row.tanggal_transaksi.split('T')[0] : '-'}"`,
-        `"${row.no_kupon || '-'}"`,
-        `"${row.nama_petani || '-'}"`,
-        `"${row.no_bal || '-'}"`,
-        `"${row.kode_grade || '-'}"`,
+        row.tanggal_transaksi ? row.tanggal_transaksi.split('T')[0] : '-',
+        row.no_kupon || '-',
+        row.nama_petani || '-',
+        row.no_bal || '-',
+        row.kode_grade || '-',
         bruto,
         row.berat_kg || 0,
         row.harga_per_kg || 0,
         row.total_potongan || 7000,
         subtotalHrgBeli,
         jmlBayar,
-      ].join(',');
+      ];
     });
 
     // Add Summary rows
-    rows.push('');
-    rows.push(`"","","","","","TOTAL POTONGAN OUT (KULI)","","","","${totals.totalPotonganKuli}","",""`);
-    rows.push(`"","","","","","TOTAL POTONGAN GANTI TIKAR","","","","${totals.totalPotonganTikar}","",""`);
-    rows.push(`"","","","","","TOTAL AKUMULASI","${totals.totalBruto}","${totals.totalNetto}","","${totals.totalPotonganAll}","${totals.totalNilaiHargaBeli}","${totals.totalJumlahBayar}"`);
+    rows.push(['', '', '', '', '', '', '', '', '', '', '', '']);
+    rows.push(['', '', '', '', '', 'TOTAL POTONGAN OUT (KULI)', '', '', '', totals.totalPotonganKuli, '', '']);
+    rows.push(['', '', '', '', '', 'TOTAL POTONGAN GANTI TIKAR', '', '', '', totals.totalPotonganTikar, '', '']);
+    rows.push([
+      '',
+      '',
+      '',
+      '',
+      '',
+      'TOTAL AKUMULASI',
+      totals.totalBruto,
+      totals.totalNetto,
+      '',
+      totals.totalPotonganAll,
+      totals.totalNilaiHargaBeli,
+      totals.totalJumlahBayar,
+    ]);
 
-    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Laporan_Pembelian_Barang_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    downloadCsvFile(
+      `Laporan_Pembelian_Barang_${new Date().toISOString().slice(0, 10)}.csv`,
+      headers,
+      rows
+    );
   };
 
   return (
@@ -643,11 +676,22 @@ export const LaporanPembelianBarangView: React.FC<LaporanPembelianBarangViewProp
               </div>
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => window.print()}
+                  type="button"
+                  disabled={isGeneratingPdf}
+                  onClick={handleDownloadPdf}
+                  className="px-3 py-1 bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 disabled:opacity-50 transition cursor-pointer flex items-center space-x-1"
+                  title="Unduh Berkas PDF Langsung"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>{isGeneratingPdf ? 'Membuat PDF...' : 'Unduh PDF'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDirectPrint}
                   className="px-3 py-1 bg-[#b81d24] text-white text-xs font-bold hover:bg-[#a0181e] transition cursor-pointer flex items-center space-x-1"
                 >
                   <Printer className="w-3.5 h-3.5" />
-                  <span>Cetak / Simpan PDF</span>
+                  <span>Cetak Dokumen</span>
                 </button>
                 <button
                   onClick={() => setIsPrintModalOpen(false)}
@@ -658,20 +702,25 @@ export const LaporanPembelianBarangView: React.FC<LaporanPembelianBarangViewProp
               </div>
             </div>
 
-            {/* Printable Content */}
-            <div className="p-6 overflow-y-auto flex-1 text-gray-900 bg-white font-sans text-xs">
-              {/* Kop Surat PR. Sekar Anom */}
-              <div className="text-center border-b-2 border-gray-900 pb-3 mb-4">
-                <h2 className="text-lg font-black tracking-widest uppercase text-gray-950">
-                  PR. SEKAR ANOM
-                </h2>
-                <p className="text-[11px] text-gray-600 tracking-wide font-medium">
-                  SISTEM DATA GUDANG & PENGADAAN TEMBAKAU RAJANGAN
-                </p>
-                <p className="text-[10px] text-gray-500">
-                  Jl. Raya Sentol Pamekasan - Madura | Telp: (0324) 321888 | Email: gudang@sekaranom.co.id
-                </p>
-              </div>
+            {/* Modal Body / Printable Content */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-100 print:bg-white print:p-0 flex justify-center">
+              <div 
+                ref={printReportRef} 
+                id="printable-laporan-pembelian"
+                className="w-full max-w-5xl bg-white border border-gray-300 p-6 shadow-sm text-gray-900 font-sans text-xs print:border-none print:shadow-none"
+              >
+                {/* Kop Surat PR. Sekar Anom */}
+                <div className="text-center border-b-2 border-gray-900 pb-3 mb-4">
+                  <h2 className="text-lg font-black tracking-widest uppercase text-gray-950">
+                    PR. SEKAR ANOM
+                  </h2>
+                  <p className="text-[11px] text-gray-600 tracking-wide font-medium">
+                    SISTEM DATA GUDANG & PENGADAAN TEMBAKAU RAJANGAN
+                  </p>
+                  <p className="text-[10px] text-gray-500">
+                    Jl. Raya Sentol Pamekasan - Madura | Telp: (0324) 321888 | Email: gudang@sekaranom.co.id
+                  </p>
+                </div>
 
               {/* Title & Metadata Filter */}
               <div className="mb-4">
@@ -784,8 +833,9 @@ export const LaporanPembelianBarangView: React.FC<LaporanPembelianBarangViewProp
             </div>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
-    </div>
-  );
+  </div>
+);
 };

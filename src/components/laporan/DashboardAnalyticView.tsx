@@ -21,6 +21,7 @@ import {
   PengirimanBarang, 
   UserRole 
 } from '../../types';
+import { downloadCsvFile } from '../../utils/printDownload';
 
 interface DashboardAnalyticViewProps {
   transaksiList: TransaksiPembelian[];
@@ -114,92 +115,93 @@ export const DashboardAnalyticView: React.FC<DashboardAnalyticViewProps> = ({
       const subtotal = t.total_harga_beli || (t.berat_kg * t.harga_per_kg);
       const jmlBayar = t.harga_final || (subtotal - (t.total_potongan || 7000));
 
-      existing.balCount += 1;
+      const balInTx = t.total_bal || (t.items && t.items.length) || (t.barang_ids && t.barang_ids.length) || 1;
+
+      existing.balCount += balInTx;
       existing.totalKg += (t.berat_kg || 0);
       existing.totalNilai += jmlBayar;
       map.set(key, existing);
     });
 
+    // Reconcile with exact bal count in inventaris bal gudang if barangList is provided
+    if (barangList && barangList.length > 0) {
+      map.forEach((val, key) => {
+        const balInGudang = barangList.filter(b => b.petani_id === key || b.nama_petani === val.nama).length;
+        if (balInGudang > 0) {
+          val.balCount = balInGudang;
+        }
+      });
+    }
+
     const sorted = Array.from(map.values()).sort((a, b) => b.totalKg - a.totalKg);
     return sorted.slice(0, 5);
-  }, [transaksiList]);
+  }, [transaksiList, barangList]);
 
   // Export functions (PRD Bab 9.4)
-  const downloadCSV = (filename: string, headers: string[], rows: (string | number)[][]) => {
-    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `${filename}_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const exportBukuKasPembelian = () => {
     const headers = ['No', 'ID Transaksi', 'Kupon', 'Tanggal', 'Nama Petani', 'No Bal', 'Grade', 'Netto (kg)', 'Harga Beli (Rp/kg)', 'Potongan (Rp)', 'Jumlah Bayar (Rp)'];
     const rows = transaksiList.map((t, idx) => [
       idx + 1,
-      `"${t.transaksi_id}"`,
-      `"${t.no_kupon || '-'}"`,
-      `"${t.tanggal_transaksi ? t.tanggal_transaksi.split('T')[0] : '-'}"`,
-      `"${t.nama_petani}"`,
-      `"${t.no_bal}"`,
-      `"${t.kode_grade}"`,
+      t.transaksi_id,
+      t.no_kupon || '-',
+      t.tanggal_transaksi ? t.tanggal_transaksi.split('T')[0] : '-',
+      t.nama_petani,
+      t.no_bal,
+      t.kode_grade,
       t.berat_kg,
       t.harga_per_kg,
       t.total_potongan || 7000,
       t.harga_final || (t.berat_kg * t.harga_per_kg - (t.total_potongan || 7000)),
     ]);
-    downloadCSV('Buku_Kas_Pembelian_Petani', headers, rows);
+    downloadCsvFile('Buku_Kas_Pembelian_Petani', headers, rows);
   };
 
   const exportInventarisBalGudang = () => {
     const headers = ['No', 'Barcode', 'No Bal', 'Grade', 'Berat Netto (kg)', 'Status Stok', 'Lokasi Simpan', 'Tanggal Masuk', 'Petani'];
     const rows = barangList.map((b, idx) => [
       idx + 1,
-      `"${b.barcode}"`,
-      `"${b.no_bal}"`,
-      `"${b.kode_grade}"`,
+      b.barcode,
+      b.no_bal,
+      b.kode_grade,
       b.berat_kg,
-      `"${b.status_stok}"`,
-      `"${b.lokasi_gudang}"`,
-      `"${b.tanggal_masuk}"`,
-      `"${b.nama_petani || '-'}"`,
+      b.status_stok,
+      b.lokasi_gudang,
+      b.tanggal_masuk,
+      b.nama_petani || '-',
     ]);
-    downloadCSV('Inventaris_Bal_Gudang_Tembakau', headers, rows);
+    downloadCsvFile('Inventaris_Bal_Gudang_Tembakau', headers, rows);
   };
 
   const exportDistribusiSuratJalan = () => {
     const headers = ['No', 'No Surat Jalan', 'Pabrik Tujuan', 'Nama Sopir', 'No Kendaraan', 'Total Bal', 'Total Berat (kg)', 'Tanggal Kirim', 'Status'];
     const rows = pengirimanList.map((p, idx) => [
       idx + 1,
-      `"${p.no_surat_jalan}"`,
-      `"${p.tujuan}"`,
-      `"${p.driver_nama}"`,
-      `"${p.plat_nomor}"`,
+      p.no_surat_jalan,
+      p.tujuan,
+      p.driver_nama,
+      p.plat_nomor,
       p.total_bal,
       p.total_berat_kg,
-      `"${p.tanggal_kirim}"`,
-      `"${p.status}"`,
+      p.tanggal_kirim,
+      p.status,
     ]);
-    downloadCSV('Distribusi_Surat_Jalan_DO', headers, rows);
+    downloadCsvFile('Distribusi_Surat_Jalan_DO', headers, rows);
   };
 
   const exportLaporanQCSample = () => {
     const headers = ['No', 'Sample ID', 'Grade', 'Asal Gudang', 'Pabrik Tujuan Uji Lab', 'Berat Sample (Gram)', 'Tanggal Kirim', 'Status Hasil QC', 'Catatan'];
     const rows = sampleList.map((s, idx) => [
       idx + 1,
-      `"${s.sample_id}"`,
-      `"${s.kode_grade}"`,
-      `"${s.sumber}"`,
-      `"${s.tujuan}"`,
+      s.sample_id,
+      s.kode_grade,
+      s.sumber,
+      s.tujuan,
       s.berat_sample_gram,
-      `"${s.tanggal_kirim}"`,
-      `"${s.status}"`,
-      `"${s.catatan || '-'}"`,
+      s.tanggal_kirim,
+      s.status,
+      s.catatan || '-',
     ]);
-    downloadCSV('Laporan_Uji_Mutu_Sample_QC', headers, rows);
+    downloadCsvFile('Laporan_Uji_Mutu_Sample_QC', headers, rows);
   };
 
   return (

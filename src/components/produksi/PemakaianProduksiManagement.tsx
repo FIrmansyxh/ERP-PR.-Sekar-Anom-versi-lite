@@ -20,6 +20,7 @@ import {
 import { PengirimanBarang, Barang, UserRole } from '../../types';
 import { PemakaianProduksiFormModal } from './PemakaianProduksiFormModal';
 import { BonProduksiPrintModal } from './BonProduksiPrintModal';
+import { Pagination } from '../common/Pagination';
 
 interface PemakaianProduksiManagementProps {
   pengirimanList: PengirimanBarang[];
@@ -341,33 +342,14 @@ export const PemakaianProduksiManagement: React.FC<PemakaianProduksiManagementPr
         </div>
 
         {/* Table Footer & Pagination */}
-        <div className="p-3 bg-white border-t border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-gray-600">
-          <div>
-            Menampilkan {paginatedData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} sampai{' '}
-            {Math.min(currentPage * itemsPerPage, filteredData.length)} dari {filteredData.length} data
-          </div>
-
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-2.5 py-1 border border-gray-300 rounded-sm bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium cursor-pointer"
-            >
-              Sebelumnya
-            </button>
-
-            <span className="px-3 py-1 bg-[#b81d24] text-white rounded-sm font-bold text-xs">
-              {currentPage}
-            </span>
-
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              disabled={currentPage === totalPages || totalPages === 0}
-              className="px-2.5 py-1 border border-gray-300 rounded-sm bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium cursor-pointer"
-            >
-              Selanjutnya
-            </button>
-          </div>
+        <div className="p-3 bg-white border-t border-gray-200">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={filteredData.length}
+            itemsPerPage={itemsPerPage}
+          />
         </div>
 
       </div>

@@ -37,14 +37,15 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
     { no: 1, nama: 'Home', judul: 'Dasbor Menu Utama & Status Sistem', modId: 'modul-home' },
     { no: 2, nama: 'Dashboard Laporan & Analytic ERP', judul: 'Executive Summary, Distribusi Grade & Pusat Unduh Dokumen (PRD Bab 9)', modId: 'modul-6-dashboard-analytic' },
     { no: 3, nama: 'Laporan Pembelian Barang', judul: 'Rekapitulasi Pembelian Multi-Parameter, Potongan Kuli & Tikar (PRD Bab 8)', modId: 'modul-6-laporan-pembelian' },
-    { no: 4, nama: 'Master Petani', judul: 'Data Petani Tembakau & Kartu Scan Setoran (PRD 4.1)', modId: 'modul-1-petani' },
-    { no: 5, nama: 'Master Kualitas & Harga', judul: 'Tarif Acuan Grade A-F & Ketentuan Kualitas (PRD 4.2)', modId: 'modul-3-harga' },
-    { no: 6, nama: 'Master Data Gudang', judul: 'Lokasi Simpan, Blok & Kapasitas Pergudangan (PRD 4.3)', modId: 'modul-7-gudang' },
-    { no: 7, nama: 'Inventaris Bal Gudang', judul: 'Stok Fisik Bal & Lokasi Simpan (PRD 5.6)', modId: 'modul-2-barang' },
-    { no: 8, nama: 'Transaksi Pembelian Timbang', judul: 'Kupon Antrian, Timbang Bruto/Netto, Potongan Kuli Rp 7.000 (PRD Bab 5)', modId: 'modul-0-transaksi' },
-    { no: 9, nama: 'Pengiriman Reguler (DO Luar)', judul: 'Surat Jalan Pengiriman Bal ke Buyer Pabrik Rokok (PRD 6.1)', modId: 'modul-5-pengiriman' },
-    { no: 10, nama: 'Pengiriman Sample QC', judul: 'Uji Laboratorium Mutu & Approval Grade Sample (PRD 6.2)', modId: 'modul-4-sample' },
-    { no: 11, nama: 'Manajemen Pengguna (RBAC)', judul: 'Otorisasi Staf & Hak Akses 5 Role Kerja (PRD Bab 3)', modId: 'modul-users' },
+    { no: 4, nama: 'Laporan Okupansi & Stok Gudang', judul: 'Monitoring Kapasitas, Okupansi Bal & Inventaris Tembakau Per Gudang', modId: 'modul-6-laporan-gudang' },
+    { no: 5, nama: 'Master Petani', judul: 'Data Petani Tembakau & Kartu Scan Setoran (PRD 4.1)', modId: 'modul-1-petani' },
+    { no: 6, nama: 'Master Kualitas & Harga', judul: 'Tarif Acuan Grade A-F & Ketentuan Kualitas (PRD 4.2)', modId: 'modul-3-harga' },
+    { no: 7, nama: 'Master Data Gudang', judul: 'Lokasi Simpan, Blok & Kapasitas Pergudangan (PRD 4.3)', modId: 'modul-7-gudang' },
+    { no: 8, nama: 'Inventaris Bal Gudang', judul: 'Stok Fisik Bal & Lokasi Simpan (PRD 5.6)', modId: 'modul-2-barang' },
+    { no: 9, nama: 'Transaksi Pembelian Timbang', judul: 'Kupon Antrian, Timbang Bruto/Netto, Potongan Kuli Rp 7.000 (PRD Bab 5)', modId: 'modul-0-transaksi' },
+    { no: 10, nama: 'Pengiriman Reguler (DO Luar)', judul: 'Surat Jalan Pengiriman Bal ke Buyer Pabrik Rokok (PRD 6.1)', modId: 'modul-5-pengiriman' },
+    { no: 11, nama: 'Pengiriman Sample QC', judul: 'Uji Laboratorium Mutu & Approval Grade Sample (PRD 6.2)', modId: 'modul-4-sample' },
+    { no: 12, nama: 'Manajemen Pengguna (RBAC)', judul: 'Otorisasi Staf & Hak Akses 5 Role Kerja (PRD Bab 3)', modId: 'modul-users' },
   ];
 
   // Filter menu list based on RBAC permissions

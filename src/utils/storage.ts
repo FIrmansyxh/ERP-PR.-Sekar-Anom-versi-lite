@@ -23,17 +23,17 @@ import { INITIAL_PENGIRIMAN_DATA } from '../data/initialPengirimanData';
 import { INITIAL_GUDANG_DATA } from '../data/initialGudangData';
 import { INITIAL_USER_DATA } from '../data/initialUserData';
 
-const KEY_PETANI = 'erp_tembakau_petani_v4';
-const KEY_BARANG = 'erp_tembakau_barang_v4';
-const KEY_MASTER_BARANG = 'erp_tembakau_master_barang_v4';
-const KEY_STOCK_OPNAME = 'erp_tembakau_stock_opname_v4';
-const KEY_HARGA = 'erp_tembakau_harga_v4';
-const KEY_TRANSAKSI = 'erp_tembakau_transaksi_v4';
-const KEY_SAMPLE = 'erp_tembakau_sample_v4';
-const KEY_PENGIRIMAN = 'erp_tembakau_pengiriman_v4';
-const KEY_GUDANG = 'erp_tembakau_gudang_v4';
-const KEY_USERS = 'erp_tembakau_users_v4';
-const KEY_CURRENT_USER = 'erp_tembakau_current_user_v4';
+const KEY_PETANI = 'erp_tembakau_petani_v5';
+const KEY_BARANG = 'erp_tembakau_barang_v5';
+const KEY_MASTER_BARANG = 'erp_tembakau_master_barang_v5';
+const KEY_STOCK_OPNAME = 'erp_tembakau_stock_opname_v5';
+const KEY_HARGA = 'erp_tembakau_harga_v5';
+const KEY_TRANSAKSI = 'erp_tembakau_transaksi_v5';
+const KEY_SAMPLE = 'erp_tembakau_sample_v5';
+const KEY_PENGIRIMAN = 'erp_tembakau_pengiriman_v5';
+const KEY_GUDANG = 'erp_tembakau_gudang_v5';
+const KEY_USERS = 'erp_tembakau_users_v5';
+const KEY_CURRENT_USER = 'erp_tembakau_current_user_v5';
 
 // Clean up old version demo caches
 (function purgeLegacyDemoCaches() {
@@ -42,7 +42,7 @@ const KEY_CURRENT_USER = 'erp_tembakau_current_user_v4';
       const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
-        if (k && (k.startsWith('erp_tembakau_') && !k.endsWith('_v4') && !k.endsWith('_date') && !k.endsWith('_snapshots_v1'))) {
+        if (k && (k.startsWith('erp_tembakau_') && !k.endsWith('_v5') && !k.endsWith('_date') && !k.endsWith('_snapshots_v1'))) {
           keysToRemove.push(k);
         }
       }
@@ -207,13 +207,29 @@ export function savePetaniData(data: Petani[]): void {
   }
 }
 
+// IDs to be purged permanently per user request
+const PURGED_TX_IDS = ['OJ/2026/VIII/0263', 'OJ/2026/VIII/0293'];
+const PURGED_BAL_PREFIXES = ['A-250826-2630', 'A-250826-2930', 'A-250826-2931', 'A-250826-2932'];
+
 // --- BARANG ---
 export function loadBarangData(): Barang[] {
   try {
     const saved = localStorage.getItem(KEY_BARANG);
     if (saved !== null) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) {
+        // Clean out items associated with deleted transactions
+        const cleaned = parsed.filter((b) => {
+          if (!b) return false;
+          if (b.transaksi_id && PURGED_TX_IDS.includes(b.transaksi_id)) return false;
+          if (b.barang_id && PURGED_BAL_PREFIXES.some((p) => b.barang_id.includes(p))) return false;
+          return true;
+        });
+        if (cleaned.length !== parsed.length) {
+          saveBarangData(cleaned);
+        }
+        return cleaned;
+      }
     }
   } catch (err) {
     console.error('Failed to load barang data:', err);
@@ -259,7 +275,18 @@ export function loadTransaksiData(): TransaksiPembelian[] {
     const saved = localStorage.getItem(KEY_TRANSAKSI);
     if (saved !== null) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) {
+        // Clean out transactions requested to be deleted
+        const cleaned = parsed.filter((t) => {
+          if (!t) return false;
+          if (t.transaksi_id && PURGED_TX_IDS.includes(t.transaksi_id)) return false;
+          return true;
+        });
+        if (cleaned.length !== parsed.length) {
+          saveTransaksiData(cleaned);
+        }
+        return cleaned;
+      }
     }
   } catch (err) {
     console.error('Failed to load transaksi data:', err);

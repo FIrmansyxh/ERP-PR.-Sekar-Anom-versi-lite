@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { 
   Printer, 
   Download,
@@ -13,7 +13,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { PengirimanBarang, Barang } from '../../types';
-import { downloadHtmlDocument } from '../../utils/printDownload';
+import { downloadElementAsPdf, printHtmlElementDirectly } from '../../utils/printDownload';
 import { formatNumber } from '../../utils/formatters';
 
 interface SuratJalanPrintModalProps {
@@ -30,22 +30,30 @@ export const SuratJalanPrintModal: React.FC<SuratJalanPrintModalProps> = ({
   barangList,
 }) => {
   const printAreaRef = useRef<HTMLDivElement>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   if (!isOpen || !pengiriman) return null;
 
-  const handleDownload = () => {
+  const handleDownloadPdf = async () => {
     if (!printAreaRef.current) return;
-    const content = printAreaRef.current.innerHTML;
-    downloadHtmlDocument(
-      `SURAT_JALAN_${pengiriman.no_surat_jalan}.html`,
-      `Surat Jalan Delivery Order - ${pengiriman.no_surat_jalan}`,
-      content
-    );
+    setIsGeneratingPdf(true);
+    try {
+      await downloadElementAsPdf(
+        printAreaRef.current,
+        `SURAT_JALAN_${pengiriman.no_surat_jalan}.pdf`,
+        { orientation: 'portrait' }
+      );
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   const handlePrint = () => {
-    handleDownload();
-    window.print();
+    if (!printAreaRef.current) return;
+    printHtmlElementDirectly(
+      printAreaRef.current,
+      `Surat Jalan Delivery Order - ${pengiriman.no_surat_jalan}`
+    );
   };
 
   const barangIds = pengiriman.barang_ids || [];
@@ -97,11 +105,14 @@ export const SuratJalanPrintModal: React.FC<SuratJalanPrintModalProps> = ({
             </button>
 
             <button
-              onClick={handleDownload}
-              className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#17a2b8] hover:bg-[#138496] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+              type="button"
+              disabled={isGeneratingPdf}
+              onClick={handleDownloadPdf}
+              className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#17a2b8] hover:bg-[#138496] disabled:opacity-50 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+              title="Unduh Berkas PDF Langsung"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Unduh File</span>
+              <span>{isGeneratingPdf ? 'Membuat PDF...' : 'Unduh PDF'}</span>
             </button>
 
             <button

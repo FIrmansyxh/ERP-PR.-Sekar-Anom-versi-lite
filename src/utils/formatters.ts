@@ -134,6 +134,51 @@ export function generateNoBalSimple(grade: string, sequenceNumber: number = 1): 
   return `${cleanGrade}${String(sequenceNumber).padStart(4, '0')}`;
 }
 
+// Generate Next Unique No Bal checking against existing warehouse inventory & current form batch
+export function generateNextUniqueNoBal(
+  grade: string,
+  existingList: { no_bal?: string; barang_id?: string; barcode?: string }[] = [],
+  currentBatch: { noBal: string }[] = []
+): string {
+  const cleanGrade = (grade || 'A').toUpperCase().trim();
+  let maxSeq = 0;
+  const regex = new RegExp(`^${cleanGrade}(\\d+)$`, 'i');
+
+  existingList.forEach((item) => {
+    const match = (item.no_bal || '').match(regex);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (!isNaN(num) && num > maxSeq) maxSeq = num;
+    }
+  });
+
+  currentBatch.forEach((item) => {
+    const match = (item.noBal || '').match(regex);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (!isNaN(num) && num > maxSeq) maxSeq = num;
+    }
+  });
+
+  let nextSeq = maxSeq > 0 ? maxSeq + 1 : 1;
+  let candidate = `${cleanGrade}${String(nextSeq).padStart(4, '0')}`;
+
+  const isTaken = (val: string) => {
+    const v = val.toLowerCase().trim();
+    return (
+      existingList.some((e) => (e.no_bal || '').toLowerCase().trim() === v || (e.barang_id || '').toLowerCase().trim() === v) ||
+      currentBatch.some((c) => (c.noBal || '').toLowerCase().trim() === v)
+    );
+  };
+
+  while (isTaken(candidate)) {
+    nextSeq++;
+    candidate = `${cleanGrade}${String(nextSeq).padStart(4, '0')}`;
+  }
+
+  return candidate;
+}
+
 // Generate Delivery Order / No. Surat Jalan (e.g. SJ-2026-08-0012)
 export function generateNoSuratJalanSimple(sequenceNumber: number = 1, date?: Date | string | null): string {
   const now = date ? new Date(date) : new Date();

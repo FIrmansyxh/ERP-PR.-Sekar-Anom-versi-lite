@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Petani } from '../../types';
 import { formatDateIndo } from '../../utils/formatters';
-import { downloadHtmlDocument } from '../../utils/printDownload';
+import { downloadElementAsPdf, printHtmlElementDirectly } from '../../utils/printDownload';
 
 interface PetaniCardPrintModalProps {
   isOpen: boolean;
@@ -26,32 +26,30 @@ export const PetaniCardPrintModal: React.FC<PetaniCardPrintModalProps> = ({
 }) => {
   const [cardSide, setCardSide] = useState<'front' | 'back'>('front');
   const printRef = useRef<HTMLDivElement>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   if (!isOpen || !petani) return null;
 
-  const handleDownload = () => {
+  const handleDownloadPdf = async () => {
     if (!printRef.current) return;
-    const content = printRef.current.innerHTML;
-    downloadHtmlDocument(
-      `KARTU_PETANI_${petani.petani_id}.html`,
-      `Kartu Identitas Petani - ${petani.nama_petani} (${petani.petani_id})`,
-      content,
-      `
-      .doc-container {
-        max-width: 460px !important;
-        padding: 20px !important;
-      }
-      #print-content {
-        display: flex;
-        justify-content: center;
-      }
-      `
-    );
+    setIsGeneratingPdf(true);
+    try {
+      await downloadElementAsPdf(
+        printRef.current,
+        `KARTU_PETANI_${petani.petani_id}_${cardSide.toUpperCase()}.pdf`,
+        { orientation: 'landscape' }
+      );
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   const handlePrint = () => {
-    handleDownload();
-    window.print();
+    if (!printRef.current) return;
+    printHtmlElementDirectly(
+      printRef.current,
+      `Kartu Identitas Petani - ${petani.nama_petani} (${petani.petani_id})`
+    );
   };
 
   return (
@@ -84,11 +82,14 @@ export const PetaniCardPrintModal: React.FC<PetaniCardPrintModalProps> = ({
             </button>
 
             <button
-              onClick={handleDownload}
-              className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#17a2b8] hover:bg-[#138496] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+              type="button"
+              disabled={isGeneratingPdf}
+              onClick={handleDownloadPdf}
+              className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#17a2b8] hover:bg-[#138496] disabled:opacity-50 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+              title="Unduh Berkas PDF Langsung"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Unduh File</span>
+              <span>{isGeneratingPdf ? 'Membuat PDF...' : 'Unduh PDF'}</span>
             </button>
 
             <button

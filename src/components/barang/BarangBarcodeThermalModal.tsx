@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { X, Printer, Download, Check, Copy, ArrowLeft } from 'lucide-react';
 import { Barang } from '../../types';
 import { BarcodeSvg } from '../common/BarcodeSvg';
-import { downloadHtmlDocument } from '../../utils/printDownload';
+import { downloadElementAsPdf, printHtmlElementDirectly } from '../../utils/printDownload';
 
 interface BarangBarcodeThermalModalProps {
   isOpen: boolean;
@@ -16,33 +16,31 @@ export const BarangBarcodeThermalModal: React.FC<BarangBarcodeThermalModalProps>
   barang,
 }) => {
   const [copied, setCopied] = React.useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const printAreaRef = useRef<HTMLDivElement>(null);
 
   if (!isOpen || !barang) return null;
 
-  const handleDownload = () => {
+  const handleDownloadPdf = async () => {
     if (!printAreaRef.current) return;
-    const content = printAreaRef.current.innerHTML;
-    downloadHtmlDocument(
-      `LABEL_THERMAL_${barang.no_bal}.html`,
-      `Label Thermal Barcode - ${barang.no_bal}`,
-      content,
-      `
-      .doc-container {
-        max-width: 380px !important;
-        padding: 16px !important;
-      }
-      #print-content {
-        display: flex;
-        justify-content: center;
-      }
-      `
-    );
+    setIsGeneratingPdf(true);
+    try {
+      await downloadElementAsPdf(
+        printAreaRef.current,
+        `LABEL_THERMAL_${barang.no_bal}.pdf`,
+        { orientation: 'portrait' }
+      );
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   const handlePrint = () => {
-    handleDownload();
-    window.print();
+    if (!printAreaRef.current) return;
+    printHtmlElementDirectly(
+      printAreaRef.current,
+      `Label Thermal Barcode - ${barang.no_bal}`
+    );
   };
 
   const handleCopyBarcode = () => {
@@ -79,11 +77,13 @@ export const BarangBarcodeThermalModal: React.FC<BarangBarcodeThermalModalProps>
 
             <button
               type="button"
-              onClick={handleDownload}
-              className="px-3 py-1.5 text-xs font-bold text-white bg-[#17a2b8] hover:bg-[#138496] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+              disabled={isGeneratingPdf}
+              onClick={handleDownloadPdf}
+              className="px-3 py-1.5 text-xs font-bold text-white bg-[#17a2b8] hover:bg-[#138496] disabled:opacity-50 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+              title="Unduh Berkas PDF Langsung"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Unduh Label</span>
+              <span>{isGeneratingPdf ? 'Membuat PDF...' : 'Unduh PDF'}</span>
             </button>
 
             <button

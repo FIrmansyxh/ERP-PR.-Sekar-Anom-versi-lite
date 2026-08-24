@@ -56,6 +56,13 @@ export const MODULES_CONFIG = [
     moduleKey: 'laporan-pembelian',
   },
   {
+    id: 'modul-6-laporan-gudang',
+    title: 'Laporan Okupansi & Stok Gudang',
+    subtitle: 'Kapasitas & Inventaris Tembakau',
+    icon: 'Warehouse',
+    moduleKey: 'laporan-gudang',
+  },
+  {
     id: 'modul-1-petani',
     title: 'Master Petani',
     subtitle: 'Registrasi & Kartu Petani',
@@ -139,13 +146,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const checkAccess = (modId: string) => hasModuleAccess(userRole, modId);
 
-  const canSeeReport = checkAccess('modul-6-dashboard-analytic') || checkAccess('modul-6-laporan-pembelian');
+  const canSeeReport = checkAccess('modul-6-dashboard-analytic') || checkAccess('modul-6-laporan-pembelian') || checkAccess('modul-6-laporan-gudang');
   const canSeeMaster = checkAccess('modul-1-petani') || checkAccess('modul-3-harga') || checkAccess('modul-7-gudang') || checkAccess('modul-2-barang');
   const canSeePembelian = checkAccess('modul-0-transaksi');
   const canSeePengiriman = checkAccess('modul-5-pengiriman') || checkAccess('modul-4-sample');
   const canSeeUsers = checkAccess('modul-users');
 
-  const isReportActive = activeModuleId === 'modul-6-dashboard-analytic' || activeModuleId === 'modul-6-laporan-pembelian';
+  const isReportActive = activeModuleId === 'modul-6-dashboard-analytic' || activeModuleId === 'modul-6-laporan-pembelian' || activeModuleId === 'modul-6-laporan-gudang';
   const isMasterActive = ['modul-1-petani', 'modul-3-harga', 'modul-7-gudang', 'modul-2-barang'].includes(activeModuleId);
   const isPembelianActive = activeModuleId === 'modul-0-transaksi';
   const isPengirimanActive = ['modul-5-pengiriman', 'modul-4-sample'].includes(activeModuleId);
@@ -241,6 +248,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     }`}
                   >
                     <span>Laporan Pembelian</span>
+                  </button>
+                )}
+
+                {checkAccess('modul-6-laporan-gudang') && (
+                  <button
+                    onClick={() => onSelectModule('modul-6-laporan-gudang')}
+                    className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
+                      activeModuleId === 'modul-6-laporan-gudang'
+                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>Laporan Gudang</span>
                   </button>
                 )}
               </div>

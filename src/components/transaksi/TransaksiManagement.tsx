@@ -14,7 +14,10 @@ import {
   X,
   Info,
   Ban,
-  FileText
+  FileText,
+  Trash2,
+  Receipt,
+  Tag
 } from 'lucide-react';
 import { TransaksiPembelian, Petani, TabelHarga, Barang, UserRole, Gudang } from '../../types';
 import { formatRupiah, generateBalId, generateNoBalSimple, formatDateDDMMYY } from '../../utils/formatters';
@@ -22,6 +25,8 @@ import { hitungSimulasiHarga, GRADE_COLOR_MAP } from '../../data/initialHargaDat
 import { TransaksiFormModal } from './TransaksiFormModal';
 import { TransaksiDetailModal } from './TransaksiDetailModal';
 import { BarangBarcodeThermalModal } from '../barang/BarangBarcodeThermalModal';
+import { Pagination } from '../common/Pagination';
+import { ConfirmModal } from '../common/ConfirmModal';
 
 interface TransaksiManagementProps {
   transaksiList: TransaksiPembelian[];
@@ -31,6 +36,7 @@ interface TransaksiManagementProps {
   gudangList?: Gudang[];
   userRole: UserRole;
   onSaveTransaksi: (newTx: TransaksiPembelian, generatedBarang: Barang | Barang[]) => void;
+  onDeleteTransaksi?: (transaksiId: string) => void;
 }
 
 export const TransaksiManagement: React.FC<TransaksiManagementProps> = ({
@@ -41,6 +47,7 @@ export const TransaksiManagement: React.FC<TransaksiManagementProps> = ({
   gudangList = [],
   userRole,
   onSaveTransaksi,
+  onDeleteTransaksi,
 }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,6 +57,7 @@ export const TransaksiManagement: React.FC<TransaksiManagementProps> = ({
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [selectedTxForDetail, setSelectedTxForDetail] = useState<TransaksiPembelian | null>(null);
   const [printingThermalBarang, setPrintingThermalBarang] = useState<Barang | null>(null);
+  const [txToDelete, setTxToDelete] = useState<TransaksiPembelian | null>(null);
 
   // Filter & Search Logic
   const filteredData = useMemo(() => {
@@ -329,23 +337,43 @@ export const TransaksiManagement: React.FC<TransaksiManagementProps> = ({
                       {/* Circular Action Buttons matching screenshot */}
                       <td className="py-2 px-3 text-center">
                         <div className="flex items-center justify-center space-x-1.5">
-                          {/* Info & Nota Timbang (Dark Slate) */}
+                          {/* Cetak Nota Timbang (Teal with Printer icon) */}
+                          <button
+                            onClick={() => setSelectedTxForDetail(tx)}
+                            className="w-6 h-6 rounded-full bg-[#17a2b8] hover:bg-[#138496] text-white flex items-center justify-center text-[10px] transition cursor-pointer shadow-xs"
+                            title="Cetak Nota Timbang Intake (PRD Bab 5)"
+                          >
+                            <Printer className="w-3.5 h-3.5" />
+                          </button>
+
+                          {/* Info / Rincian Transaksi (Dark Slate) */}
                           <button
                             onClick={() => setSelectedTxForDetail(tx)}
                             className="w-6 h-6 rounded-full bg-[#545b62] hover:bg-[#464c52] text-white flex items-center justify-center text-[10px] transition cursor-pointer shadow-xs"
-                            title="Lihat Rincian & Cetak Nota Timbang"
+                            title="Lihat Rincian & Nota Transaksi"
                           >
                             <Info className="w-3.5 h-3.5" />
                           </button>
 
-                          {/* Print Label Thermal Barcode Bal (Teal) */}
+                          {/* Print Label Thermal Barcode Bal (Amber) */}
                           <button
                             onClick={() => handleOpenPrintForTx(tx)}
-                            className="w-6 h-6 rounded-full bg-[#17a2b8] hover:bg-[#138496] text-white flex items-center justify-center text-[10px] transition cursor-pointer shadow-xs"
+                            className="w-6 h-6 rounded-full bg-[#f59e0b] hover:bg-[#d97706] text-white flex items-center justify-center text-[10px] transition cursor-pointer shadow-xs"
                             title="Cetak Label Thermal Barcode Bal"
                           >
-                            <Printer className="w-3.5 h-3.5" />
+                            <Tag className="w-3.5 h-3.5" />
                           </button>
+
+                          {/* Delete Transaction (Red) */}
+                          {onDeleteTransaksi && (
+                            <button
+                              onClick={() => setTxToDelete(tx)}
+                              className="w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-[10px] transition cursor-pointer shadow-xs"
+                              title="Hapus Transaksi"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -357,33 +385,14 @@ export const TransaksiManagement: React.FC<TransaksiManagementProps> = ({
         </div>
 
         {/* Table Footer & Pagination */}
-        <div className="p-3 bg-white border-t border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-gray-600">
-          <div>
-            Menampilkan {paginatedData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} sampai{' '}
-            {Math.min(currentPage * itemsPerPage, filteredData.length)} dari {filteredData.length} data
-          </div>
-
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-2.5 py-1 border border-gray-300 rounded-sm bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium cursor-pointer"
-            >
-              Sebelumnya
-            </button>
-
-            <span className="px-3 py-1 bg-[#b81d24] text-white rounded-sm font-bold text-xs">
-              {currentPage}
-            </span>
-
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              disabled={currentPage === totalPages || totalPages === 0}
-              className="px-2.5 py-1 border border-gray-300 rounded-sm bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium cursor-pointer"
-            >
-              Selanjutnya
-            </button>
-          </div>
+        <div className="p-3 bg-white border-t border-gray-200">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={filteredData.length}
+            itemsPerPage={itemsPerPage}
+          />
         </div>
 
       </div>
@@ -395,6 +404,10 @@ export const TransaksiManagement: React.FC<TransaksiManagementProps> = ({
           onClose={() => setSelectedTxForDetail(null)}
           transaksi={selectedTxForDetail}
           onPrintBarcode={handleOpenPrintForTx}
+          onDeleteTransaksi={onDeleteTransaksi ? (id) => {
+            onDeleteTransaksi(id);
+            setSelectedTxForDetail(null);
+          } : undefined}
         />
       )}
 
@@ -404,6 +417,7 @@ export const TransaksiManagement: React.FC<TransaksiManagementProps> = ({
         onClose={() => setIsFormModalOpen(false)}
         petaniList={petaniList}
         hargaList={hargaList}
+        barangList={barangList}
         gudangList={gudangList}
         onSaveTransaksi={onSaveTransaksi}
       />
@@ -414,6 +428,24 @@ export const TransaksiManagement: React.FC<TransaksiManagementProps> = ({
           isOpen={Boolean(printingThermalBarang)}
           onClose={() => setPrintingThermalBarang(null)}
           barang={printingThermalBarang}
+        />
+      )}
+
+      {/* Konfirmasi Hapus Transaksi */}
+      {txToDelete && (
+        <ConfirmModal
+          isOpen={Boolean(txToDelete)}
+          title="Konfirmasi Hapus Transaksi"
+          message={`Apakah Anda yakin ingin menghapus transaksi "${txToDelete.transaksi_id}" milik petani "${txToDelete.nama_petani}" (${txToDelete.berat_kg} Kg)?\n\nData bal inventaris gudang yang terkait transaksi ini juga akan dihapus dari stok aktif.`}
+          confirmLabel="Hapus Transaksi"
+          isDestructive={true}
+          onConfirm={() => {
+            if (onDeleteTransaksi && txToDelete) {
+              onDeleteTransaksi(txToDelete.transaksi_id);
+            }
+            setTxToDelete(null);
+          }}
+          onCancel={() => setTxToDelete(null)}
         />
       )}
 

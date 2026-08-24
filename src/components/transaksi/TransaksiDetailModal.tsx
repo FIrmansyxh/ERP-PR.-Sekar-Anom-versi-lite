@@ -1,48 +1,57 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { 
   Printer, 
-  Download,
+  Download, 
   ArrowLeft, 
-  Receipt
+  Receipt,
+  Trash2,
+  FileText
 } from 'lucide-react';
 import { TransaksiPembelian } from '../../types';
 import { formatRupiah, generateBarcodeBars } from '../../utils/formatters';
-import { downloadHtmlDocument } from '../../utils/printDownload';
+import { downloadElementAsPdf, printHtmlElementDirectly } from '../../utils/printDownload';
+import { ConfirmModal } from '../common/ConfirmModal';
 
 interface TransaksiDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   transaksi: TransaksiPembelian | null;
   onPrintBarcode?: (tx: TransaksiPembelian) => void;
+  onDeleteTransaksi?: (transaksiId: string) => void;
 }
 
 export const TransaksiDetailModal: React.FC<TransaksiDetailModalProps> = ({
   isOpen,
   onClose,
   transaksi,
+  onDeleteTransaksi,
 }) => {
   const receiptRef = useRef<HTMLDivElement>(null);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
   if (!isOpen || !transaksi) return null;
 
-  const handleDownload = () => {
+  const handleDownloadPdf = async () => {
     if (!receiptRef.current) return;
-    const content = receiptRef.current.innerHTML;
-    downloadHtmlDocument(
-      `NOTA_TIMBANG_${transaksi.transaksi_id.replace(/\//g, '_')}.html`,
-      `Nota Timbang - ${transaksi.transaksi_id} (${transaksi.nama_petani})`,
-      content,
-      `
-      .doc-container {
-        max-width: 700px !important;
-      }
-      `
-    );
+    setIsDownloadingPdf(true);
+    try {
+      await downloadElementAsPdf(
+        receiptRef.current,
+        `NOTA_TIMBANG_${transaksi.transaksi_id.replace(/\//g, '_')}.pdf`,
+        { orientation: 'portrait' }
+      );
+    } finally {
+      setIsDownloadingPdf(false);
+    }
   };
 
   const handlePrintNota = () => {
-    handleDownload();
-    window.print();
+    if (!receiptRef.current) return;
+    printHtmlElementDirectly(
+      receiptRef.current,
+      `Nota Timbang - ${transaksi.transaksi_id} (${transaksi.nama_petani})`
+    );
   };
 
   const items = transaksi.items && transaksi.items.length > 0 
@@ -100,13 +109,27 @@ export const TransaksiDetailModal: React.FC<TransaksiDetailModalProps> = ({
               <span>Tutup</span>
             </button>
 
+            {onDeleteTransaksi && (
+              <button
+                type="button"
+                onClick={() => setIsConfirmDeleteOpen(true)}
+                className="px-3.5 py-1.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+                title="Hapus Transaksi Ini"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Hapus</span>
+              </button>
+            )}
+
             <button
               type="button"
-              onClick={handleDownload}
-              className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#17a2b8] hover:bg-[#138496] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+              disabled={isDownloadingPdf}
+              onClick={handleDownloadPdf}
+              className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#17a2b8] hover:bg-[#138496] disabled:opacity-50 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+              title="Unduh Berkas PDF Langsung"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Unduh Nota</span>
+              <span>{isDownloadingPdf ? 'Membuat PDF...' : 'Unduh PDF'}</span>
             </button>
 
             <button
@@ -315,6 +338,23 @@ export const TransaksiDetailModal: React.FC<TransaksiDetailModalProps> = ({
         </div>
 
       </div>
+
+      {/* Konfirmasi Hapus Transaksi */}
+      {isConfirmDeleteOpen && onDeleteTransaksi && (
+        <ConfirmModal
+          isOpen={isConfirmDeleteOpen}
+          title="Konfirmasi Hapus Transaksi"
+          message={`Apakah Anda yakin ingin menghapus transaksi "${transaksi.transaksi_id}" milik petani "${transaksi.nama_petani}" (${transaksi.berat_kg} Kg)?\n\nSemua bal tembakau inventaris gudang yang terkait transaksi ini juga akan dihapus.`}
+          confirmLabel="Hapus Transaksi"
+          isDestructive={true}
+          onConfirm={() => {
+            onDeleteTransaksi(transaksi.transaksi_id);
+            setIsConfirmDeleteOpen(false);
+            onClose();
+          }}
+          onCancel={() => setIsConfirmDeleteOpen(false)}
+        />
+      )}
     </div>
   );
 };

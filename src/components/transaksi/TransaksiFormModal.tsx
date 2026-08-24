@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Save, 
   ChevronUp,
@@ -7,11 +7,15 @@ import {
   Plus,
   Trash2,
   Copy,
-  Layers
+  Layers,
+  AlertTriangle,
+  AlertCircle,
+  CheckCircle2,
+  ShieldAlert
 } from 'lucide-react';
 import { Petani, TabelHarga, TransaksiPembelian, Barang, Gudang, TransaksiItemBal } from '../../types';
 import { getGudangLocationOptions } from '../../data/initialGudangData';
-import { formatRupiah, generateBalId, generateNoBalSimple } from '../../utils/formatters';
+import { formatRupiah, generateBalId, generateNoBalSimple, generateNextUniqueNoBal } from '../../utils/formatters';
 import { ConfirmModal } from '../common/ConfirmModal';
 
 interface TransaksiFormModalProps {
@@ -19,6 +23,7 @@ interface TransaksiFormModalProps {
   onClose: () => void;
   petaniList: Petani[];
   hargaList: TabelHarga[];
+  barangList?: Barang[];
   gudangList?: Gudang[];
   onSaveTransaksi: (newTx: TransaksiPembelian, generatedBarang: Barang | Barang[]) => void;
 }
@@ -37,6 +42,7 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
   onClose,
   petaniList,
   hargaList,
+  barangList = [],
   gudangList,
   onSaveTransaksi,
 }) => {
@@ -62,11 +68,11 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
       if (activePetani.length > 0 && !selectedPetaniId) {
         setSelectedPetaniId(activePetani[0].petani_id);
       }
-      const initialSeq = Math.floor(10 + Math.random() * 80);
+      const initialNoBal = generateNextUniqueNoBal(defaultGrade, barangList, []);
       setBalItems([
         {
           id: `item-${Date.now()}-0`,
-          noBal: generateNoBalSimple(defaultGrade, initialSeq),
+          noBal: initialNoBal,
           kodeGrade: defaultGrade,
           beratKg: 45.0,
           potongan: 9000,
@@ -87,13 +93,13 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
     return found?.harga_per_kg || 0;
   };
 
-  // Add 1 row
+  // Add 1 row with guaranteed unique No Bal
   const handleAddBalRow = (gradeToUse?: string) => {
     const grade = gradeToUse || defaultGrade;
-    const nextSeq = Math.floor(10 + Math.random() * 80) + balItems.length;
+    const uniqueNo = generateNextUniqueNoBal(grade, barangList, balItems);
     const newRow: FormBalItem = {
       id: `item-${Date.now()}-${balItems.length}`,
-      noBal: generateNoBalSimple(grade, nextSeq),
+      noBal: uniqueNo,
       kodeGrade: grade,
       beratKg: 45.0,
       potongan: 9000,
@@ -102,14 +108,15 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
     setBalItems([...balItems, newRow]);
   };
 
-  // Add 3 rows batch
+  // Add 3 rows batch with guaranteed unique No Bal
   const handleAddMultipleBal = (count: number) => {
     const newRows: FormBalItem[] = [];
-    const baseSeq = Math.floor(10 + Math.random() * 80) + balItems.length;
+    const currentList = [...balItems];
     for (let i = 0; i < count; i++) {
+      const uniqueNo = generateNextUniqueNoBal(defaultGrade, barangList, [...currentList, ...newRows]);
       newRows.push({
         id: `item-${Date.now()}-${balItems.length + i}`,
-        noBal: generateNoBalSimple(defaultGrade, baseSeq + i),
+        noBal: uniqueNo,
         kodeGrade: defaultGrade,
         beratKg: 45.0,
         potongan: 9000,
@@ -125,12 +132,12 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
     setBalItems(balItems.filter((item) => item.id !== id));
   };
 
-  // Duplicate row
+  // Duplicate row with guaranteed unique No Bal
   const handleDuplicateRow = (item: FormBalItem) => {
-    const nextSeq = Math.floor(10 + Math.random() * 80) + balItems.length;
+    const uniqueNo = generateNextUniqueNoBal(item.kodeGrade, barangList, balItems);
     const newRow: FormBalItem = {
       id: `item-${Date.now()}-${balItems.length}`,
-      noBal: generateNoBalSimple(item.kodeGrade, nextSeq),
+      noBal: uniqueNo,
       kodeGrade: item.kodeGrade,
       beratKg: item.beratKg,
       potongan: item.potongan,
@@ -145,11 +152,10 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
       balItems.map((item) => {
         if (item.id === id) {
           const updated = { ...item, [field]: value };
-          // If grade changed and user hasn't heavily modified noBal, update noBal prefix
+          // If grade changed and user hasn't typed custom code, generate unique prefix for that grade
           if (field === 'kodeGrade') {
-            const seqMatch = item.noBal.match(/\d+$/);
-            const seq = seqMatch ? parseInt(seqMatch[0], 10) : 10;
-            updated.noBal = generateNoBalSimple(value, seq);
+            const currentOthers = balItems.filter((b) => b.id !== id);
+            updated.noBal = generateNextUniqueNoBal(value, barangList, currentOthers);
           }
           return updated;
         }
@@ -158,21 +164,61 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
     );
   };
 
-  // Calculations across all batch items
-  const computedItems = balItems.map((item) => {
+  // Calculations & duplicate checks across all batch items
+  const computedItems = balItems.map((item, index) => {
     const tarif = getGradePrice(item.kodeGrade);
     const berat = Number(item.beratKg) || 0;
     const totalKotor = berat * tarif;
     const potongan = Number(item.potongan) || 0;
     const subtotalBersih = Math.max(0, totalKotor - potongan);
+
+    const cleanNoBal = (item.noBal || '').trim();
+    const isEmpty = cleanNoBal.length === 0;
+
+    // Check duplicate in current batch
+    const duplicateIndices = balItems
+      .map((b, i) => (b.noBal.trim().toLowerCase() === cleanNoBal.toLowerCase() && cleanNoBal !== '' ? i + 1 : null))
+      .filter((i): i is number => i !== null);
+    const isDuplicateInBatch = duplicateIndices.length > 1;
+    const otherDuplicateRows = duplicateIndices.filter((idx) => idx !== index + 1);
+
+    // Check duplicate in warehouse inventory
+    const existingInGudang = cleanNoBal !== ''
+      ? barangList.find(
+          (b) =>
+            (b.no_bal && b.no_bal.trim().toLowerCase() === cleanNoBal.toLowerCase()) ||
+            (b.barang_id && b.barang_id.trim().toLowerCase() === cleanNoBal.toLowerCase())
+        )
+      : undefined;
+
+    let validationError: string | null = null;
+    let errorType: 'empty' | 'batch_duplicate' | 'warehouse_exists' | null = null;
+
+    if (isEmpty) {
+      validationError = 'No. Bal wajib diisi';
+      errorType = 'empty';
+    } else if (isDuplicateInBatch) {
+      validationError = `No. Bal duplikat dengan baris #${otherDuplicateRows.join(', #')}`;
+      errorType = 'batch_duplicate';
+    } else if (existingInGudang) {
+      validationError = `No. Bal sudah terdaftar di gudang (${existingInGudang.status_stok === 'di_gudang' ? 'Stok Aktif' : 'Terkirim'})`;
+      errorType = 'warehouse_exists';
+    }
+
     return {
       ...item,
       tarif,
       totalKotor,
       potongan,
       subtotalBersih,
+      validationError,
+      errorType,
+      isInvalid: Boolean(validationError),
     };
   });
+
+  const invalidItems = computedItems.filter((i) => i.isInvalid);
+  const hasValidationErrors = invalidItems.length > 0;
 
   const totalBalCount = computedItems.length;
   const totalBeratNetto = computedItems.reduce((acc, curr) => acc + (Number(curr.beratKg) || 0), 0);
@@ -183,12 +229,22 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentPetani || balItems.length === 0) return;
+
     // Validate weights
-    const hasInvalid = balItems.some((item) => !item.beratKg || item.beratKg <= 0);
-    if (hasInvalid) {
+    const hasInvalidWeight = balItems.some((item) => !item.beratKg || item.beratKg <= 0);
+    if (hasInvalidWeight) {
       alert('Mohon periksa kembali berat setiap bal (harus lebih dari 0 kg).');
       return;
     }
+
+    // Validate duplicate / existing No Bal
+    if (hasValidationErrors) {
+      alert(
+        `Terdapat ${invalidItems.length} baris dengan No. Bal yang tidak valid, duplikat, atau sudah terdaftar di inventaris gudang.\n\nHarap perbaiki No. Bal yang ditandai merah sebelum menyimpan transaksi.`
+      );
+      return;
+    }
+
     setIsConfirmOpen(true);
   };
 
@@ -315,9 +371,13 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="px-4 py-1.5 text-xs font-bold text-white bg-[#b81d24] hover:bg-[#a0181e] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+                className={`px-4 py-1.5 text-xs font-bold text-white rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap ${
+                  hasValidationErrors
+                    ? 'bg-red-600 hover:bg-red-700 ring-2 ring-red-300'
+                    : 'bg-[#b81d24] hover:bg-[#a0181e]'
+                }`}
               >
-                <Save className="w-3.5 h-3.5" />
+                {hasValidationErrors ? <AlertCircle className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
                 <span>Simpan Transaksi ({totalBalCount} Bal)</span>
               </button>
             </div>
@@ -435,6 +495,19 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
 
             </div>
 
+            {/* Validation Banner if Duplicate or Existing No. Bal Detected */}
+            {hasValidationErrors && (
+              <div className="bg-red-50 border border-red-200 border-l-4 border-l-red-600 p-3 text-xs text-red-900 flex items-start space-x-2 rounded-xs shadow-2xs">
+                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <span className="font-bold">Peringatan Validasi No. Bal:</span>
+                  <p className="mt-0.5 text-red-800">
+                    Terdapat <strong>{invalidItems.length} baris</strong> dengan No. Bal yang duplikat dalam antrean timbang ini atau sudah terdaftar di inventaris gudang. Harap perbaiki No. Bal yang bertanda merah sebelum menyimpan.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Sub-Section: DETAIL TIMBANGAN & ORDER INTAKE BAL (Batch Add) */}
             <div className="border border-gray-300 rounded-none overflow-hidden bg-white shadow-xs">
               
@@ -447,6 +520,12 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
                   <span className="px-2 py-0.5 bg-red-100 text-[#b81d24] font-bold text-[10px] rounded-xs">
                     {totalBalCount} Bal
                   </span>
+                  {hasValidationErrors && (
+                    <span className="px-2 py-0.5 bg-red-600 text-white font-bold text-[10px] rounded-xs flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {invalidItems.length} Bermasalah
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -476,7 +555,7 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
                   <thead>
                     <tr className="bg-[#f8f9fa] border-b border-gray-200 text-[11px] font-bold text-gray-700">
                       <th className="py-2.5 px-3 text-center border-r border-gray-200 w-12">No.</th>
-                      <th className="py-2.5 px-3 border-r border-gray-200 w-32">No. Bal</th>
+                      <th className="py-2.5 px-3 border-r border-gray-200 min-w-[160px]">No. Bal</th>
                       <th className="py-2.5 px-3 border-r border-gray-200 min-w-[200px]">Grade Tembakau</th>
                       <th className="py-2.5 px-3 border-r border-gray-200 text-center w-28">Berat (Kg)</th>
                       <th className="py-2.5 px-3 border-r border-gray-200 text-right w-36">Tarif Acuan / Kg</th>
@@ -488,22 +567,41 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
                   </thead>
                   <tbody className="divide-y divide-gray-200 text-xs">
                     {computedItems.map((item, index) => (
-                      <tr key={item.id} className="bg-white hover:bg-amber-50/30 transition-colors">
+                      <tr key={item.id} className={`transition-colors ${item.isInvalid ? 'bg-red-50/40' : 'bg-white hover:bg-amber-50/30'}`}>
                         
                         {/* Number Index */}
-                        <td className="py-2.5 px-3 text-center border-r border-gray-200 font-mono text-gray-500 font-bold">
+                        <td className="py-2.5 px-3 text-center border-r border-gray-200 font-mono text-gray-500 font-bold align-top pt-3">
                           {index + 1}
                         </td>
 
-                        {/* No. Bal */}
-                        <td className="py-2 px-3 border-r border-gray-200">
-                          <input
-                            type="text"
-                            value={item.noBal}
-                            onChange={(e) => handleItemChange(item.id, 'noBal', e.target.value)}
-                            className="w-full border border-gray-300 rounded-xs px-2 py-1 font-mono text-xs focus:outline-none focus:border-[#b81d24] font-bold bg-white text-gray-900"
-                            placeholder="A0031"
-                          />
+                        {/* No. Bal with validation alert */}
+                        <td className="py-2 px-3 border-r border-gray-200 align-top">
+                          <div className="space-y-1">
+                            <div className="relative">
+                              <input
+                                type="text"
+                                value={item.noBal}
+                                onChange={(e) => handleItemChange(item.id, 'noBal', e.target.value)}
+                                className={`w-full border rounded-xs px-2.5 py-1 font-mono text-xs font-bold transition ${
+                                  item.isInvalid
+                                    ? 'border-red-500 bg-red-50 text-red-900 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-600'
+                                    : 'border-gray-300 bg-white text-gray-900 focus:outline-none focus:border-[#b81d24]'
+                                }`}
+                                placeholder="A0031"
+                              />
+                              {item.isInvalid && (
+                                <AlertTriangle className="w-3.5 h-3.5 text-red-500 absolute right-2 top-2 pointer-events-none" />
+                              )}
+                            </div>
+
+                            {/* Validation error message */}
+                            {item.isInvalid && item.validationError && (
+                              <div className="flex items-start gap-1 text-[10.5px] font-semibold text-red-600 leading-tight">
+                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mt-1 shrink-0" />
+                                <span>{item.validationError}</span>
+                              </div>
+                            )}
+                          </div>
                         </td>
 
                         {/* Grade Tembakau Dropdown */}

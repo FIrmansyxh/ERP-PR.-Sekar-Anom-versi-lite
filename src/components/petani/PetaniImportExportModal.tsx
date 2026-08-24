@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Petani } from '../../types';
 import { generatePetaniId } from '../../utils/formatters';
+import { downloadCsvFile } from '../../utils/printDownload';
 
 interface PetaniImportExportModalProps {
   isOpen: boolean;
@@ -46,28 +47,19 @@ export const PetaniImportExportModal: React.FC<PetaniImportExportModalProps> = (
 
     const rows = petaniList.map((p) => [
       p.petani_id,
-      `"${(p.nama_petani || '').replace(/"/g, '""')}"`,
+      p.nama_petani || '',
       p.no_hp || '',
-      `"${(p.alamat || p.desa_kecamatan || '').replace(/"/g, '""')}"`,
+      p.alamat || p.desa_kecamatan || '',
       p.status_aktif ? 'TRUE' : 'FALSE',
       p.tanggal_daftar,
-      `"${(p.catatan || '').replace(/"/g, '""')}"`,
+      p.catatan || '',
     ]);
 
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute(
-      'download',
-      `Master_Petani_Tembakau_${new Date().toISOString().split('T')[0]}.csv`
+    downloadCsvFile(
+      `Master_Petani_Tembakau_${new Date().toISOString().split('T')[0]}.csv`,
+      headers,
+      rows
     );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const handleProcessImport = () => {

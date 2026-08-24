@@ -1,3 +1,6 @@
+import { generateMaduraTobaccoDataset } from './maduraDatasetGenerator';
 import { TransaksiPembelian } from '../types';
 
-export const INITIAL_TRANSAKSI_DATA: TransaksiPembelian[] = [];
+const dataset = generateMaduraTobaccoDataset();
+
+export const INITIAL_TRANSAKSI_DATA: TransaksiPembelian[] = dataset.transaksiList;

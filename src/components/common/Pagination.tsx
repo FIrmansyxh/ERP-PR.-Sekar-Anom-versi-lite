@@ -11,17 +11,17 @@ interface PaginationProps {
 
 export function getPaginationWindow(currentPage: number, totalPages: number): number[] {
   if (totalPages <= 0) return [1];
-  if (totalPages <= 3) {
+  if (totalPages <= 5) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
-  let start = currentPage - 1;
-  let end = currentPage + 1;
+  let start = currentPage - 2;
+  let end = currentPage + 2;
   if (start < 1) {
     start = 1;
-    end = 3;
+    end = 5;
   } else if (end > totalPages) {
     end = totalPages;
-    start = totalPages - 2;
+    start = totalPages - 4;
   }
   const pages: number[] = [];
   for (let i = start; i <= end; i++) {
