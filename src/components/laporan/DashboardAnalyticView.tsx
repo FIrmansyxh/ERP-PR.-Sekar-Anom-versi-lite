@@ -1,0 +1,564 @@
+import React, { useMemo } from 'react';
+import { 
+  DollarSign, 
+  Scale, 
+  Package, 
+  CheckCircle2, 
+  Download, 
+  TrendingUp, 
+  Award, 
+  Building2, 
+  FileText, 
+  ArrowUpRight,
+  ShieldCheck,
+  Layers,
+  Users
+} from 'lucide-react';
+import { 
+  Barang, 
+  TransaksiPembelian, 
+  PengirimanSample, 
+  PengirimanBarang, 
+  UserRole 
+} from '../../types';
+
+interface DashboardAnalyticViewProps {
+  transaksiList: TransaksiPembelian[];
+  barangList: Barang[];
+  sampleList: PengirimanSample[];
+  pengirimanList: PengirimanBarang[];
+  userRole: UserRole;
+  onNavigateToModule?: (moduleId: string) => void;
+}
+
+export const DashboardAnalyticView: React.FC<DashboardAnalyticViewProps> = ({
+  transaksiList = [],
+  barangList = [],
+  sampleList = [],
+  pengirimanList = [],
+  userRole,
+  onNavigateToModule,
+}) => {
+  const isQCOnly = userRole === 'qc_mutu';
+
+  // 1. Total Pembelian Petani (Sum Jumlah Bayar)
+  const totalPembelianRupiah = useMemo(() => {
+    return transaksiList.reduce((sum, t) => {
+      const subtotal = t.total_harga_beli || (t.berat_kg * t.harga_per_kg);
+      const jmlBayar = t.harga_final || (subtotal - (t.total_potongan || 7000));
+      return sum + jmlBayar;
+    }, 0);
+  }, [transaksiList]);
+
+  // 2. Tonase Masuk (Intake) (Sum Netto kg)
+  const totalTonaseMasukKg = useMemo(() => {
+    return transaksiList.reduce((sum, t) => sum + (t.berat_kg || 0), 0);
+  }, [transaksiList]);
+
+  // Total Terkirim ke Pabrik Luar (Reguler)
+  const totalTerkirimKg = useMemo(() => {
+    return pengirimanList.reduce((sum, p) => sum + (p.total_berat_kg || 0), 0);
+  }, [pengirimanList]);
+
+  // 3. Stok Aktif di Gudang (Di Gudang / Siap Kirim)
+  const stokAktifGudang = useMemo(() => {
+    const balAktif = barangList.filter(b => b.status_stok === 'di_gudang' || b.status_stok === 'siap_kirim');
+    const totalKg = balAktif.reduce((sum, b) => sum + (b.berat_kg || 0), 0);
+    return {
+      count: balAktif.length,
+      totalKg,
+    };
+  }, [barangList]);
+
+  // 4. Approval Rate Lab QC
+  const qcStats = useMemo(() => {
+    const totalSample = sampleList.length;
+    const approvedSample = sampleList.filter(s => s.status === 'disetujui' || s.status === 'diterima').length;
+    const rate = totalSample > 0 ? (approvedSample / totalSample) * 100 : 100;
+    return {
+      totalSample,
+      approvedSample,
+      rate,
+    };
+  }, [sampleList]);
+
+  // 9.2 Distribusi Stok Bal per Mutu Grade
+  const gradeDistribution = useMemo(() => {
+    const activeBal = barangList.filter(b => b.status_stok === 'di_gudang' || b.status_stok === 'siap_kirim');
+    const totalBal = activeBal.length || 1;
+    const totalKg = activeBal.reduce((s, b) => s + (b.berat_kg || 0), 0) || 1;
+
+    const grades = ['A', 'B', 'C', 'D', 'E', 'F'];
+    return grades.map(g => {
+      const inGrade = activeBal.filter(b => b.kode_grade === g);
+      const count = inGrade.length;
+      const kg = inGrade.reduce((s, b) => s + (b.berat_kg || 0), 0);
+      const percentage = (count / totalBal) * 100;
+      return {
+        grade: g,
+        count,
+        kg,
+        percentage,
+      };
+    });
+  }, [barangList]);
+
+  // 9.3 Top 5 Petani Penyetor Terbanyak
+  const topPetani = useMemo(() => {
+    const map = new Map<string, { nama: string; balCount: number; totalKg: number; totalNilai: number }>();
+
+    transaksiList.forEach(t => {
+      const key = t.petani_id || t.nama_petani;
+      const existing = map.get(key) || { nama: t.nama_petani, balCount: 0, totalKg: 0, totalNilai: 0 };
+      
+      const subtotal = t.total_harga_beli || (t.berat_kg * t.harga_per_kg);
+      const jmlBayar = t.harga_final || (subtotal - (t.total_potongan || 7000));
+
+      existing.balCount += 1;
+      existing.totalKg += (t.berat_kg || 0);
+      existing.totalNilai += jmlBayar;
+      map.set(key, existing);
+    });
+
+    const sorted = Array.from(map.values()).sort((a, b) => b.totalKg - a.totalKg);
+    return sorted.slice(0, 5);
+  }, [transaksiList]);
+
+  // Export functions (PRD Bab 9.4)
+  const downloadCSV = (filename: string, headers: string[], rows: (string | number)[][]) => {
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `${filename}_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportBukuKasPembelian = () => {
+    const headers = ['No', 'ID Transaksi', 'Kupon', 'Tanggal', 'Nama Petani', 'No Bal', 'Grade', 'Netto (kg)', 'Harga Beli (Rp/kg)', 'Potongan (Rp)', 'Jumlah Bayar (Rp)'];
+    const rows = transaksiList.map((t, idx) => [
+      idx + 1,
+      `"${t.transaksi_id}"`,
+      `"${t.no_kupon || '-'}"`,
+      `"${t.tanggal_transaksi ? t.tanggal_transaksi.split('T')[0] : '-'}"`,
+      `"${t.nama_petani}"`,
+      `"${t.no_bal}"`,
+      `"${t.kode_grade}"`,
+      t.berat_kg,
+      t.harga_per_kg,
+      t.total_potongan || 7000,
+      t.harga_final || (t.berat_kg * t.harga_per_kg - (t.total_potongan || 7000)),
+    ]);
+    downloadCSV('Buku_Kas_Pembelian_Petani', headers, rows);
+  };
+
+  const exportInventarisBalGudang = () => {
+    const headers = ['No', 'Barcode', 'No Bal', 'Grade', 'Berat Netto (kg)', 'Status Stok', 'Lokasi Simpan', 'Tanggal Masuk', 'Petani'];
+    const rows = barangList.map((b, idx) => [
+      idx + 1,
+      `"${b.barcode}"`,
+      `"${b.no_bal}"`,
+      `"${b.kode_grade}"`,
+      b.berat_kg,
+      `"${b.status_stok}"`,
+      `"${b.lokasi_gudang}"`,
+      `"${b.tanggal_masuk}"`,
+      `"${b.nama_petani || '-'}"`,
+    ]);
+    downloadCSV('Inventaris_Bal_Gudang_Tembakau', headers, rows);
+  };
+
+  const exportDistribusiSuratJalan = () => {
+    const headers = ['No', 'No Surat Jalan', 'Pabrik Tujuan', 'Nama Sopir', 'No Kendaraan', 'Total Bal', 'Total Berat (kg)', 'Tanggal Kirim', 'Status'];
+    const rows = pengirimanList.map((p, idx) => [
+      idx + 1,
+      `"${p.no_surat_jalan}"`,
+      `"${p.tujuan}"`,
+      `"${p.driver_nama}"`,
+      `"${p.plat_nomor}"`,
+      p.total_bal,
+      p.total_berat_kg,
+      `"${p.tanggal_kirim}"`,
+      `"${p.status}"`,
+    ]);
+    downloadCSV('Distribusi_Surat_Jalan_DO', headers, rows);
+  };
+
+  const exportLaporanQCSample = () => {
+    const headers = ['No', 'Sample ID', 'Grade', 'Asal Gudang', 'Pabrik Tujuan Uji Lab', 'Berat Sample (Gram)', 'Tanggal Kirim', 'Status Hasil QC', 'Catatan'];
+    const rows = sampleList.map((s, idx) => [
+      idx + 1,
+      `"${s.sample_id}"`,
+      `"${s.kode_grade}"`,
+      `"${s.sumber}"`,
+      `"${s.tujuan}"`,
+      s.berat_sample_gram,
+      `"${s.tanggal_kirim}"`,
+      `"${s.status}"`,
+      `"${s.catatan || '-'}"`,
+    ]);
+    downloadCSV('Laporan_Uji_Mutu_Sample_QC', headers, rows);
+  };
+
+  return (
+    <div className="space-y-4 font-sans text-gray-800">
+      
+      {/* Header Banner */}
+      <div className="bg-white p-4 border border-gray-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center space-x-2">
+            <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-[#b81d24] text-white">
+              PRD Bab 9
+            </span>
+            <h1 className="text-base font-bold text-gray-900 tracking-tight">
+              Dashboard Laporan & Analytic ERP
+            </h1>
+          </div>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Ringkasan eksekutif arus pergudangan tembakau, perputaran stok bal, dan pusat unduh dokumen audit.
+          </p>
+        </div>
+
+        {/* Header Quick Buttons */}
+        {!isQCOnly && (
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={exportBukuKasPembelian}
+              className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+            >
+              <Download className="w-3.5 h-3.5 text-gray-500" />
+              <span>Export Transaksi Pembelian</span>
+            </button>
+            <button
+              onClick={exportInventarisBalGudang}
+              className="px-3 py-1.5 text-xs font-bold text-white bg-[#b81d24] hover:bg-[#a0181e] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export Inventaris Bal</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* 9.1 Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        
+        {/* 1. Total Pembelian Petani */}
+        {!isQCOnly ? (
+          <div className="bg-white p-4 border border-gray-200 shadow-xs relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Total Pembelian Petani
+              </span>
+              <span className="p-1.5 bg-red-50 text-[#b81d24] rounded-sm">
+                <DollarSign className="w-4 h-4" />
+              </span>
+            </div>
+            <div className="text-xl font-bold text-gray-900 mt-2">
+              Rp {totalPembelianRupiah.toLocaleString('id-ID')}
+            </div>
+            <div className="flex items-center justify-between text-[11px] text-gray-500 mt-1 pt-2 border-t border-gray-100">
+              <span>Total Setoran Timbang</span>
+              <span className="font-semibold text-gray-700">{transaksiList.length} Bal</span>
+            </div>
+          </div>
+        ) : null}
+
+        {/* 2. Tonase Masuk (Intake) */}
+        {!isQCOnly ? (
+          <div className="bg-white p-4 border border-gray-200 shadow-xs relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Tonase Masuk (Intake)
+              </span>
+              <span className="p-1.5 bg-blue-50 text-blue-800 rounded-sm">
+                <Scale className="w-4 h-4" />
+              </span>
+            </div>
+            <div className="text-xl font-bold text-gray-900 mt-2">
+              {totalTonaseMasukKg.toLocaleString('id-ID')} <span className="text-xs font-normal text-gray-500">kg ({(totalTonaseMasukKg / 1000).toFixed(2)} Ton)</span>
+            </div>
+            <div className="flex items-center justify-between text-[11px] text-gray-500 mt-1 pt-2 border-t border-gray-100">
+              <span>Terkirim ke Pabrik:</span>
+              <span className="font-semibold text-blue-900">{totalTerkirimKg.toLocaleString('id-ID')} kg</span>
+            </div>
+          </div>
+        ) : null}
+
+        {/* 3. Stok Aktif di Gudang */}
+        {!isQCOnly ? (
+          <div className="bg-white p-4 border border-gray-200 shadow-xs relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Stok Aktif di Gudang
+              </span>
+              <span className="p-1.5 bg-emerald-50 text-emerald-800 rounded-sm">
+                <Package className="w-4 h-4" />
+              </span>
+            </div>
+            <div className="text-xl font-bold text-emerald-950 mt-2">
+              {stokAktifGudang.totalKg.toLocaleString('id-ID')} <span className="text-xs font-normal text-gray-500">kg ({(stokAktifGudang.totalKg / 1000).toFixed(2)} Ton)</span>
+            </div>
+            <div className="flex items-center justify-between text-[11px] text-gray-500 mt-1 pt-2 border-t border-gray-100">
+              <span>Fisik Bal Tersimpan:</span>
+              <span className="font-semibold text-emerald-900">{stokAktifGudang.count} Bal</span>
+            </div>
+          </div>
+        ) : null}
+
+        {/* 4. Approval Rate Lab QC */}
+        <div className={`bg-white p-4 border border-gray-200 shadow-xs relative overflow-hidden ${isQCOnly ? 'col-span-full' : ''}`}>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Approval Rate Lab QC
+            </span>
+            <span className="p-1.5 bg-purple-50 text-purple-800 rounded-sm">
+              <CheckCircle2 className="w-4 h-4" />
+            </span>
+          </div>
+          <div className="text-xl font-bold text-gray-900 mt-2">
+            {qcStats.rate.toFixed(1)}%
+          </div>
+          <div className="flex items-center justify-between text-[11px] text-gray-500 mt-1 pt-2 border-t border-gray-100">
+            <span>Disetujui Lab:</span>
+            <span className="font-semibold text-purple-900">
+              {qcStats.approvedSample} dari {qcStats.totalSample} sampel
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Main Analytic Content Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        
+        {/* 9.2 Distribusi Stok Bal per Mutu Grade */}
+        {!isQCOnly && (
+          <div className="bg-white p-4 border border-gray-200 shadow-xs">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
+              <div>
+                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                  Distribusi Stok Bal per Mutu Grade
+                </h3>
+                <p className="text-[11px] text-gray-500 mt-0.5">
+                  Komposisi inventaris aktif yang tersimpan di seluruh gudang
+                </p>
+              </div>
+              <span className="px-2 py-1 bg-gray-100 text-gray-800 text-[11px] font-bold">
+                Total {stokAktifGudang.count} Bal Aktif
+              </span>
+            </div>
+
+            <div className="space-y-3 pt-1">
+              {gradeDistribution.map((item) => {
+                const gradeLabel = item.grade === 'A' ? 'Grade A (Super)' :
+                  item.grade === 'B' ? 'Grade B (Premium)' :
+                  item.grade === 'C' ? 'Grade C (Standar)' :
+                  item.grade === 'D' ? 'Grade D (Medium)' :
+                  item.grade === 'E' ? 'Grade E (Ekonomis)' :
+                  'Grade F (Campuran)';
+
+                return (
+                  <div key={item.grade} className="text-xs">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center space-x-2">
+                        <span className="w-5 h-5 flex items-center justify-center font-bold bg-gray-900 text-white text-[10px]">
+                          {item.grade}
+                        </span>
+                        <span className="font-semibold text-gray-800">{gradeLabel}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-mono font-bold text-gray-900">{item.count} Bal</span>
+                        <span className="text-gray-400 mx-1">|</span>
+                        <span className="font-mono text-gray-600">{item.kg.toLocaleString('id-ID')} kg</span>
+                        <span className="text-gray-400 mx-1">|</span>
+                        <span className="font-bold text-[#b81d24]">{item.percentage.toFixed(1)}%</span>
+                      </div>
+                    </div>
+                    {/* Horizontal Bar */}
+                    <div className="w-full bg-gray-100 h-2.5 rounded-none overflow-hidden">
+                      <div 
+                        className={`h-full ${
+                          item.grade === 'A' ? 'bg-zinc-900' :
+                          item.grade === 'B' ? 'bg-zinc-700' :
+                          item.grade === 'C' ? 'bg-blue-600' :
+                          item.grade === 'D' ? 'bg-purple-600' :
+                          item.grade === 'E' ? 'bg-amber-600' :
+                          'bg-red-600'
+                        }`}
+                        style={{ width: `${Math.max(2, item.percentage)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 9.3 Top 5 Petani Penyetor Terbanyak */}
+        {!isQCOnly && (
+          <div className="bg-white p-4 border border-gray-200 shadow-xs">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
+              <div>
+                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                  Top 5 Petani Penyetor Terbanyak
+                </h3>
+                <p className="text-[11px] text-gray-500 mt-0.5">
+                  Penyetor dengan volume tonase tembakau terbesar
+                </p>
+              </div>
+              <Award className="w-4 h-4 text-amber-600" />
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 text-gray-700 font-bold border-b border-gray-200 text-[10px] uppercase">
+                    <th className="py-2 px-2 text-center w-8">Rank</th>
+                    <th className="py-2 px-3">Nama Petani</th>
+                    <th className="py-2 px-2 text-center">Jumlah Bal</th>
+                    <th className="py-2 px-2 text-right">Total Tonase</th>
+                    <th className="py-2 px-3 text-right">Total Nilai</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {topPetani.map((petani, idx) => (
+                    <tr key={idx} className="hover:bg-gray-50/80">
+                      <td className="py-2 px-2 text-center">
+                        <span className={`inline-flex items-center justify-center w-5 h-5 text-[11px] font-bold ${
+                          idx === 0 ? 'bg-amber-500 text-white' :
+                          idx === 1 ? 'bg-gray-400 text-white' :
+                          idx === 2 ? 'bg-amber-700 text-white' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {idx + 1}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3 font-semibold text-gray-900">
+                        {petani.nama}
+                      </td>
+                      <td className="py-2 px-2 text-center font-mono font-semibold text-gray-700">
+                        {petani.balCount} Bal
+                      </td>
+                      <td className="py-2 px-2 text-right font-mono font-bold text-blue-900">
+                        {petani.totalKg.toLocaleString('id-ID')} kg
+                      </td>
+                      <td className="py-2 px-3 text-right font-mono font-bold text-[#b81d24]">
+                        Rp {petani.totalNilai.toLocaleString('id-ID')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+      </div>
+
+      {/* 9.4 Pusat Unduh Dokumen & Laporan Audit */}
+      <div className="bg-white p-4 border border-gray-200 shadow-xs">
+        <div className="flex items-center space-x-2 pb-3 mb-3 border-b border-gray-100">
+          <FileText className="w-4 h-4 text-[#b81d24]" />
+          <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+            Pusat Unduh Dokumen & Laporan Audit (CSV / Excel)
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          
+          {/* Card 1: Buku Kas Pembelian */}
+          {!isQCOnly && (
+            <div className="p-3 bg-gray-50 border border-gray-200 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-gray-900">Buku Kas Pembelian</span>
+                  <DollarSign className="w-4 h-4 text-gray-400" />
+                </div>
+                <p className="text-[11px] text-gray-500 mt-1">
+                  Rekapitulasi seluruh setoran timbang, potongan kuli, dan jumlah bayar petani.
+                </p>
+              </div>
+              <button
+                onClick={exportBukuKasPembelian}
+                className="mt-3 w-full py-1.5 bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-gray-600" />
+                <span>Unduh CSV</span>
+              </button>
+            </div>
+          )}
+
+          {/* Card 2: Inventaris Bal Gudang */}
+          {!isQCOnly && (
+            <div className="p-3 bg-gray-50 border border-gray-200 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-gray-900">Inventaris Bal Gudang</span>
+                  <Package className="w-4 h-4 text-gray-400" />
+                </div>
+                <p className="text-[11px] text-gray-500 mt-1">
+                  Daftar seluruh bal tembakau fisik, barcode, status stok, dan lokasi penyimpanan.
+                </p>
+              </div>
+              <button
+                onClick={exportInventarisBalGudang}
+                className="mt-3 w-full py-1.5 bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-gray-600" />
+                <span>Unduh CSV</span>
+              </button>
+            </div>
+          )}
+
+          {/* Card 3: Distribusi Surat Jalan */}
+          {!isQCOnly && (
+            <div className="p-3 bg-gray-50 border border-gray-200 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-gray-900">Distribusi Surat Jalan</span>
+                  <Building2 className="w-4 h-4 text-gray-400" />
+                </div>
+                <p className="text-[11px] text-gray-500 mt-1">
+                  Log surat jalan delivery order pengiriman tembakau ke pabrik rokok rekanan.
+                </p>
+              </div>
+              <button
+                onClick={exportDistribusiSuratJalan}
+                className="mt-3 w-full py-1.5 bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-gray-600" />
+                <span>Unduh CSV</span>
+              </button>
+            </div>
+          )}
+
+          {/* Card 4: Laporan QC Sample */}
+          <div className={`p-3 bg-gray-50 border border-gray-200 flex flex-col justify-between ${isQCOnly ? 'col-span-full' : ''}`}>
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-gray-900">Laporan QC Sample</span>
+                <CheckCircle2 className="w-4 h-4 text-gray-400" />
+              </div>
+              <p className="text-[11px] text-gray-500 mt-1">
+                Data pengujian mutu laboratorium dan persetujuan grading sampel tembakau.
+              </p>
+            </div>
+            <button
+              onClick={exportLaporanQCSample}
+              className="mt-3 w-full py-1.5 bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5 text-gray-600" />
+              <span>Unduh CSV</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  );
+};
