@@ -26,7 +26,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [namaLengkap, setNamaLengkap] = useState('');
-  const [role, setRole] = useState<UserRole>('operator_loket');
+  const [role, setRole] = useState<UserRole>('admin_sortir');
   const [email, setEmail] = useState('');
   const [noHp, setNoHp] = useState('');
   const [unitPenugasan, setUnitPenugasan] = useState('');
@@ -50,7 +50,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
       setUsername(`staf_${nextNum}`);
       setPassword('password123');
       setNamaLengkap('');
-      setRole('operator_loket');
+      setRole('admin_sortir');
       setEmail('');
       setNoHp('');
       setUnitPenugasan(gudangList.length > 0 ? gudangList[0].nama_gudang : 'Gudang Utama A - Wringin Anom');

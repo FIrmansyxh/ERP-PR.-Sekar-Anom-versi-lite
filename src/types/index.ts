@@ -18,10 +18,11 @@ export interface Petani {
 
 export type UserRole = 
   | 'superadmin' 
-  | 'kepala_gudang' 
-  | 'operator_loket' 
-  | 'logistik_pengiriman' 
-  | 'qc_mutu';
+  | 'admin_sortir'
+  | 'admin_timbang' 
+  | 'admin_kasir'
+  | 'admin_pengiriman' 
+  | 'kepala_gudang';
 
 export interface User {
   user_id: string; // e.g. "USR-001"
@@ -121,12 +122,23 @@ export interface KuponAntrian {
 export interface TransaksiItemBal {
   item_id: string;
   no_bal: string;
+  barcode?: string; // Barcode fisik unik hasil scan
   kode_grade: string;
-  berat_kg: number;
   harga_per_kg: number;
-  total_kotor: number;
-  potongan: number;
-  subtotal_bersih: number;
+  ganti_tikar?: boolean; // true = potongan 75rb & tara 2kg; false = potongan 0 & tara 3kg
+  berat_bruto_kg?: number; // Berat kotor timbangan saat proses 2
+  potongan_tara_kg?: number; // 2kg jika ganti tikar, 3kg jika tidak ganti tikar
+  berat_kg: number; // Berat netto final (0 jika belum ditimbang di proses 2)
+  potongan_kuli?: number; // Rp 7.000 per bal
+  potongan_tali?: number; // Rp 3.000 per bal
+  potongan_tikar?: number; // Rp 75.000 jika ganti tikar, 0 jika tidak
+  potongan: number; // Total potongan per bal
+  total_kotor: number; // berat_kg * harga_per_kg
+  subtotal_bersih: number; // total_kotor - potongan
+  status_timbang?: 'menunggu_timbang' | 'selesai_timbang';
+  lokasi_simpan?: string; // Blok A, Blok B, dll
+  sample_label_code?: string; // Kode barcode sample identik
+  sample_label_printed?: boolean;
   barang_id?: string;
   catatan?: string;
 }
@@ -142,24 +154,39 @@ export interface TransaksiPembelian {
   no_bal: string; // summary of bal numbers or single bal
   kode_grade: string; // primary grade or 'Multi-Grade'
   total_bal?: number; // total bal count in transaction
+  bal_selesai_timbang?: number; // total bal yang sudah ditimbang
   items?: TransaksiItemBal[]; // batch intake items
   barang_ids?: string[];
   jenis_timbang: 'bruto' | 'netto';
   berat_terukur_kg: number;
-  potongan_tara_kg: number; // 2 kg for bruto, 0 for netto
+  potongan_tara_kg: number; // total tara berat kg
   berat_kg: number; // Berat Netto Final (calculated)
   lokasi_gudang: string; // Lokasi Simpan
   harga_per_kg: number; // Snapshot harga saat transaksi
   rate_potongan_per_10kg?: number;
   total_kotor?: number;
   potongan_kuli: number; // Rp 7.000 per bal
-  potongan_tikar: number; // Opsional Potongan Ganti Tikar
-  total_potongan: number; // potongan_kuli + potongan_tikar
+  potongan_tali?: number; // Rp 3.000 per bal
+  potongan_tikar: number; // Rp 75.000 per bal jika ganti tikar
+  total_potongan: number; // potongan_kuli + potongan_tali + potongan_tikar
   total_harga_beli: number; // berat_kg * harga_per_kg
   harga_final: number; // Jumlah Bayar = total_harga_beli - total_potongan
   status_transaksi: 'lengkap' | 'menunggu';
-  tanggal_transaksi: string;
+  status_tahap?: 'proses_sortir' | 'menunggu_timbang' | 'lengkap';
+  status_pembayaran?: 'lunas' | 'belum_lunas';
+  metode_pembayaran?: 'cash' | 'kredit';
+  no_bukti_kas?: string;
+  catatan_kasir?: string;
+  dibayar_pada?: string;
+  dibayar_oleh?: string;
+  status_nota?: 'belum_cetak' | 'sudah_cetak';
+  dicetak_pada?: string;
+  dicetak_oleh?: string;
+  unduh_nota_count?: number;
+  tanggal_transaksi: string; // YYYY-MM-DD
   operator_nama: string;
+  petugas_sortir?: string;
+  petugas_timbang?: string;
   barang_id_terkait?: string;
   barcode_terkait?: string;
   catatan_qc?: string;
@@ -253,45 +280,6 @@ export interface StockOpnameSession {
   status: 'draft' | 'proses' | 'selesai';
   catatan?: string;
   items_detail: StockOpnameItemDetail[];
-}
-
-export interface ERPBackupPackage {
-  app_name: string;
-  version: string;
-  exported_at: string;
-  device_info?: any;
-  data: {
-    petani: Petani[];
-    barang: Barang[];
-    harga: TabelHarga[];
-    transaksi: TransaksiPembelian[];
-    sample: PengirimanSample[];
-    pengiriman: PengirimanBarang[];
-    gudang: Gudang[];
-    users?: User[];
-    master_barang?: MasterBarang[];
-    stock_opname?: any[];
-  };
-  meta: {
-    total_petani: number;
-    total_barang: number;
-    total_harga: number;
-    total_transaksi: number;
-    total_sample: number;
-    total_pengiriman: number;
-    total_gudang: number;
-    total_users?: number;
-    total_master_barang?: number;
-    total_stock_opname?: number;
-  };
-}
-
-export interface BackupSnapshotInfo {
-  id: string;
-  timestamp: string;
-  reason: string;
-  total_records: number;
-  dataPackage: ERPBackupPackage;
 }
 
 export interface ModuleNav {

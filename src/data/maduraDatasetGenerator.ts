@@ -196,6 +196,14 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
     let totalPotonganTikarTrx = 0;
     let totalBeratNettoTrx = 0;
 
+    // Determine transaction status:
+    // pIdx 42, 43, 44 (last 3): Belum ditimbang (Menunggu Timbang di Proses 2)
+    // pIdx 39, 40, 41: Sudah ditimbang, ada di Kasir tapi Belum Dibayar (Belum Lunas)
+    // pIdx 0 .. 38: Sudah Ditimbang dan Sudah Lunas
+    const isBelumDitimbang = pIdx >= 42;
+    const isBelumDibayar = pIdx >= 39 && pIdx < 42;
+    const isLunas = pIdx < 39;
+
     for (let b = 0; b < numBalsForThisPetani; b++) {
       const balNumberStr = String(balCounter).padStart(3, '0');
       const dateCompact = `202608${day}`;
@@ -208,22 +216,31 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
 
       // Realistic bal weight: 42 to 52 kg
       const baseBerat = 43 + Math.floor(pseudoRandom() * 10);
-      const beratNetto = baseBerat;
-      const totalKotorBal = beratNetto * hargaKg;
-      const potonganKuliBal = 7000;
-      const potonganTikarBal = 2000;
-      const potonganBalTotal = potonganKuliBal + potonganTikarBal; // Rp 9.000
-      const subtotalBersih = totalKotorBal - potonganBalTotal;
+      const beratNetto = isBelumDitimbang ? 0 : baseBerat;
+      const beratBruto = isBelumDitimbang ? 0 : baseBerat + 2; // tara 2kg
+      const totalKotorBal = isBelumDitimbang ? 0 : beratNetto * hargaKg;
+      const potonganKuliBal = isBelumDitimbang ? 0 : 7000;
+      const potonganTikarBal = isBelumDitimbang ? 0 : (b % 3 === 0 ? 75000 : 0);
+      const potonganBalTotal = isBelumDitimbang ? 0 : potonganKuliBal + potonganTikarBal;
+      const subtotalBersih = isBelumDitimbang ? 0 : totalKotorBal - potonganBalTotal;
 
       const itemBal: TransaksiItemBal = {
         item_id: `ITM-${dateCompact}-${balNumberStr}`,
         no_bal: noBal,
+        barcode: barcode,
         kode_grade: grade,
-        berat_kg: beratNetto,
         harga_per_kg: hargaKg,
-        total_kotor: totalKotorBal,
+        ganti_tikar: b % 3 === 0,
+        berat_bruto_kg: beratBruto,
+        potongan_tara_kg: isBelumDitimbang ? 0 : 2,
+        berat_kg: beratNetto,
+        potongan_kuli: potonganKuliBal,
+        potongan_tikar: potonganTikarBal,
         potongan: potonganBalTotal,
+        total_kotor: totalKotorBal,
         subtotal_bersih: subtotalBersih,
+        status_timbang: isBelumDitimbang ? 'menunggu_timbang' : 'selesai_timbang',
+        lokasi_simpan: isBelumDitimbang ? '' : (b % 2 === 0 ? 'Blok A (Utara)' : 'Blok B (Selatan)'),
         barang_id: barangId,
         catatan: `Tembakau Madura Rajangan ${grade === 'A' ? 'Super Kemilau' : grade === 'B' ? 'Premium Harum' : 'Standar Panen'}`,
       };
@@ -236,25 +253,27 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
       totalPotonganTikarTrx += potonganTikarBal;
       totalBeratNettoTrx += beratNetto;
 
-      // Create Barang record
-      const barang: Barang = {
-        barang_id: barangId,
-        barcode: barcode,
-        kode_grade: grade,
-        no_bal: noBal,
-        berat_kg: beratNetto,
-        status_stok: 'di_gudang', // will update sent ones later
-        gudang_id: gudangObj.id,
-        lokasi_gudang: gudangObj.nama,
-        tanggal_masuk: tanggalTransaksi,
-        petani_id: petaniId,
-        transaksi_pembelian_id: `TRX-${dateCompact}-${String(trxCounter).padStart(3, '0')}`,
-        nama_petani: namaPetani,
-        desa_kecamatan: `${loc.desa}, ${loc.kec}`,
-        catatan: `Kadar air 14.5%, varietas Prancak Madura asli, mutu ${grade}.`,
-      };
+      // Only add to warehouse inventory if already weighed
+      if (!isBelumDitimbang) {
+        const barang: Barang = {
+          barang_id: barangId,
+          barcode: barcode,
+          kode_grade: grade,
+          no_bal: noBal,
+          berat_kg: beratNetto,
+          status_stok: 'di_gudang', // will update sent ones later
+          gudang_id: gudangObj.id,
+          lokasi_gudang: gudangObj.nama,
+          tanggal_masuk: tanggalTransaksi,
+          petani_id: petaniId,
+          transaksi_pembelian_id: `TRX-${dateCompact}-${String(trxCounter).padStart(3, '0')}`,
+          nama_petani: namaPetani,
+          desa_kecamatan: `${loc.desa}, ${loc.kec}`,
+          catatan: `Kadar air 14.5%, varietas Prancak Madura asli, mutu ${grade}.`,
+        };
 
-      barangList.push(barang);
+        barangList.push(barang);
+      }
       balCounter++;
     }
 
@@ -285,24 +304,35 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
       no_bal: trxItems.map(it => it.no_bal).join(', '),
       kode_grade: singleGrade ? dominantGrade : 'Multi-Grade',
       total_bal: numBalsForThisPetani,
+      bal_selesai_timbang: isBelumDitimbang ? 0 : numBalsForThisPetani,
       items: trxItems,
       barang_ids: trxBarangIds,
       jenis_timbang: 'netto',
       berat_terukur_kg: totalBeratNettoTrx,
-      potongan_tara_kg: 0,
+      potongan_tara_kg: isBelumDitimbang ? 0 : numBalsForThisPetani * 2,
       berat_kg: totalBeratNettoTrx,
-      lokasi_gudang: gudangObj.nama,
-      harga_per_kg: Math.round(totalKotorTrx / (totalBeratNettoTrx || 1)),
+      lokasi_gudang: isBelumDitimbang ? '' : gudangObj.nama,
+      harga_per_kg: totalBeratNettoTrx > 0 ? Math.round(totalKotorTrx / totalBeratNettoTrx) : (GRADE_PRICES[dominantGrade] || 120000),
       total_kotor: totalKotorTrx,
       potongan_kuli: totalPotonganKuliTrx,
       potongan_tikar: totalPotonganTikarTrx,
       total_potongan: totalPotonganTrx,
       total_harga_beli: totalKotorTrx,
       harga_final: hargaFinalTrx,
-      status_transaksi: 'lengkap',
+      status_transaksi: isBelumDitimbang ? 'menunggu' : 'lengkap',
+      status_tahap: isBelumDitimbang ? 'menunggu_timbang' : 'lengkap',
+      status_pembayaran: isLunas ? 'lunas' : 'belum_lunas',
+      metode_pembayaran: isLunas ? 'cash' : 'kredit',
+      no_bukti_kas: isLunas ? `BKK-202608${day}-${String(trxCounter).padStart(3, '0')}` : undefined,
+      catatan_kasir: isLunas ? 'Pembayaran tunai kasir (Cash) lunas saat penyerahan tiket.' : 'Petani belum menyerahkan tiket pembayaran ke kasir (Kredit).',
+      status_nota: isLunas ? 'sudah_cetak' : 'belum_cetak',
+      dibayar_pada: isLunas ? tanggalTransaksi : undefined,
+      dibayar_oleh: isLunas ? 'Kasir Loket 1' : undefined,
       tanggal_transaksi: tanggalTransaksi,
       operator_nama: 'Ahmad Fauzi (Operator Loket)',
-      catatan: `Pembelian intake petani ${namaPetani} (${numBalsForThisPetani} bal).`,
+      catatan: isBelumDitimbang 
+        ? `Kupon ${kuponNo} menunggu timbang (${numBalsForThisPetani} bal disortir).`
+        : `Pembelian intake petani ${namaPetani} (${numBalsForThisPetani} bal).`,
     };
 
     transaksiList.push(trx);

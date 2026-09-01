@@ -49,9 +49,16 @@ export const MODULES_CONFIG = [
     moduleKey: 'dashboard-analytic',
   },
   {
+    id: 'modul-6-laporan-grade',
+    title: 'Laporan Mutu Grade',
+    subtitle: 'Stok, Intake & Valuasi per Grade',
+    icon: 'Award',
+    moduleKey: 'laporan-grade',
+  },
+  {
     id: 'modul-6-laporan-pembelian',
     title: 'Laporan Pembelian Barang',
-    subtitle: 'Filter Dinamis & Cetak Rekap',
+    subtitle: 'Filter Dinamis & Unduh Rekap',
     icon: 'FileSpreadsheet',
     moduleKey: 'laporan-pembelian',
   },
@@ -61,6 +68,20 @@ export const MODULES_CONFIG = [
     subtitle: 'Kapasitas & Inventaris Tembakau',
     icon: 'Warehouse',
     moduleKey: 'laporan-gudang',
+  },
+  {
+    id: 'modul-6-laporan-petani',
+    title: 'Laporan Petani & Setoran',
+    subtitle: 'Rekapitulasi Penyetor & Nilai Pembelian',
+    icon: 'Users',
+    moduleKey: 'laporan-petani',
+  },
+  {
+    id: 'modul-6-laporan-pengiriman',
+    title: 'Laporan Pengiriman & DO',
+    subtitle: 'Distribusi Pabrik & Realisasi Tonase',
+    icon: 'Truck',
+    moduleKey: 'laporan-pengiriman',
   },
   {
     id: 'modul-1-petani',
@@ -89,6 +110,27 @@ export const MODULES_CONFIG = [
     subtitle: 'Stok Fisik & Label Thermal',
     icon: 'Package',
     moduleKey: 'barang',
+  },
+  {
+    id: 'modul-0-sortir',
+    title: 'Sortir',
+    subtitle: 'Input Kupon & Mutu Grade',
+    icon: 'Layers',
+    moduleKey: 'sortir',
+  },
+  {
+    id: 'modul-0-timbangan',
+    title: 'Timbangan',
+    subtitle: 'Input Berat Bruto & Netto',
+    icon: 'Scale',
+    moduleKey: 'timbangan',
+  },
+  {
+    id: 'modul-0-kasir',
+    title: 'Kasir',
+    subtitle: 'Data Pembelian & Cetak Nota',
+    icon: 'DollarSign',
+    moduleKey: 'kasir',
   },
   {
     id: 'modul-0-transaksi',
@@ -146,15 +188,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const checkAccess = (modId: string) => hasModuleAccess(userRole, modId);
 
-  const canSeeReport = checkAccess('modul-6-dashboard-analytic') || checkAccess('modul-6-laporan-pembelian') || checkAccess('modul-6-laporan-gudang');
+  const canSeeReport = checkAccess('modul-6-dashboard-analytic') || checkAccess('modul-6-laporan-grade') || checkAccess('modul-6-laporan-pembelian') || checkAccess('modul-6-laporan-gudang') || checkAccess('modul-6-laporan-petani') || checkAccess('modul-6-laporan-pengiriman');
   const canSeeMaster = checkAccess('modul-1-petani') || checkAccess('modul-3-harga') || checkAccess('modul-7-gudang') || checkAccess('modul-2-barang');
-  const canSeePembelian = checkAccess('modul-0-transaksi');
+  const canSeePembelian = checkAccess('modul-0-sortir') || checkAccess('modul-0-timbangan') || checkAccess('modul-0-kasir') || checkAccess('modul-0-transaksi');
   const canSeePengiriman = checkAccess('modul-5-pengiriman') || checkAccess('modul-4-sample');
   const canSeeUsers = checkAccess('modul-users');
 
-  const isReportActive = activeModuleId === 'modul-6-dashboard-analytic' || activeModuleId === 'modul-6-laporan-pembelian' || activeModuleId === 'modul-6-laporan-gudang';
+  const isReportActive = [
+    'modul-6-dashboard-analytic',
+    'modul-6-laporan-grade',
+    'modul-6-laporan-pembelian',
+    'modul-6-laporan-gudang',
+    'modul-6-laporan-petani',
+    'modul-6-laporan-pengiriman',
+  ].includes(activeModuleId);
   const isMasterActive = ['modul-1-petani', 'modul-3-harga', 'modul-7-gudang', 'modul-2-barang'].includes(activeModuleId);
-  const isPembelianActive = activeModuleId === 'modul-0-transaksi';
+  const isPembelianActive = ['modul-0-sortir', 'modul-0-timbangan', 'modul-0-kasir', 'modul-0-transaksi'].includes(activeModuleId);
   const isPengirimanActive = ['modul-5-pengiriman', 'modul-4-sample'].includes(activeModuleId);
   const isUsersActive = activeModuleId === 'modul-users';
   const isHomeActive = activeModuleId === 'modul-home';
@@ -238,6 +287,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </button>
                 )}
 
+                {checkAccess('modul-6-laporan-grade') && (
+                  <button
+                    onClick={() => onSelectModule('modul-6-laporan-grade')}
+                    className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
+                      activeModuleId === 'modul-6-laporan-grade'
+                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>Laporan Grade</span>
+                  </button>
+                )}
+
                 {checkAccess('modul-6-laporan-pembelian') && (
                   <button
                     onClick={() => onSelectModule('modul-6-laporan-pembelian')}
@@ -261,6 +323,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     }`}
                   >
                     <span>Laporan Gudang</span>
+                  </button>
+                )}
+
+                {checkAccess('modul-6-laporan-petani') && (
+                  <button
+                    onClick={() => onSelectModule('modul-6-laporan-petani')}
+                    className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
+                      activeModuleId === 'modul-6-laporan-petani'
+                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>Laporan Petani</span>
+                  </button>
+                )}
+
+                {checkAccess('modul-6-laporan-pengiriman') && (
+                  <button
+                    onClick={() => onSelectModule('modul-6-laporan-pengiriman')}
+                    className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
+                      activeModuleId === 'modul-6-laporan-pengiriman'
+                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>Laporan Pengiriman</span>
                   </button>
                 )}
               </div>
@@ -362,7 +450,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* 4. Pembelian / Timbang */}
+        {/* 4. Pembelian */}
         {canSeePembelian && (
           <div className="space-y-0.5">
             <button
@@ -375,7 +463,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="flex items-center space-x-3 min-w-0">
                 <ShoppingCart className={`w-4 h-4 shrink-0 ${isPembelianActive ? 'text-[#b81d24]' : 'text-gray-500'}`} />
-                {!isCollapsed && <span>Pembelian / Timbang</span>}
+                {!isCollapsed && <span>Pembelian</span>}
               </div>
               {!isCollapsed && (
                 openSections['pembelian'] ? (
@@ -388,19 +476,56 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {!isCollapsed && openSections['pembelian'] && (
               <div className="pl-9 pr-2 py-1 space-y-1 text-xs">
-                <button
-                  onClick={() => onSelectModule('modul-0-transaksi')}
-                  className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
-                    activeModuleId === 'modul-0-transaksi'
-                      ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  <span>Transaksi Timbang Petani</span>
-                  <span className="text-[10px] font-mono font-medium px-1 bg-gray-100 text-gray-600 rounded">
-                    {transaksiCount}
-                  </span>
-                </button>
+                {/* 1. Sortir */}
+                {checkAccess('modul-0-sortir') && (
+                  <button
+                    onClick={() => onSelectModule('modul-0-sortir')}
+                    className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
+                      activeModuleId === 'modul-0-sortir'
+                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>Sortir</span>
+                    <span className="text-[9px] font-bold px-1.5 py-0.2 bg-blue-50 text-blue-700 rounded border border-blue-200">
+                      Intake
+                    </span>
+                  </button>
+                )}
+
+                {/* 2. Timbangan */}
+                {checkAccess('modul-0-timbangan') && (
+                  <button
+                    onClick={() => onSelectModule('modul-0-timbangan')}
+                    className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
+                      activeModuleId === 'modul-0-timbangan'
+                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>Timbangan</span>
+                    <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-50 text-amber-800 rounded border border-amber-200">
+                      Berat
+                    </span>
+                  </button>
+                )}
+
+                {/* 3. Kasir */}
+                {(checkAccess('modul-0-kasir') || checkAccess('modul-0-transaksi')) && (
+                  <button
+                    onClick={() => onSelectModule('modul-0-kasir')}
+                    className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
+                      activeModuleId === 'modul-0-kasir' || activeModuleId === 'modul-0-transaksi'
+                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>Kasir</span>
+                    <span className="text-[10px] font-mono font-medium px-1 bg-gray-100 text-gray-600 rounded">
+                      {transaksiCount}
+                    </span>
+                  </button>
+                )}
               </div>
             )}
           </div>

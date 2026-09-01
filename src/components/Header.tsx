@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Menu, 
-  HardDrive,
-  Laptop,
   User as UserIcon,
   ShieldCheck,
   LogOut,
@@ -12,8 +10,6 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { User, UserRole } from '../types';
-import { getLastBackupTimestamp } from '../utils/storage';
-import { formatDateTimeIndo } from '../utils/formatters';
 import { getRoleInfo, canUserPerform } from '../utils/rbac';
 
 interface HeaderProps {
@@ -22,11 +18,9 @@ interface HeaderProps {
   totalNonaktif: number;
   onResetData: () => void;
   onOpenRoadmap: () => void;
-  onOpenBackup: (tab?: 'export' | 'import' | 'history' | 'sop') => void;
   pageTitle?: string;
   pageBreadcrumb?: string;
   onToggleSidebar?: () => void;
-  lastBackupTimestamp?: string | null;
   currentUser?: User | null;
   onLogout?: () => void;
   onOpenUsers?: () => void;
@@ -40,11 +34,9 @@ export const Header: React.FC<HeaderProps> = ({
   totalNonaktif,
   onResetData,
   onOpenRoadmap,
-  onOpenBackup,
   pageTitle = 'Sistem Data Gudang',
   pageBreadcrumb = 'PR. SEKAR ANOM / Sistem Data Gudang',
   onToggleSidebar,
-  lastBackupTimestamp,
   currentUser,
   onLogout,
   onOpenUsers,
@@ -54,11 +46,6 @@ export const Header: React.FC<HeaderProps> = ({
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSwitchOpen, setIsSwitchOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const effectiveLastBackup = lastBackupTimestamp !== undefined ? lastBackupTimestamp : getLastBackupTimestamp();
-  const isBackupUpToDate = effectiveLastBackup 
-    ? (new Date().getTime() - new Date(effectiveLastBackup).getTime()) < 24 * 60 * 60 * 1000 
-    : false;
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -102,41 +89,6 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Right Tools & Action Controls */}
           <div className="flex items-center space-x-2 sm:space-x-3">
             
-            {/* Status Badge: Terakhir Backup */}
-            <button
-              onClick={() => onOpenBackup('history')}
-              className={`inline-flex items-center space-x-1.5 px-2.5 py-1.5 rounded-sm border text-xs transition cursor-pointer shadow-2xs ${
-                isBackupUpToDate
-                  ? 'bg-emerald-50/80 border-emerald-300 text-emerald-900 hover:bg-emerald-100/90'
-                  : 'bg-amber-50 border-amber-300 text-amber-900 hover:bg-amber-100'
-              }`}
-              title="Status Keamanan Data Gudang - Klik untuk Buka Halaman Cadangan"
-            >
-              <span className={`w-2 h-2 rounded-full shrink-0 ${isBackupUpToDate ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></span>
-              <span className="hidden sm:inline text-gray-600 font-medium">Terakhir Backup:</span>
-              <span className="font-bold text-gray-900 font-mono text-[11px] sm:text-xs">
-                {effectiveLastBackup ? formatDateTimeIndo(effectiveLastBackup) : 'Belum Pernah'}
-              </span>
-            </button>
-
-            {/* Quick Backup Button */}
-            <button
-              onClick={() => onOpenBackup('export')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs ${
-                isBackupUpToDate
-                  ? 'bg-[#545b62] hover:bg-[#464c52] text-white'
-                  : 'bg-[#b81d24] hover:bg-[#a0181e] text-white animate-pulse'
-              }`}
-              title="Pusat Cadangan & Pemulihan Database"
-            >
-              <HardDrive className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Cadangan Data</span>
-              <span className="md:hidden">Backup</span>
-              {!isBackupUpToDate && (
-                <span className="w-2 h-2 rounded-full bg-yellow-300"></span>
-              )}
-            </button>
-
             {/* User Profile & Role Dropdown (RBAC) */}
             {currentUser && (
               <div className="relative" ref={dropdownRef}>

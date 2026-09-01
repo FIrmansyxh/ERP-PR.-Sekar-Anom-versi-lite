@@ -8,8 +8,7 @@ import {
   PengirimanBarang,
   Gudang,
   User,
-  UserRole,
-  ERPBackupPackage 
+  UserRole 
 } from './types';
 import { 
   loadPetaniData, 
@@ -30,9 +29,7 @@ import {
   saveUserData,
   loadCurrentUser, 
   saveCurrentUser,
-  resetToDemoData,
-  validateERPDataSchema,
-  getLastBackupTimestamp
+  resetToDemoData
 } from './utils/storage';
 import { hasModuleAccess } from './utils/rbac';
 import { Header } from './components/Header';
@@ -50,11 +47,20 @@ import { HomeDashboardView } from './components/home/HomeDashboardView';
 // PRD Bab 9: Dashboard Laporan & Analytic ERP
 import { DashboardAnalyticView } from './components/laporan/DashboardAnalyticView';
 
+// Laporan Mutu Grade & Analisis Stok Inventaris
+import { LaporanGradeView } from './components/laporan/LaporanGradeView';
+
 // PRD Bab 8: Laporan Pembelian Barang
 import { LaporanPembelianBarangView } from './components/laporan/LaporanPembelianBarangView';
 
 // Laporan Okupansi & Stok Inventaris Gudang
 import { LaporanGudangView } from './components/laporan/LaporanGudangView';
+
+// Laporan Petani & Rekapitulasi Setoran
+import { LaporanPetaniView } from './components/laporan/LaporanPetaniView';
+
+// Laporan Pengiriman & Distribusi Tembakau
+import { LaporanPengirimanView } from './components/laporan/LaporanPengirimanView';
 
 // PRD 4.1: Master Petani
 import { PetaniTable } from './components/petani/PetaniTable';
@@ -74,7 +80,10 @@ import { GudangManagement } from './components/gudang/GudangManagement';
 // PRD 5.6: Inventaris Bal Gudang
 import { BarangManagement } from './components/barang/BarangManagement';
 
-// PRD Bab 5: Transaksi Pembelian Timbang & Kupon
+// PRD Bab 5: Transaksi Pembelian Timbang & Kupon (3 Sub-menus: Sortir, Timbangan, Kasir)
+import { SortirPageView } from './components/transaksi/SortirPageView';
+import { TimbanganPageView } from './components/transaksi/TimbanganPageView';
+import { KasirPageView } from './components/transaksi/KasirPageView';
 import { TransaksiManagement } from './components/transaksi/TransaksiManagement';
 
 // PRD 6.1: Pengiriman Reguler (DO Luar)
@@ -100,6 +109,9 @@ export default function App() {
   const [gudangList, setGudangList] = useState<Gudang[]>(() => loadGudangData());
 
   const [activeModuleId, setActiveModuleId] = useState<string>('modul-home');
+  const [targetKuponNo, setTargetKuponNo] = useState<string | undefined>(undefined);
+  const [targetTxId, setTargetTxId] = useState<string | undefined>(undefined);
+  const [targetBalNo, setTargetBalNo] = useState<string | undefined>(undefined);
   const currentRole: UserRole = currentUser?.role || 'superadmin';
 
   // Petani Modals & Drawers
@@ -110,7 +122,6 @@ export default function App() {
   const [deactivatingPetani, setDeactivatingPetani] = useState<Petani | null>(null);
   const [resettingCardPetani, setResettingCardPetani] = useState<Petani | null>(null);
   const [isImportExportOpen, setIsImportExportOpen] = useState(false);
-  const [lastBackupTime, setLastBackupTime] = useState<string | null>(() => getLastBackupTimestamp());
 
   // Toast Notification
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
@@ -388,14 +399,21 @@ export default function App() {
 
   // --- PRD Bab 5: Transaksi Pembelian Handlers ---
   const handleSaveTransaksi = (newTx: TransaksiPembelian, generatedBarang: Barang | Barang[]) => {
-    const updatedTxList = [newTx, ...transaksiList];
+    const exists = transaksiList.some((t) => t.transaksi_id === newTx.transaksi_id);
+    const updatedTxList = exists
+      ? transaksiList.map((t) => (t.transaksi_id === newTx.transaksi_id ? newTx : t))
+      : [newTx, ...transaksiList];
     setTransaksiList(updatedTxList);
     saveTransaksiData(updatedTxList);
 
-    const barangsToAdd = Array.isArray(generatedBarang) ? generatedBarang : [generatedBarang];
-    const updatedBarangList = [...barangsToAdd, ...barangList];
-    setBarangList(updatedBarangList);
-    saveBarangData(updatedBarangList);
+    const barangsToAdd = Array.isArray(generatedBarang) ? generatedBarang : (generatedBarang ? [generatedBarang] : []);
+    if (barangsToAdd.length > 0) {
+      const addedIds = new Set(barangsToAdd.map((b) => b.barang_id));
+      const filteredOldBarangs = barangList.filter((b) => !addedIds.has(b.barang_id));
+      const updatedBarangList = [...barangsToAdd, ...filteredOldBarangs];
+      setBarangList(updatedBarangList);
+      saveBarangData(updatedBarangList);
+    }
 
     const balCount = newTx.total_bal || (newTx.items ? newTx.items.length : 1);
 
@@ -403,14 +421,13 @@ export default function App() {
       if (p.petani_id === newTx.petani_id) {
         const totalBal = (p.statistik?.total_setoran_bal || 0) + balCount;
         const totalKg = (p.statistik?.total_berat_kg || 0) + newTx.berat_kg;
-        const totalNominal = (p.statistik?.kunjungan_terakhir ? 0 : 0);
         return {
           ...p,
           statistik: {
             ...p.statistik,
             total_setoran_bal: totalBal,
             total_berat_kg: totalKg,
-            kunjungan_terakhir: newTx.tanggal_transaksi.split(' ')[0] || new Date().toISOString().split('T')[0],
+            kunjungan_terakhir: (newTx.tanggal_transaksi ? newTx.tanggal_transaksi.split(' ')[0] : '') || new Date().toISOString().split('T')[0],
             grade_dominan: `Grade ${newTx.kode_grade}`,
           },
         };
@@ -420,7 +437,7 @@ export default function App() {
     setPetaniList(updatedPetaniList);
     savePetaniData(updatedPetaniList);
 
-    showToast(`Transaksi ${newTx.transaksi_id} (${balCount} Bal, ${newTx.berat_kg} Kg) berhasil dicatat & masuk gudang!`);
+    showToast(`Transaksi ${newTx.transaksi_id} (${balCount} Bal, ${newTx.berat_kg} Kg) berhasil disimpan!`);
   };
 
   const handleDeleteTransaksi = (transaksiId: string) => {
@@ -529,7 +546,6 @@ export default function App() {
     setPengirimanList(loadPengirimanData());
     setGudangList(loadGudangData());
     setUserList(loadUserData());
-    setLastBackupTime(getLastBackupTimestamp());
     showToast('Data sistem ERP berhasil direset ke dataset demo default.');
   };
 
@@ -544,8 +560,16 @@ export default function App() {
         return { title: 'Dasbor Menu Utama', breadcrumb: 'PR. SEKAR ANOM / Beranda' };
       case 'modul-6-dashboard-analytic':
         return { title: 'Dashboard Laporan & Analytic ERP', breadcrumb: 'Beranda / Dashboard Analytic' };
+      case 'modul-6-laporan-grade':
+        return { title: 'Laporan Stok & Mutu Grade', breadcrumb: 'Beranda / Laporan Mutu Grade' };
       case 'modul-6-laporan-pembelian':
         return { title: 'Laporan Pembelian Barang', breadcrumb: 'Beranda / Laporan Pembelian' };
+      case 'modul-6-laporan-gudang':
+        return { title: 'Laporan Okupansi & Stok Gudang', breadcrumb: 'Beranda / Laporan Gudang' };
+      case 'modul-6-laporan-petani':
+        return { title: 'Laporan Petani & Rekapitulasi Setoran', breadcrumb: 'Beranda / Laporan Petani' };
+      case 'modul-6-laporan-pengiriman':
+        return { title: 'Laporan Pengiriman & Distribusi Tembakau', breadcrumb: 'Beranda / Laporan Pengiriman' };
       case 'modul-1-petani':
         return { title: 'Master Data Petani', breadcrumb: 'Beranda / Master Petani' };
       case 'modul-3-harga':
@@ -554,8 +578,13 @@ export default function App() {
         return { title: 'Data Master Gudang', breadcrumb: 'Beranda / Master Gudang' };
       case 'modul-2-barang':
         return { title: 'Inventaris Bal Gudang', breadcrumb: 'Beranda / Inventaris Bal' };
+      case 'modul-0-sortir':
+        return { title: 'Sortir Mutu Grade & Sample Bal', breadcrumb: 'Beranda / Pembelian / Sortir' };
+      case 'modul-0-timbangan':
+        return { title: 'Meja Timbangan Bal & Alokasi Gudang', breadcrumb: 'Beranda / Pembelian / Timbangan' };
+      case 'modul-0-kasir':
       case 'modul-0-transaksi':
-        return { title: 'Transaksi Pembelian Timbang', breadcrumb: 'Beranda / Pembelian' };
+        return { title: 'Data Pembelian Barang (Kasir & Cetak Nota)', breadcrumb: 'Beranda / Pembelian / Kasir' };
       case 'modul-5-pengiriman':
         return { title: 'Pengiriman Reguler (DO Luar)', breadcrumb: 'Beranda / Pengiriman DO' };
       case 'modul-4-sample':
@@ -589,8 +618,6 @@ export default function App() {
         totalNonaktif={totalNonaktif}
         onResetData={handleResetToDemo}
         onOpenRoadmap={() => {}}
-        onOpenBackup={() => handleSelectModule('modul-6-dashboard-analytic')}
-        lastBackupTimestamp={lastBackupTime}
         currentUser={currentUser}
         onLogout={handleLogout}
         onOpenUsers={() => handleSelectModule('modul-users')}
@@ -652,8 +679,24 @@ export default function App() {
                 barangList={barangList}
                 sampleList={sampleList}
                 pengirimanList={pengirimanList}
+                hargaList={hargaList}
                 userRole={currentRole}
                 onNavigateToModule={(modId) => handleSelectModule(modId)}
+              />
+            )}
+
+            {/* Laporan Mutu Grade & Analisis Stok Inventaris */}
+            {activeModuleId === 'modul-6-laporan-grade' && (
+              <LaporanGradeView
+                hargaList={hargaList}
+                barangList={barangList}
+                transaksiList={transaksiList}
+                pengirimanList={pengirimanList}
+                sampleList={sampleList}
+                gudangList={gudangList}
+                userRole={currentRole}
+                onNavigateToHarga={() => handleSelectModule('modul-3-harga')}
+                onNavigateToBarang={() => handleSelectModule('modul-2-barang')}
               />
             )}
 
@@ -676,6 +719,32 @@ export default function App() {
                 transaksiList={transaksiList}
                 userRole={currentRole}
                 onNavigateToGudang={() => handleSelectModule('modul-7-gudang')}
+                onNavigateToBarang={() => handleSelectModule('modul-2-barang')}
+              />
+            )}
+
+            {/* Laporan Petani & Rekapitulasi Setoran */}
+            {activeModuleId === 'modul-6-laporan-petani' && (
+              <LaporanPetaniView
+                petaniList={petaniList}
+                transaksiList={transaksiList}
+                barangList={barangList}
+                userRole={currentRole}
+                onNavigateToPetani={() => handleSelectModule('modul-1-petani')}
+                onNavigateToTransaksi={() => handleSelectModule('modul-0-transaksi')}
+              />
+            )}
+
+            {/* Laporan Pengiriman & Distribusi Tembakau */}
+            {activeModuleId === 'modul-6-laporan-pengiriman' && (
+              <LaporanPengirimanView
+                pengirimanList={pengirimanList}
+                sampleList={sampleList}
+                barangList={barangList}
+                gudangList={gudangList}
+                userRole={currentRole}
+                onNavigateToPengiriman={() => handleSelectModule('modul-5-pengiriman')}
+                onNavigateToSample={() => handleSelectModule('modul-4-sample')}
                 onNavigateToBarang={() => handleSelectModule('modul-2-barang')}
               />
             )}
@@ -734,17 +803,77 @@ export default function App() {
               />
             )}
 
-            {/* PRD Bab 5: Transaksi Pembelian Timbang */}
-            {activeModuleId === 'modul-0-transaksi' && (
-              <TransaksiManagement
+            {/* PRD Bab 5: Proses 1 - Sortir Page */}
+            {activeModuleId === 'modul-0-sortir' && (
+              <SortirPageView
+                petaniList={petaniList}
+                hargaList={hargaList}
+                transaksiList={transaksiList}
+                barangList={barangList}
+                gudangList={gudangList}
+                userRole={currentRole}
+                onSaveTransaksi={(newTx, newBarangs) => {
+                  handleSaveTransaksi(newTx, newBarangs);
+                  showToast(`Kupon ${newTx.no_kupon} berhasil disimpan!`);
+                }}
+                onNavigateToTimbangan={(kuponNo, txId, balNo) => {
+                  setTargetKuponNo(kuponNo);
+                  setTargetTxId(txId);
+                  setTargetBalNo(balNo);
+                  handleSelectModule('modul-0-timbangan');
+                }}
+              />
+            )}
+
+            {/* PRD Bab 5: Proses 2 - Timbangan Page */}
+            {activeModuleId === 'modul-0-timbangan' && (
+              <TimbanganPageView
                 transaksiList={transaksiList}
                 petaniList={petaniList}
                 hargaList={hargaList}
                 barangList={barangList}
                 gudangList={gudangList}
                 userRole={currentRole}
+                initialKuponNo={targetKuponNo}
+                initialTxId={targetTxId}
+                initialBalNo={targetBalNo}
+                onSaveTransaksi={(newTx, newBarangs) => {
+                  handleSaveTransaksi(newTx, newBarangs);
+                  showToast(`Data timbangan kupon ${newTx.no_kupon} diperbarui!`);
+                }}
+                onNavigateToKasir={(kuponNo, txId) => {
+                  setTargetKuponNo(kuponNo);
+                  setTargetTxId(txId);
+                  setTargetBalNo(undefined);
+                  handleSelectModule('modul-0-kasir');
+                }}
+                onNavigateToSortir={() => {
+                  handleSelectModule('modul-0-sortir');
+                }}
+              />
+            )}
+
+            {/* PRD Bab 5: Proses 3 - Kasir & Rekap Data Pembelian Page */}
+            {(activeModuleId === 'modul-0-kasir' || activeModuleId === 'modul-0-transaksi') && (
+              <KasirPageView
+                transaksiList={transaksiList}
+                petaniList={petaniList}
+                hargaList={hargaList}
+                barangList={barangList}
+                gudangList={gudangList}
+                userRole={currentRole}
+                initialKuponNo={targetKuponNo}
+                initialTxId={targetTxId}
                 onSaveTransaksi={handleSaveTransaksi}
                 onDeleteTransaksi={handleDeleteTransaksi}
+                onNavigateToSortir={() => {
+                  handleSelectModule('modul-0-sortir');
+                }}
+                onNavigateToTimbangan={(kuponNo, txId) => {
+                  setTargetKuponNo(kuponNo);
+                  setTargetTxId(txId);
+                  handleSelectModule('modul-0-timbangan');
+                }}
               />
             )}
 

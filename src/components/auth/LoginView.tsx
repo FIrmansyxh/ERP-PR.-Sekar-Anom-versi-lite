@@ -267,7 +267,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   <span className="text-[10px] font-mono text-gray-400">6 Role</span>
                 </div>
 
-                {/* 5 PRD Roles Quick Login Buttons */}
+                {/* 6 RBAC Roles Quick Login Buttons */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                   <button
                     type="button"
@@ -280,38 +280,47 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
                   <button
                     type="button"
+                    onClick={() => handleFastRoleLogin('admin_sortir')}
+                    className="p-2 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xs transition cursor-pointer group shadow-2xs"
+                  >
+                    <div className="font-bold text-gray-800 text-[11px] group-hover:text-[#b81d24]">Admin Sortir</div>
+                    <div className="text-[10px] text-gray-500 font-mono">@adminsortir</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleFastRoleLogin('admin_timbang')}
+                    className="p-2 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xs transition cursor-pointer group shadow-2xs"
+                  >
+                    <div className="font-bold text-gray-800 text-[11px] group-hover:text-[#b81d24]">Admin Timbang</div>
+                    <div className="text-[10px] text-gray-500 font-mono">@admintimbang</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleFastRoleLogin('admin_kasir')}
+                    className="p-2 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xs transition cursor-pointer group shadow-2xs"
+                  >
+                    <div className="font-bold text-gray-800 text-[11px] group-hover:text-[#b81d24]">Admin Kasir</div>
+                    <div className="text-[10px] text-gray-500 font-mono">@adminkasir</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleFastRoleLogin('admin_pengiriman')}
+                    className="p-2 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xs transition cursor-pointer group shadow-2xs"
+                  >
+                    <div className="font-bold text-gray-800 text-[11px] group-hover:text-[#b81d24]">Admin Pengiriman</div>
+                    <div className="text-[10px] text-gray-500 font-mono">@adminpengiriman</div>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={() => handleFastRoleLogin('kepala_gudang')}
                     className="p-2 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xs transition cursor-pointer group shadow-2xs"
                   >
                     <div className="font-bold text-gray-800 text-[11px] group-hover:text-[#b81d24]">Kepala Gudang</div>
-                    <div className="text-[10px] text-gray-500 font-mono">@kepala_gudang</div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleFastRoleLogin('operator_loket')}
-                    className="p-2 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xs transition cursor-pointer group shadow-2xs"
-                  >
-                    <div className="font-bold text-gray-800 text-[11px] group-hover:text-[#b81d24]">Operator Loket Timbang</div>
-                    <div className="text-[10px] text-gray-500 font-mono">@operator</div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleFastRoleLogin('logistik_pengiriman')}
-                    className="p-2 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xs transition cursor-pointer group shadow-2xs"
-                  >
-                    <div className="font-bold text-gray-800 text-[11px] group-hover:text-[#b81d24]">Logistik & Pengiriman</div>
-                    <div className="text-[10px] text-gray-500 font-mono">@logistik</div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleFastRoleLogin('qc_mutu')}
-                    className="p-2 text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-xs transition cursor-pointer group shadow-2xs"
-                  >
-                    <div className="font-bold text-gray-800 text-[11px] group-hover:text-[#b81d24]">QC & Mutu</div>
-                    <div className="text-[10px] text-gray-500 font-mono">@qc</div>
+                    <div className="text-[10px] text-gray-500 font-mono">@kepalagudang</div>
                   </button>
                 </div>
               </div>

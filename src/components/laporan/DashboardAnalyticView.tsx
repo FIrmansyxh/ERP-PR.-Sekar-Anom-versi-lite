@@ -12,22 +12,26 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Layers,
-  Users
+  Users,
+  Tag
 } from 'lucide-react';
 import { 
   Barang, 
   TransaksiPembelian, 
   PengirimanSample, 
   PengirimanBarang, 
+  TabelHarga,
   UserRole 
 } from '../../types';
 import { downloadCsvFile } from '../../utils/printDownload';
+import { GRADE_PALETTE, getGradePalette } from './LaporanGradeView';
 
 interface DashboardAnalyticViewProps {
   transaksiList: TransaksiPembelian[];
   barangList: Barang[];
   sampleList: PengirimanSample[];
   pengirimanList: PengirimanBarang[];
+  hargaList?: TabelHarga[];
   userRole: UserRole;
   onNavigateToModule?: (moduleId: string) => void;
 }
@@ -37,6 +41,7 @@ export const DashboardAnalyticView: React.FC<DashboardAnalyticViewProps> = ({
   barangList = [],
   sampleList = [],
   pengirimanList = [],
+  hargaList = [],
   userRole,
   onNavigateToModule,
 }) => {
@@ -83,26 +88,82 @@ export const DashboardAnalyticView: React.FC<DashboardAnalyticViewProps> = ({
     };
   }, [sampleList]);
 
-  // 9.2 Distribusi Stok Bal per Mutu Grade
+  // 9.2 Dynamic Distribusi Stok Bal per Mutu Grade
+  // In accordance with user rules:
+  // - Dynamic grade discovery: all active/registered grades in Master Harga and physical Bal in warehouse
+  // - Multi Grade is NOT a grade type/group (it's only an intake purchase flag)
+  // - Graded sorted descending by active bal count (jumlah bal aktif terbanyak)
+  // - Uniform single color: Hitam (zinc-900)
   const gradeDistribution = useMemo(() => {
     const activeBal = barangList.filter(b => b.status_stok === 'di_gudang' || b.status_stok === 'siap_kirim');
     const totalBal = activeBal.length || 1;
     const totalKg = activeBal.reduce((s, b) => s + (b.berat_kg || 0), 0) || 1;
 
-    const grades = ['A', 'B', 'C', 'D', 'E', 'F'];
-    return grades.map(g => {
-      const inGrade = activeBal.filter(b => b.kode_grade === g);
+    // Collect distinct registered grades (excluding Multi-Grade)
+    const gradeCodeMap = new Map<string, { code: string; name: string }>();
+
+    // From master harga first (preserves ordering & defined titles)
+    hargaList.forEach((h) => {
+      const code = (h.kode_grade || '').trim().toUpperCase();
+      if (code && !code.includes('MULTI') && code !== 'MULTI-GRADE') {
+        if (!gradeCodeMap.has(code)) {
+          gradeCodeMap.set(code, {
+            code,
+            name: h.nama_grade || `Grade ${code}`,
+          });
+        }
+      }
+    });
+
+    // From barangList in warehouse
+    barangList.forEach((b) => {
+      const code = (b.kode_grade || '').trim().toUpperCase();
+      if (code && !code.includes('MULTI') && code !== 'MULTI-GRADE') {
+        if (!gradeCodeMap.has(code)) {
+          gradeCodeMap.set(code, {
+            code,
+            name: `Grade ${code}`,
+          });
+        }
+      }
+    });
+
+    // Fallback if none found
+    if (gradeCodeMap.size === 0) {
+      ['A', 'B', 'C', 'D', 'E', 'F'].forEach(g => {
+        gradeCodeMap.set(g, { code: g, name: `Grade ${g}` });
+      });
+    }
+
+    const gradeList = Array.from(gradeCodeMap.values());
+
+    const list = gradeList.map((g, idx) => {
+      const inGrade = activeBal.filter(b => (b.kode_grade || '').toUpperCase() === g.code);
       const count = inGrade.length;
       const kg = inGrade.reduce((s, b) => s + (b.berat_kg || 0), 0);
       const percentage = (count / totalBal) * 100;
+      const color = getGradePalette(idx);
+
       return {
-        grade: g,
+        grade: g.code,
+        label: g.name,
         count,
         kg,
         percentage,
+        color,
       };
     });
-  }, [barangList]);
+
+    // Urut berdasarkan dengan jumlah bal aktif terbanyak (count descending) & ambil Top 5
+    return list
+      .sort((a, b) => {
+        if (b.count !== a.count) {
+          return b.count - a.count;
+        }
+        return b.kg - a.kg;
+      })
+      .slice(0, 5);
+  }, [barangList, hargaList]);
 
   // 9.3 Top 5 Petani Penyetor Terbanyak
   const topPetani = useMemo(() => {
@@ -342,34 +403,38 @@ export const DashboardAnalyticView: React.FC<DashboardAnalyticViewProps> = ({
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
               <div>
                 <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
-                  Distribusi Stok Bal per Mutu Grade
+                  Distribusi Stok Bal per Mutu Grade (Top 5)
                 </h3>
                 <p className="text-[11px] text-gray-500 mt-0.5">
-                  Komposisi inventaris aktif yang tersimpan di seluruh gudang
+                  Top 5 mutu grade dengan jumlah inventaris bal aktif terbanyak di gudang
                 </p>
               </div>
-              <span className="px-2 py-1 bg-gray-100 text-gray-800 text-[11px] font-bold">
-                Total {stokAktifGudang.count} Bal Aktif
-              </span>
+              <div className="flex items-center space-x-2">
+                {onNavigateToModule && (
+                  <button
+                    onClick={() => onNavigateToModule('modul-6-laporan-grade')}
+                    className="px-2 py-1 bg-red-50 text-[#b81d24] hover:bg-red-100 text-[11px] font-bold rounded-xs transition cursor-pointer flex items-center space-x-1"
+                  >
+                    <span>Laporan Grade</span>
+                    <ArrowUpRight className="w-3 h-3" />
+                  </button>
+                )}
+                <span className="px-2 py-1 bg-gray-100 text-gray-800 text-[11px] font-bold">
+                  Total {stokAktifGudang.count} Bal Aktif
+                </span>
+              </div>
             </div>
 
             <div className="space-y-3 pt-1">
               {gradeDistribution.map((item) => {
-                const gradeLabel = item.grade === 'A' ? 'Grade A (Super)' :
-                  item.grade === 'B' ? 'Grade B (Premium)' :
-                  item.grade === 'C' ? 'Grade C (Standar)' :
-                  item.grade === 'D' ? 'Grade D (Medium)' :
-                  item.grade === 'E' ? 'Grade E (Ekonomis)' :
-                  'Grade F (Campuran)';
-
                 return (
                   <div key={item.grade} className="text-xs">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center space-x-2">
-                        <span className="w-5 h-5 flex items-center justify-center font-bold bg-gray-900 text-white text-[10px]">
+                        <span className={`w-5 h-5 flex items-center justify-center font-bold text-white text-[10px] ${item.color.badgeBg}`}>
                           {item.grade}
                         </span>
-                        <span className="font-semibold text-gray-800">{gradeLabel}</span>
+                        <span className="font-semibold text-gray-800">{item.label}</span>
                       </div>
                       <div className="text-right">
                         <span className="font-mono font-bold text-gray-900">{item.count} Bal</span>
@@ -379,18 +444,11 @@ export const DashboardAnalyticView: React.FC<DashboardAnalyticViewProps> = ({
                         <span className="font-bold text-[#b81d24]">{item.percentage.toFixed(1)}%</span>
                       </div>
                     </div>
-                    {/* Horizontal Bar */}
+                    {/* Horizontal Bar with color Merah, Hijau, Biru, Ungu, Oren, Hitam */}
                     <div className="w-full bg-gray-100 h-2.5 rounded-none overflow-hidden">
                       <div 
-                        className={`h-full ${
-                          item.grade === 'A' ? 'bg-zinc-900' :
-                          item.grade === 'B' ? 'bg-zinc-700' :
-                          item.grade === 'C' ? 'bg-blue-600' :
-                          item.grade === 'D' ? 'bg-purple-600' :
-                          item.grade === 'E' ? 'bg-amber-600' :
-                          'bg-red-600'
-                        }`}
-                        style={{ width: `${Math.max(2, item.percentage)}%` }}
+                        className={`h-full ${item.color.bg} transition-all duration-300`}
+                        style={{ width: `${Math.max(item.count > 0 ? 2 : 0, item.percentage)}%` }}
                       ></div>
                     </div>
                   </div>

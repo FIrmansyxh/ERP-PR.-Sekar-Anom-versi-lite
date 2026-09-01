@@ -3,7 +3,6 @@ import {
   Warehouse, 
   Search, 
   RotateCcw, 
-  Printer, 
   Download, 
   Calendar, 
   Tag, 
@@ -12,7 +11,7 @@ import {
   Filter, 
   CheckCircle2, 
   TrendingUp, 
-  X, 
+  X,
   Layers, 
   MapPin, 
   AlertTriangle, 
@@ -24,7 +23,7 @@ import {
 } from 'lucide-react';
 import { Gudang, Barang, Petani, TransaksiPembelian, UserRole } from '../../types';
 import { GRADE_COLOR_MAP } from '../../data/initialHargaData';
-import { downloadCsvFile, downloadElementAsPdf, printHtmlElementDirectly } from '../../utils/printDownload';
+import { downloadCsvFile, downloadElementAsPdf } from '../../utils/printDownload';
 import { Pagination } from '../common/Pagination';
 
 interface LaporanGudangViewProps {
@@ -66,7 +65,6 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
 
   // UI States
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(true);
-  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -325,7 +323,7 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
     downloadCsvFile(filename, headers, rows);
   };
 
-  // PDF & Print Triggers
+  // PDF Triggers (Direct Download)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const handleDownloadPdfReport = async () => {
@@ -340,14 +338,6 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
     } finally {
       setIsGeneratingPdf(false);
     }
-  };
-
-  const handlePrintDocument = () => {
-    if (!printDocumentRef.current) return;
-    printHtmlElementDirectly(
-      printDocumentRef.current,
-      `Laporan Okupansi & Stok Gudang - PR. SEKAR ANOM`
-    );
   };
 
   // Helper for Occupancy color badge
@@ -391,20 +381,21 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
 
           <button
             onClick={handleExportCSV}
-            className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+            className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
             title="Unduh Data CSV / Excel"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
             <span>Ekspor Excel/CSV</span>
           </button>
 
           <button
-            onClick={() => setIsPrintModalOpen(true)}
-            className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#b81d24] hover:bg-[#a0181e] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
-            title="Cetak Rekapitulasi Laporan Gudang"
+            onClick={handleDownloadPdfReport}
+            disabled={isGeneratingPdf}
+            className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#b81d24] hover:bg-[#a0181e] disabled:opacity-50 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+            title="Download PDF Laporan Gudang"
           >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Cetak Rekapitulasi</span>
+            <Download className="w-3.5 h-3.5" />
+            <span>{isGeneratingPdf ? 'Membuat PDF...' : 'Download Rekapitulasi (PDF)'}</span>
           </button>
         </div>
       </div>
@@ -1030,195 +1021,134 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
         )}
       </div>
 
-      {/* 7. Modal Cetak Rekapitulasi Laporan Gudang */}
-      {isPrintModalOpen && (
+      {/* Hidden Container for Direct PDF Export */}
+      <div className="hidden">
         <div 
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4 overflow-y-auto font-sans"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsPrintModalOpen(false);
-          }}
+          ref={printDocumentRef}
+          id="printable-laporan-gudang"
+          className="w-full max-w-3xl bg-white p-6 space-y-5 text-gray-900 font-sans text-xs"
         >
-          <div 
-            className="bg-white border border-gray-300 w-full max-w-4xl rounded-none shadow-xl flex flex-col text-xs text-gray-800 max-h-[92vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-sm bg-red-50 border border-red-200 flex items-center justify-center text-[#b81d24]">
-                  <Printer className="w-4 h-4" />
-                </div>
-                <div>
-                  <h2 className="text-sm font-bold text-gray-900 tracking-tight">
-                    Cetak Dokumen Rekapitulasi Okupansi & Stok Gudang
-                  </h2>
-                  <p className="text-[11px] text-gray-500">
-                    Format Dokumen Resmi PR. SEKAR ANOM - Siap Cetak & PDF
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setIsPrintModalOpen(false)}
-                  className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-sm transition cursor-pointer"
-                >
-                  Tutup
-                </button>
-                <button
-                  type="button"
-                  disabled={isGeneratingPdf}
-                  onClick={handleDownloadPdfReport}
-                  className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-sm transition flex items-center space-x-1 cursor-pointer"
-                  title="Unduh Berkas PDF Langsung"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>{isGeneratingPdf ? 'Membuat PDF...' : 'Unduh PDF'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePrintDocument}
-                  className="px-4 py-1.5 text-xs font-bold text-white bg-[#b81d24] hover:bg-[#a0181e] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  <span>Cetak Sekarang</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Body / Printable Content */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-100 print:bg-white print:p-0 flex justify-center">
-              <div 
-                ref={printDocumentRef}
-                id="printable-laporan-gudang"
-                className="w-full max-w-3xl bg-white border border-gray-300 p-6 shadow-sm space-y-5 text-gray-900 print:border-none print:shadow-none"
-              >
-                {/* Kop Surat */}
-                <div className="text-center border-b-2 border-gray-800 pb-4 space-y-1">
-                  <span className="text-[10px] font-black tracking-widest text-[#b81d24] uppercase block">
-                    PR. SEKAR ANOM • PUSAT PAMEKASAN MADURA
-                  </span>
-                  <h3 className="text-base font-black tracking-tight text-gray-900 uppercase">
-                    LAPORAN STATUS OKUPANSI & STOK INVENTARIS GUDANG
-                  </h3>
-                  <p className="text-[10px] text-gray-600 font-medium">
-                    Jl. Raya Tlanakan No. 45, Pamekasan, Madura - Jawa Timur | Telp: (0324) 321888
-                  </p>
-                </div>
-
-                {/* Metadata Laporan */}
-                <div className="grid grid-cols-2 gap-4 text-[11px] bg-gray-50 p-3 border border-gray-200">
-                  <div>
-                    <div>Tanggal Cetak: <strong className="font-mono">{new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</strong></div>
-                    <div>Fasilitas Gudang: <strong>{selectedWarehouse ? `${selectedWarehouse.kode_gudang} - ${selectedWarehouse.nama_gudang}` : 'Semua Fasilitas Pergudangan'}</strong></div>
-                  </div>
-                  <div className="text-right">
-                    <div>Total Bal Tersimpan: <strong className="font-mono">{overallTotals.totalActiveBal} Bal</strong> ({overallTotals.totalKg.toLocaleString('id-ID')} Kg)</div>
-                    <div>Rata-rata Okupansi: <strong className="font-mono">{overallTotals.overallOccupancyPct}%</strong></div>
-                  </div>
-                </div>
-
-                {/* Tabel 1: Rekapitulasi Pergudangan */}
-                <div className="space-y-1.5">
-                  <h4 className="text-[11px] font-bold text-gray-900 uppercase">
-                    1. Rekapitulasi Kapasitas & Okupansi Fasilitas Gudang
-                  </h4>
-                  <table className="w-full text-left border-collapse text-[10px] border border-gray-300">
-                    <thead>
-                      <tr className="bg-gray-100 border-b border-gray-300 font-bold text-gray-800">
-                        <th className="p-1.5 border-r border-gray-300">Kode & Nama Gudang</th>
-                        <th className="p-1.5 border-r border-gray-300">PJ / Kontak</th>
-                        <th className="p-1.5 text-center border-r border-gray-300">Kapasitas</th>
-                        <th className="p-1.5 text-center border-r border-gray-300">Bal Masuk</th>
-                        <th className="p-1.5 text-center border-r border-gray-300">Stok Aktif</th>
-                        <th className="p-1.5 text-right border-r border-gray-300">Total Berat (Kg)</th>
-                        <th className="p-1.5 text-center">% Okupansi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-300">
-                      {warehouseStats.map((g) => (
-                        <tr key={g.gudang_id}>
-                          <td className="p-1.5 border-r border-gray-300 font-medium">
-                            {g.kode_gudang} - {g.nama_gudang}
-                          </td>
-                          <td className="p-1.5 border-r border-gray-300">{g.kepala_gudang}</td>
-                          <td className="p-1.5 text-center font-mono border-r border-gray-300">{g.capacity}</td>
-                          <td className="p-1.5 text-center font-mono border-r border-gray-300">{g.totalMasukBal}</td>
-                          <td className="p-1.5 text-center font-mono font-bold border-r border-gray-300">{g.activeBalCount}</td>
-                          <td className="p-1.5 text-right font-mono border-r border-gray-300">{g.currentKg.toLocaleString('id-ID')}</td>
-                          <td className="p-1.5 text-center font-mono font-bold">{g.occupancyPct}%</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr className="bg-gray-100 font-bold border-t-2 border-gray-400">
-                        <td colSpan={2} className="p-1.5 text-right border-r border-gray-300">TOTAL:</td>
-                        <td className="p-1.5 text-center font-mono border-r border-gray-300">{overallTotals.totalCapacity}</td>
-                        <td className="p-1.5 text-center font-mono border-r border-gray-300">{overallTotals.totalBalMasuk}</td>
-                        <td className="p-1.5 text-center font-mono border-r border-gray-300">{overallTotals.totalActiveBal}</td>
-                        <td className="p-1.5 text-right font-mono border-r border-gray-300">{overallTotals.totalKg.toLocaleString('id-ID')} Kg</td>
-                        <td className="p-1.5 text-center font-mono">{overallTotals.overallOccupancyPct}%</td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-
-                {/* Tabel 2: Daftar Bal Tembakau Tersimpan */}
-                <div className="space-y-1.5">
-                  <h4 className="text-[11px] font-bold text-gray-900 uppercase">
-                    2. Daftar Bal Tembakau Tersimpan ({filteredBarangList.length} Bal Total)
-                  </h4>
-                  <table className="w-full text-left border-collapse text-[10px] border border-gray-300">
-                    <thead>
-                      <tr className="bg-gray-100 border-b border-gray-300 font-bold text-gray-800">
-                        <th className="p-1.5 text-center border-r border-gray-300 w-8">No</th>
-                        <th className="p-1.5 border-r border-gray-300">No. Bal</th>
-                        <th className="p-1.5 border-r border-gray-300">Lokasi Gudang</th>
-                        <th className="p-1.5 text-center border-r border-gray-300">Grade</th>
-                        <th className="p-1.5 text-right border-r border-gray-300">Berat (Kg)</th>
-                        <th className="p-1.5 border-r border-gray-300">Petani Asal</th>
-                        <th className="p-1.5 text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-300">
-                      {filteredBarangList.map((b, idx) => (
-                        <tr key={idx}>
-                          <td className="p-1.5 text-center border-r border-gray-300 font-mono">{idx + 1}</td>
-                          <td className="p-1.5 border-r border-gray-300 font-mono font-bold">{b.no_bal}</td>
-                          <td className="p-1.5 border-r border-gray-300">{b.lokasi_gudang}</td>
-                          <td className="p-1.5 text-center font-bold border-r border-gray-300">Grade {b.kode_grade}</td>
-                          <td className="p-1.5 text-right font-mono border-r border-gray-300">{b.berat_kg} kg</td>
-                          <td className="p-1.5 border-r border-gray-300">{b.nama_petani || '-'}</td>
-                          <td className="p-1.5 text-center">{b.status_stok === 'di_gudang' ? 'Di Gudang' : b.status_stok}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Kolom Tanda Tangan */}
-                <div className="pt-6 grid grid-cols-3 text-center text-[10px] text-gray-800">
-                  <div className="space-y-12">
-                    <p className="font-semibold">Petugas Logistik Gudang,</p>
-                    <p className="font-bold underline">( ............................................ )</p>
-                  </div>
-                  <div className="space-y-12">
-                    <p className="font-semibold">QC / Mutu Tembakau,</p>
-                    <p className="font-bold underline">( ............................................ )</p>
-                  </div>
-                  <div className="space-y-12">
-                    <p className="font-semibold">Kepala Gudang Utama,</p>
-                    <p className="font-bold underline">( Bambang Sutrisno, S.T. )</p>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
+          {/* Kop Surat */}
+          <div className="text-center border-b-2 border-gray-800 pb-4 space-y-1">
+            <span className="text-[10px] font-black tracking-widest text-[#b81d24] uppercase block">
+              PR. SEKAR ANOM • PUSAT PAMEKASAN MADURA
+            </span>
+            <h3 className="text-base font-black tracking-tight text-gray-900 uppercase">
+              LAPORAN STATUS OKUPANSI & STOK INVENTARIS GUDANG
+            </h3>
+            <p className="text-[10px] text-gray-600 font-medium">
+              Jl. Raya Tlanakan No. 45, Pamekasan, Madura - Jawa Timur | Telp: (0324) 321888
+            </p>
           </div>
+
+          {/* Metadata Laporan */}
+          <div className="grid grid-cols-2 gap-4 text-[11px] bg-gray-50 p-3 border border-gray-200">
+            <div>
+              <div>Tanggal Cetak: <strong className="font-mono">{new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</strong></div>
+              <div>Fasilitas Gudang: <strong>{selectedWarehouse ? `${selectedWarehouse.kode_gudang} - ${selectedWarehouse.nama_gudang}` : 'Semua Fasilitas Pergudangan'}</strong></div>
+            </div>
+            <div className="text-right">
+              <div>Total Bal Tersimpan: <strong className="font-mono">{overallTotals.totalActiveBal} Bal</strong> ({overallTotals.totalKg.toLocaleString('id-ID')} Kg)</div>
+              <div>Rata-rata Okupansi: <strong className="font-mono">{overallTotals.overallOccupancyPct}%</strong></div>
+            </div>
+          </div>
+
+          {/* Tabel 1: Rekapitulasi Pergudangan */}
+          <div className="space-y-1.5">
+            <h4 className="text-[11px] font-bold text-gray-900 uppercase">
+              1. Rekapitulasi Kapasitas & Okupansi Fasilitas Gudang
+            </h4>
+            <table className="w-full text-left border-collapse text-[10px] border border-gray-300">
+              <thead>
+                <tr className="bg-gray-100 border-b border-gray-300 font-bold text-gray-800">
+                  <th className="p-1.5 border-r border-gray-300">Kode & Nama Gudang</th>
+                  <th className="p-1.5 border-r border-gray-300">PJ / Kontak</th>
+                  <th className="p-1.5 text-center border-r border-gray-300">Kapasitas</th>
+                  <th className="p-1.5 text-center border-r border-gray-300">Bal Masuk</th>
+                  <th className="p-1.5 text-center border-r border-gray-300">Stok Aktif</th>
+                  <th className="p-1.5 text-right border-r border-gray-300">Total Berat (Kg)</th>
+                  <th className="p-1.5 text-center">% Okupansi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-300">
+                {warehouseStats.map((g) => (
+                  <tr key={g.gudang_id}>
+                    <td className="p-1.5 border-r border-gray-300 font-medium">
+                      {g.kode_gudang} - {g.nama_gudang}
+                    </td>
+                    <td className="p-1.5 border-r border-gray-300">{g.kepala_gudang}</td>
+                    <td className="p-1.5 text-center font-mono border-r border-gray-300">{g.capacity}</td>
+                    <td className="p-1.5 text-center font-mono border-r border-gray-300">{g.totalMasukBal}</td>
+                    <td className="p-1.5 text-center font-mono font-bold border-r border-gray-300">{g.activeBalCount}</td>
+                    <td className="p-1.5 text-right font-mono border-r border-gray-300">{g.currentKg.toLocaleString('id-ID')}</td>
+                    <td className="p-1.5 text-center font-mono font-bold">{g.occupancyPct}%</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-gray-100 font-bold border-t-2 border-gray-400">
+                  <td colSpan={2} className="p-1.5 text-right border-r border-gray-300">TOTAL:</td>
+                  <td className="p-1.5 text-center font-mono border-r border-gray-300">{overallTotals.totalCapacity}</td>
+                  <td className="p-1.5 text-center font-mono border-r border-gray-300">{overallTotals.totalBalMasuk}</td>
+                  <td className="p-1.5 text-center font-mono border-r border-gray-300">{overallTotals.totalActiveBal}</td>
+                  <td className="p-1.5 text-right font-mono border-r border-gray-300">{overallTotals.totalKg.toLocaleString('id-ID')} Kg</td>
+                  <td className="p-1.5 text-center font-mono">{overallTotals.overallOccupancyPct}%</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          {/* Tabel 2: Daftar Bal Tembakau Tersimpan */}
+          <div className="space-y-1.5">
+            <h4 className="text-[11px] font-bold text-gray-900 uppercase">
+              2. Daftar Bal Tembakau Tersimpan ({filteredBarangList.length} Bal Total)
+            </h4>
+            <table className="w-full text-left border-collapse text-[10px] border border-gray-300">
+              <thead>
+                <tr className="bg-gray-100 border-b border-gray-300 font-bold text-gray-800">
+                  <th className="p-1.5 text-center border-r border-gray-300 w-8">No</th>
+                  <th className="p-1.5 border-r border-gray-300">No. Bal</th>
+                  <th className="p-1.5 border-r border-gray-300">Lokasi Gudang</th>
+                  <th className="p-1.5 text-center border-r border-gray-300">Grade</th>
+                  <th className="p-1.5 text-right border-r border-gray-300">Berat (Kg)</th>
+                  <th className="p-1.5 border-r border-gray-300">Petani Asal</th>
+                  <th className="p-1.5 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-300">
+                {filteredBarangList.map((b, idx) => (
+                  <tr key={idx}>
+                    <td className="p-1.5 text-center border-r border-gray-300 font-mono">{idx + 1}</td>
+                    <td className="p-1.5 border-r border-gray-300 font-mono font-bold">{b.no_bal}</td>
+                    <td className="p-1.5 border-r border-gray-300">{b.lokasi_gudang}</td>
+                    <td className="p-1.5 text-center font-bold border-r border-gray-300">Grade {b.kode_grade}</td>
+                    <td className="p-1.5 text-right font-mono border-r border-gray-300">{b.berat_kg} kg</td>
+                    <td className="p-1.5 border-r border-gray-300">{b.nama_petani || '-'}</td>
+                    <td className="p-1.5 text-center">{b.status_stok === 'di_gudang' ? 'Di Gudang' : b.status_stok}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Kolom Tanda Tangan */}
+          <div className="pt-6 grid grid-cols-3 text-center text-[10px] text-gray-800">
+            <div className="space-y-12">
+              <p className="font-semibold">Petugas Logistik Gudang,</p>
+              <p className="font-bold underline">( ............................................ )</p>
+            </div>
+            <div className="space-y-12">
+              <p className="font-semibold">QC / Mutu Tembakau,</p>
+              <p className="font-bold underline">( ............................................ )</p>
+            </div>
+            <div className="space-y-12">
+              <p className="font-semibold">Kepala Gudang Utama,</p>
+              <p className="font-bold underline">( Bambang Sutrisno, S.T. )</p>
+            </div>
+          </div>
+
         </div>
-      )}
+      </div>
 
     </div>
   );

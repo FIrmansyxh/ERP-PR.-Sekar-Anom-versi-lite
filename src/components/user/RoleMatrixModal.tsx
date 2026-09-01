@@ -15,28 +15,33 @@ export const RoleMatrixModal: React.FC<RoleMatrixModalProps> = ({
 
   const modulesList = [
     { id: 'modul-home', name: 'Home Dasbor' },
+    { id: 'modul-0-sortir', name: 'Sortir (Intake & Grade)' },
+    { id: 'modul-0-timbangan', name: 'Timbangan (Input Berat)' },
+    { id: 'modul-0-kasir', name: 'Kasir & Nota Pembayaran' },
     { id: 'modul-1-petani', name: 'Master Petani & Kartu' },
-    { id: 'modul-2-barang', name: 'Master Data Barang (SKU)' },
-    { id: 'modul-7-gudang', name: 'Data Master Gudang' },
-    { id: 'modul-3-harga', name: 'Tabel Tarif Harga' },
-    { id: 'modul-0-transaksi', name: 'Transaksi Timbang Bal' },
+    { id: 'modul-3-harga', name: 'Master Kualitas & Harga' },
+    { id: 'modul-7-gudang', name: 'Master Data Gudang' },
+    { id: 'modul-2-barang', name: 'Inventaris Bal Gudang' },
+    { id: 'modul-5-pengiriman', name: 'Pengiriman Reguler (DO)' },
     { id: 'modul-4-sample', name: 'Pengiriman Sample QC' },
-    { id: 'modul-5-pengiriman', name: 'Pengiriman DO (Luar)' },
-    { id: 'modul-8-produksi-sendiri', name: 'Pemakaian Produksi (SA)' },
-    { id: 'modul-6-laporan', name: 'Laporan & Analytics' },
-    { id: 'modul-users', name: 'Manajemen User & RBAC' },
-    { id: 'modul-backup', name: 'Cadangan & Pemulihan' },
+    { id: 'modul-6-dashboard-analytic', name: 'Dashboard Analytic ERP' },
+    { id: 'modul-6-laporan-grade', name: 'Laporan Mutu Grade' },
+    { id: 'modul-6-laporan-pembelian', name: 'Laporan Pembelian Barang' },
+    { id: 'modul-6-laporan-gudang', name: 'Laporan Okupansi & Stok Gudang' },
+    { id: 'modul-6-laporan-petani', name: 'Laporan Petani & Setoran' },
+    { id: 'modul-6-laporan-pengiriman', name: 'Laporan Pengiriman & DO' },
+    { id: 'modul-users', name: 'Manajemen Pengguna (RBAC)' },
   ];
 
   const capabilitiesList = [
-    { key: 'canManageUsers', label: 'Kelola Pengguna & Hak Akses' },
-    { key: 'canManageMasterData', label: 'Edit Master Data (Petani, Barang, Gudang, Harga)' },
-    { key: 'canInputTransaksi', label: 'Input Transaksi Intake Petani' },
-    { key: 'canManageStok', label: 'Manajemen Stok & Cetak Label' },
-    { key: 'canManageQC', label: 'Inspeksi Mutu & Sample QC' },
-    { key: 'canManagePengiriman', label: 'Buat Surat Jalan DO & Bon Produksi' },
-    { key: 'canViewAnalytics', label: 'Lihat Analitik & Laporan Keuangan' },
-    { key: 'canBackupRestore', label: 'Cadangan & Pemulihan Database' },
+    { key: 'canManageUsers', label: 'Kelola Pengguna & Hak Akses (RBAC)' },
+    { key: 'canManageMasterData', label: 'Kelola Master Data (Petani, Harga, Gudang, Bal)' },
+    { key: 'canCreatePetani', label: 'Daftar / Edit Petani Baru' },
+    { key: 'canInputTransaksi', label: 'Input Proses Sortir / Timbang Intake' },
+    { key: 'canManageStok', label: 'Manajemen Stok Bal & Cetak Label' },
+    { key: 'canManageQC', label: 'Penilaian Kualitas Grade & Sampel' },
+    { key: 'canManagePengiriman', label: 'Buat Surat Jalan DO & Ekspedisi' },
+    { key: 'canViewAnalytics', label: 'Lihat Analitik & Laporan Operasional' },
   ] as const;
 
   return (
@@ -54,7 +59,7 @@ export const RoleMatrixModal: React.FC<RoleMatrixModalProps> = ({
                 Matriks Hak Akses Pengguna (Role-Based Access Control)
               </h2>
               <p className="text-xs text-gray-600">
-                PR. SEKAR ANOM - Standar Pembagian Wewenang & Keamanan Sistem Gudang
+                PR. SEKAR ANOM - Standar Pembagian Wewenang 6 Role Operasional
               </p>
             </div>
           </div>
@@ -72,7 +77,7 @@ export const RoleMatrixModal: React.FC<RoleMatrixModalProps> = ({
           {/* Section 1: Role Overview Cards */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 mb-2.5">
-              1. Definisi & Tanggung Jawab Role
+              1. Definisi & Tanggung Jawab 6 Role
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {ALL_ROLES.map((role) => {
@@ -108,12 +113,12 @@ export const RoleMatrixModal: React.FC<RoleMatrixModalProps> = ({
               <table className="w-full text-left border-collapse text-[11px]">
                 <thead>
                   <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 font-bold">
-                    <th className="py-2 px-3 border-r border-gray-200 sticky left-0 bg-gray-100 z-10 w-44">
+                    <th className="py-2 px-3 border-r border-gray-200 sticky left-0 bg-gray-100 z-10 w-48">
                       Modul Sistem
                     </th>
                     {ALL_ROLES.map((r) => (
-                      <th key={r} className="py-2 px-2 text-center border-r border-gray-200 min-w-[100px]">
-                        {ROLE_DEFINITIONS[r].label.split('(')[0].trim()}
+                      <th key={r} className="py-2 px-2 text-center border-r border-gray-200 min-w-[110px]">
+                        {ROLE_DEFINITIONS[r].label}
                       </th>
                     ))}
                   </tr>
@@ -156,12 +161,12 @@ export const RoleMatrixModal: React.FC<RoleMatrixModalProps> = ({
               <table className="w-full text-left border-collapse text-[11px]">
                 <thead>
                   <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 font-bold">
-                    <th className="py-2 px-3 border-r border-gray-200 sticky left-0 bg-gray-100 z-10 w-52">
+                    <th className="py-2 px-3 border-r border-gray-200 sticky left-0 bg-gray-100 z-10 w-56">
                       Kemampuan Wewenang
                     </th>
                     {ALL_ROLES.map((r) => (
-                      <th key={r} className="py-2 px-2 text-center border-r border-gray-200 min-w-[100px]">
-                        {ROLE_DEFINITIONS[r].label.split('(')[0].trim()}
+                      <th key={r} className="py-2 px-2 text-center border-r border-gray-200 min-w-[110px]">
+                        {ROLE_DEFINITIONS[r].label}
                       </th>
                     ))}
                   </tr>

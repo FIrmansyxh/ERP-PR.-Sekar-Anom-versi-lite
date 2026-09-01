@@ -64,9 +64,10 @@ export const LaporanAnalytics: React.FC<LaporanAnalyticsProps> = ({
   const sampleDisetujui = sampleList.filter((s) => s.status === 'disetujui').length;
   const approvalRate = totalSampleCount > 0 ? Math.round((sampleDisetujui / totalSampleCount) * 100) : 0;
 
-  // Grade Distribution Calculation
+  // Grade Distribution Calculation (Top 5 Active Bal)
   const gradeDistribution = useMemo(() => {
-    const grades = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const activeGrades = Array.from(new Set(barangList.filter(b => b.status_stok === 'di_gudang').map(b => b.kode_grade).filter(Boolean)));
+    const grades = activeGrades.length > 0 ? activeGrades : ['A', 'B', 'C', 'D', 'E', 'F'];
     return grades.map((g) => {
       const itemsInGrade = barangList.filter((b) => b.kode_grade === g && b.status_stok === 'di_gudang');
       const countBal = itemsInGrade.length;
@@ -77,7 +78,9 @@ export const LaporanAnalytics: React.FC<LaporanAnalyticsProps> = ({
         kg: totalKg,
         pct: stokAktifBal.length > 0 ? Math.round((countBal / stokAktifBal.length) * 100) : 0,
       };
-    });
+    })
+    .sort((a, b) => b.bal - a.bal)
+    .slice(0, 5);
   }, [barangList, stokAktifBal]);
 
   // Top 5 Contributing Farmers
