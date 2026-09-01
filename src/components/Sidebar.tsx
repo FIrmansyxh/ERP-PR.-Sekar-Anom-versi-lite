@@ -212,16 +212,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className={`${isCollapsed ? 'w-16' : 'w-60 sm:w-64'} bg-white border-r border-gray-200 flex flex-col shrink-0 min-h-[calc(100vh-4rem)] select-none transition-all duration-200`}>
       
       {/* Top Logo Brand */}
-      <div className="h-16 border-b border-gray-200 flex items-center px-4 space-x-3 bg-white">
-        <div className="w-8 h-8 rounded-sm bg-[#b81d24] flex items-center justify-center text-white font-bold text-xs shadow-xs shrink-0 tracking-wider">
+      <div className="h-16 border-b border-slate-200 flex items-center px-4 space-x-3 bg-white">
+        <div className="w-8 h-8 rounded-sm bg-slate-900 flex items-center justify-center text-white font-bold text-xs shadow-2xs shrink-0 tracking-wider">
           <span>SA</span>
         </div>
         {!isCollapsed && (
           <div className="overflow-hidden">
-            <h2 className="text-sm font-bold tracking-tight text-gray-900 leading-tight">
+            <h2 className="text-sm font-semibold tracking-tight text-slate-900 leading-tight">
               PR. SEKAR ANOM
             </h2>
-            <p className="text-[10px] text-gray-500 font-medium leading-none mt-0.5">
+            <p className="text-[10px] text-slate-500 font-normal leading-none mt-0.5">
               Sistem Data Gudang Tembakau
             </p>
           </div>
@@ -237,12 +237,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => onSelectModule('modul-home')}
             className={`w-full text-left px-3 py-2.5 rounded-sm flex items-center justify-between text-xs transition cursor-pointer ${
               isHomeActive
-                ? 'bg-[#fcf0f0] text-[#b81d24] font-bold'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                ? 'bg-slate-900 text-white font-medium shadow-2xs'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
             <div className="flex items-center space-x-3 min-w-0">
-              <Home className={`w-4 h-4 shrink-0 ${isHomeActive ? 'text-[#b81d24]' : 'text-gray-500'}`} />
+              <Home className={`w-4 h-4 shrink-0 ${isHomeActive ? 'text-white' : 'text-slate-500'}`} />
               {!isCollapsed && <span>Home</span>}
             </div>
           </button>
@@ -255,19 +255,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => toggleSection('report')}
               className={`w-full text-left px-3 py-2.5 rounded-sm flex items-center justify-between text-xs transition cursor-pointer ${
                 isReportActive
-                  ? 'bg-[#fcf0f0] text-[#b81d24] font-bold'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-slate-100 text-slate-900 font-semibold'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               <div className="flex items-center space-x-3 min-w-0">
-                <BarChart3 className={`w-4 h-4 shrink-0 ${isReportActive ? 'text-[#b81d24]' : 'text-gray-500'}`} />
+                <BarChart3 className={`w-4 h-4 shrink-0 ${isReportActive ? 'text-slate-900' : 'text-slate-500'}`} />
                 {!isCollapsed && <span>Report & Analitik</span>}
               </div>
               {!isCollapsed && (
                 openSections['report'] ? (
-                  <ChevronDown className={`w-3.5 h-3.5 ${isReportActive ? 'text-[#b81d24]' : 'text-gray-400'}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 ${isReportActive ? 'text-slate-900' : 'text-slate-400'}`} />
                 ) : (
-                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                 )
               )}
             </button>
@@ -279,8 +279,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-6-dashboard-analytic')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-6-dashboard-analytic'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Dashboard Analytic</span>
@@ -292,8 +292,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-6-laporan-grade')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-6-laporan-grade'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Laporan Grade</span>
@@ -305,8 +305,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-6-laporan-pembelian')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-6-laporan-pembelian'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Laporan Pembelian</span>
@@ -318,8 +318,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-6-laporan-gudang')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-6-laporan-gudang'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Laporan Gudang</span>
@@ -331,8 +331,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-6-laporan-petani')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-6-laporan-petani'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Laporan Petani</span>
@@ -344,8 +344,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-6-laporan-pengiriman')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-6-laporan-pengiriman'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Laporan Pengiriman</span>
@@ -363,19 +363,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => toggleSection('master-data')}
               className={`w-full text-left px-3 py-2.5 rounded-sm flex items-center justify-between text-xs transition cursor-pointer ${
                 isMasterActive
-                  ? 'bg-[#fcf0f0] text-[#b81d24] font-bold'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-slate-100 text-slate-900 font-semibold'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               <div className="flex items-center space-x-3 min-w-0">
-                <Database className={`w-4 h-4 shrink-0 ${isMasterActive ? 'text-[#b81d24]' : 'text-gray-500'}`} />
+                <Database className={`w-4 h-4 shrink-0 ${isMasterActive ? 'text-slate-900' : 'text-slate-500'}`} />
                 {!isCollapsed && <span>Master Data</span>}
               </div>
               {!isCollapsed && (
                 openSections['master-data'] ? (
-                  <ChevronDown className={`w-3.5 h-3.5 ${isMasterActive ? 'text-[#b81d24]' : 'text-gray-400'}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 ${isMasterActive ? 'text-slate-900' : 'text-slate-400'}`} />
                 ) : (
-                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                 )
               )}
             </button>
@@ -387,12 +387,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-1-petani')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-1-petani'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Master Petani</span>
-                    <span className="text-[10px] font-mono font-medium px-1 bg-gray-100 text-gray-600 rounded">
+                    <span className="text-[10px] font-mono font-medium px-1 bg-slate-100 text-slate-600 rounded-xs">
                       {petaniCount}
                     </span>
                   </button>
@@ -403,12 +403,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-3-harga')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-3-harga'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Master Kualitas & Harga</span>
-                    <span className="text-[10px] font-mono font-medium px-1 bg-gray-100 text-gray-600 rounded">
+                    <span className="text-[10px] font-mono font-medium px-1 bg-slate-100 text-slate-600 rounded-xs">
                       6 Grade
                     </span>
                   </button>
@@ -419,12 +419,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-7-gudang')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-7-gudang'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Master Data Gudang</span>
-                    <span className="text-[10px] font-mono font-medium px-1 bg-gray-100 text-gray-600 rounded">
+                    <span className="text-[10px] font-mono font-medium px-1 bg-slate-100 text-slate-600 rounded-xs">
                       {gudangCount}
                     </span>
                   </button>
@@ -435,12 +435,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-2-barang')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-2-barang'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Inventaris Bal Gudang</span>
-                    <span className="text-[10px] font-mono font-medium px-1 bg-gray-100 text-gray-600 rounded">
+                    <span className="text-[10px] font-mono font-medium px-1 bg-slate-100 text-slate-600 rounded-xs">
                       {barangCount} Bal
                     </span>
                   </button>
@@ -457,19 +457,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => toggleSection('pembelian')}
               className={`w-full text-left px-3 py-2.5 rounded-sm flex items-center justify-between text-xs transition cursor-pointer ${
                 isPembelianActive
-                  ? 'bg-[#fcf0f0] text-[#b81d24] font-bold'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-slate-100 text-slate-900 font-semibold'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               <div className="flex items-center space-x-3 min-w-0">
-                <ShoppingCart className={`w-4 h-4 shrink-0 ${isPembelianActive ? 'text-[#b81d24]' : 'text-gray-500'}`} />
+                <ShoppingCart className={`w-4 h-4 shrink-0 ${isPembelianActive ? 'text-slate-900' : 'text-slate-500'}`} />
                 {!isCollapsed && <span>Pembelian</span>}
               </div>
               {!isCollapsed && (
                 openSections['pembelian'] ? (
-                  <ChevronDown className={`w-3.5 h-3.5 ${isPembelianActive ? 'text-[#b81d24]' : 'text-gray-400'}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 ${isPembelianActive ? 'text-slate-900' : 'text-slate-400'}`} />
                 ) : (
-                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                 )
               )}
             </button>
@@ -482,12 +482,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-0-sortir')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-0-sortir'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Sortir</span>
-                    <span className="text-[9px] font-bold px-1.5 py-0.2 bg-blue-50 text-blue-700 rounded border border-blue-200">
+                    <span className="text-[9px] font-medium px-1.5 py-0.2 bg-slate-100 text-slate-700 rounded-xs border border-slate-200">
                       Intake
                     </span>
                   </button>
@@ -499,12 +499,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-0-timbangan')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-0-timbangan'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Timbangan</span>
-                    <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-50 text-amber-800 rounded border border-amber-200">
+                    <span className="text-[9px] font-medium px-1.5 py-0.2 bg-slate-100 text-slate-700 rounded-xs border border-slate-200">
                       Berat
                     </span>
                   </button>
@@ -516,12 +516,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-0-kasir')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-0-kasir' || activeModuleId === 'modul-0-transaksi'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Kasir</span>
-                    <span className="text-[10px] font-mono font-medium px-1 bg-gray-100 text-gray-600 rounded">
+                    <span className="text-[10px] font-mono font-medium px-1 bg-slate-100 text-slate-600 rounded-xs">
                       {transaksiCount}
                     </span>
                   </button>
@@ -538,19 +538,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => toggleSection('pengiriman')}
               className={`w-full text-left px-3 py-2.5 rounded-sm flex items-center justify-between text-xs transition cursor-pointer ${
                 isPengirimanActive
-                  ? 'bg-[#fcf0f0] text-[#b81d24] font-bold'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-slate-100 text-slate-900 font-semibold'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               <div className="flex items-center space-x-3 min-w-0">
-                <Truck className={`w-4 h-4 shrink-0 ${isPengirimanActive ? 'text-[#b81d24]' : 'text-gray-500'}`} />
+                <Truck className={`w-4 h-4 shrink-0 ${isPengirimanActive ? 'text-slate-900' : 'text-slate-500'}`} />
                 {!isCollapsed && <span>Pengiriman Barang</span>}
               </div>
               {!isCollapsed && (
                 openSections['pengiriman'] ? (
-                  <ChevronDown className={`w-3.5 h-3.5 ${isPengirimanActive ? 'text-[#b81d24]' : 'text-gray-400'}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 ${isPengirimanActive ? 'text-slate-900' : 'text-slate-400'}`} />
                 ) : (
-                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                 )
               )}
             </button>
@@ -562,12 +562,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-5-pengiriman')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-5-pengiriman'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Pengiriman Reguler (DO)</span>
-                    <span className="text-[10px] font-mono font-medium px-1 bg-gray-100 text-gray-600 rounded">
+                    <span className="text-[10px] font-mono font-medium px-1 bg-slate-100 text-slate-600 rounded-xs">
                       {pengirimanCount}
                     </span>
                   </button>
@@ -578,12 +578,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectModule('modul-4-sample')}
                     className={`w-full text-left py-1.5 px-2 rounded-xs flex items-center justify-between cursor-pointer ${
                       activeModuleId === 'modul-4-sample'
-                        ? 'text-[#b81d24] font-semibold bg-red-50/60'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'text-slate-900 font-semibold bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <span>Pengiriman Sample QC</span>
-                    <span className="text-[10px] font-mono font-medium px-1 bg-gray-100 text-gray-600 rounded">
+                    <span className="text-[10px] font-mono font-medium px-1 bg-slate-100 text-slate-600 rounded-xs">
                       {sampleCount}
                     </span>
                   </button>
@@ -595,24 +595,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* 6. User Management & RBAC */}
         {canSeeUsers && (
-          <div className="pt-2 border-t border-gray-100">
+          <div className="pt-2 border-t border-slate-100">
             <button
               onClick={() => onSelectModule('modul-users')}
               className={`w-full text-left px-3 py-2.5 rounded-sm flex items-center justify-between text-xs transition cursor-pointer ${
                 isUsersActive
-                  ? 'bg-[#fcf0f0] text-[#b81d24] font-bold'
-                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-slate-900 text-white font-medium shadow-2xs'
+                  : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               <div className="flex items-center space-x-3 min-w-0">
-                <UserCheck className={`w-4 h-4 shrink-0 ${isUsersActive ? 'text-[#b81d24]' : 'text-gray-500'}`} />
+                <UserCheck className={`w-4 h-4 shrink-0 ${isUsersActive ? 'text-white' : 'text-slate-500'}`} />
                 {!isCollapsed && <span>Manajemen Pengguna</span>}
               </div>
               {!isCollapsed && (
-                <span className={`text-[10px] font-mono font-medium px-1.5 py-0.5 rounded ${
+                <span className={`text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-xs ${
                   isUsersActive 
-                    ? 'bg-red-100 text-[#b81d24]' 
-                    : 'bg-gray-100 text-gray-700 border border-gray-200'
+                    ? 'bg-slate-800 text-slate-200' 
+                    : 'bg-slate-100 text-slate-700 border border-slate-200'
                 }`}>
                   {userCount || 5} User
                 </span>

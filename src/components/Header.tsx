@@ -150,9 +150,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setIsProfileOpen(false);
                             onOpenUsers();
                           }}
-                          className="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 flex items-center space-x-2 cursor-pointer font-medium"
+                          className="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-100 flex items-center space-x-2 cursor-pointer font-medium"
                         >
-                          <Users className="w-4 h-4 text-[#b81d24]" />
+                          <Users className="w-4 h-4 text-slate-700" />
                           <span>Kelola Pengguna (RBAC)</span>
                         </button>
                       )}
@@ -163,17 +163,17 @@ export const Header: React.FC<HeaderProps> = ({
                           <button
                             type="button"
                             onClick={() => setIsSwitchOpen(!isSwitchOpen)}
-                            className="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 flex items-center justify-between cursor-pointer font-medium"
+                            className="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-100 flex items-center justify-between cursor-pointer font-medium"
                           >
                             <div className="flex items-center space-x-2">
-                              <UserIcon className="w-4 h-4 text-[#b81d24]" />
+                              <UserIcon className="w-4 h-4 text-slate-700" />
                               <span>Ganti Akun Cepat</span>
                             </div>
-                            <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${isSwitchOpen ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isSwitchOpen ? 'rotate-180' : ''}`} />
                           </button>
 
                           {isSwitchOpen && (
-                            <div className="bg-gray-50 border-y border-gray-200 py-1 px-2 space-y-1 max-h-48 overflow-y-auto">
+                            <div className="bg-slate-50 border-y border-slate-200 py-1 px-2 space-y-1 max-h-48 overflow-y-auto">
                               {allUsers.map((u) => {
                                 const uRole = getRoleInfo(u.role);
                                 const isCurrent = u.user_id === currentUser.user_id;
@@ -188,15 +188,15 @@ export const Header: React.FC<HeaderProps> = ({
                                     }}
                                     className={`w-full text-left p-1.5 rounded-xs flex items-center justify-between text-[11px] transition cursor-pointer ${
                                       isCurrent
-                                        ? 'bg-red-50 text-[#b81d24] font-bold'
-                                        : 'text-gray-700 hover:bg-gray-200'
+                                        ? 'bg-slate-900 text-white font-medium'
+                                        : 'text-slate-700 hover:bg-slate-200'
                                     }`}
                                   >
                                     <div className="truncate">
                                       <div>{u.nama_lengkap}</div>
-                                      <div className="text-[10px] text-gray-500 font-mono">@{u.username} • {uRole.label.split('(')[0]}</div>
+                                      <div className={`text-[10px] font-mono ${isCurrent ? 'text-slate-300' : 'text-slate-500'}`}>@{u.username} • {uRole.label.split('(')[0]}</div>
                                     </div>
-                                    {isCurrent && <CheckCircle2 className="w-3.5 h-3.5 text-[#b81d24] shrink-0" />}
+                                    {isCurrent && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
                                   </button>
                                 );
                               })}
@@ -208,16 +208,16 @@ export const Header: React.FC<HeaderProps> = ({
 
                     {/* Logout Option */}
                     {onLogout && (
-                      <div className="pt-1 border-t border-gray-200">
+                      <div className="pt-1 border-t border-slate-200">
                         <button
                           type="button"
                           onClick={() => {
                             setIsProfileOpen(false);
                             onLogout();
                           }}
-                          className="w-full text-left px-3 py-2 text-red-700 hover:bg-red-50 flex items-center space-x-2 cursor-pointer font-bold"
+                          className="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-100 flex items-center space-x-2 cursor-pointer font-medium"
                         >
-                          <LogOut className="w-4 h-4 text-red-600" />
+                          <LogOut className="w-4 h-4 text-slate-500" />
                           <span>Keluar (Logout)</span>
                         </button>
                       </div>

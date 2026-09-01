@@ -359,33 +359,33 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
         <div className="p-4 sm:p-5 space-y-5">
           
           {/* Top Parameters Grid */}
-          <div className="p-4 bg-gray-50 border border-gray-200 rounded-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3.5">
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3.5">
             
             {/* 1. Nomor Kupon */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">
-                1. No. Kupon Antrian <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                1. No. Kupon Antrian <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
                 value={noKupon}
                 onChange={(e) => setNoKupon(e.target.value)}
-                className="w-full bg-white border-2 border-red-400 rounded-sm px-3 py-1.5 text-xs text-gray-900 font-mono font-bold focus:outline-none focus:border-[#b81d24] shadow-2xs"
+                className="w-full bg-white border border-slate-300 rounded-sm px-3 py-1.5 text-xs text-slate-900 font-mono font-semibold focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
                 placeholder="Contoh: 11 / KUP-001"
                 required
               />
-              <p className="text-[10px] text-gray-500 mt-1">Sesuai kupon antrian fisik</p>
+              <p className="text-[10px] text-slate-400 mt-1">Sesuai kupon antrian fisik</p>
             </div>
 
             {/* 2. Petani Penyetor */}
             <div className="sm:col-span-1 md:col-span-1">
-              <label className="block text-xs font-bold text-gray-700 mb-1">
-                2. Petani Penyetor <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                2. Petani Penyetor <span className="text-rose-500">*</span>
               </label>
               <select
                 value={selectedPetaniId}
                 onChange={(e) => setSelectedPetaniId(e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs text-gray-900 font-medium focus:outline-none focus:border-[#b81d24]"
+                className="w-full bg-white border border-slate-300 rounded-sm px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
                 required
               >
                 {activeFarmers.map((p) => (
@@ -395,7 +395,7 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
                 ))}
               </select>
               {currentPetani && (
-                <p className="text-[10px] text-gray-500 mt-1 truncate">
+                <p className="text-[10px] text-slate-400 mt-1 truncate">
                   Desa: {currentPetani.alamat || currentPetani.desa_kecamatan || '-'}
                 </p>
               )}
@@ -403,27 +403,27 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
 
             {/* 3. Tanggal Masuk */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">
-                3. Tanggal Masuk <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                3. Tanggal Masuk <span className="text-rose-500">*</span>
               </label>
               <input
                 type="date"
                 value={tanggal}
                 onChange={(e) => setTanggal(e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-[#b81d24]"
+                className="w-full bg-white border border-slate-300 rounded-sm px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
                 required
               />
             </div>
 
             {/* 4. Gudang Intake */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 4. Gudang Intake
               </label>
               <select
                 value={lokasiGudang}
                 onChange={(e) => setLokasiGudang(e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-[#b81d24]"
+                className="w-full bg-white border border-slate-300 rounded-sm px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
               >
                 {gudangList && gudangList.length > 0 ? (
                   gudangList.map((g) => (
@@ -442,14 +442,14 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
 
             {/* 5. Petugas Sortir */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 5. Petugas Sortir / Grader
               </label>
               <input
                 type="text"
                 value={petugasSortirNama}
                 onChange={(e) => setPetugasSortirNama(e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-[#b81d24]"
+                className="w-full bg-white border border-slate-300 rounded-sm px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
                 placeholder="Nama petugas..."
               />
             </div>
@@ -457,15 +457,15 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
           </div>
 
           {/* Bal Adder Toolbar */}
-          <div className="p-4 bg-gradient-to-r from-red-50/50 via-white to-amber-50/40 border border-red-200 rounded-sm space-y-3">
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-sm space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Layers className="w-4 h-4 text-[#b81d24]" />
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">
+                <Layers className="w-4 h-4 text-slate-700" />
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900">
                   Input Bal & Penentuan Grade
                 </h4>
               </div>
-              <span className="text-[11px] text-gray-600 bg-white px-2 py-0.5 border border-gray-200 rounded">
+              <span className="text-[11px] text-slate-500 bg-white px-2 py-0.5 border border-slate-200 rounded-xs">
                 Standby: barcode yang discan otomatis terisi No. Bal
               </span>
             </div>
@@ -474,8 +474,8 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
               
               {/* No Bal Input */}
               <div className="md:col-span-3">
-                <label className="block text-xs font-bold text-gray-700 mb-1">
-                  No. Bal <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  No. Bal <span className="text-rose-500">*</span>
                 </label>
                 <div>
                   <input
@@ -485,20 +485,20 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
                     onChange={(e) => setInputNoBal(e.target.value)}
                     onKeyDown={handleKeyDownAdder}
                     placeholder={`Contoh: ${getNextSuggestedNoBal()}`}
-                    className="w-full bg-white border-2 border-[#b81d24] rounded-sm px-3 py-2 text-sm font-mono font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-200"
+                    className="w-full bg-white border border-slate-300 rounded-sm px-3 py-2 text-xs font-mono font-semibold text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
                   />
                 </div>
               </div>
 
               {/* Grade Dropdown */}
               <div className="md:col-span-3">
-                <label className="block text-xs font-bold text-gray-700 mb-1">
-                  Grade / Mutu Barang <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Grade / Mutu Barang <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={selectedGrade}
                   onChange={(e) => handleGradeChange(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded-sm px-2.5 py-2 text-xs font-bold text-gray-900 focus:outline-none focus:border-[#b81d24]"
+                  className="w-full bg-white border border-slate-300 rounded-sm px-2.5 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
                 >
                   {hargaList.map((h) => (
                     <option key={h.harga_id} value={h.kode_grade}>
@@ -510,7 +510,7 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
 
               {/* Harga Satuan */}
               <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Harga Satuan (Rp/Kg)
                 </label>
                 <input
@@ -518,24 +518,24 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
                   value={hargaSatuan || ''}
                   onChange={(e) => setHargaSatuan(parseFloat(e.target.value) || 0)}
                   onKeyDown={handleKeyDownAdder}
-                  className="w-full bg-white border border-gray-300 rounded-sm px-2.5 py-2 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#b81d24]"
+                  className="w-full bg-white border border-slate-300 rounded-sm px-2.5 py-2 text-xs font-mono font-semibold text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
                   placeholder="Rp per kg"
                 />
               </div>
 
               {/* Ganti Tikar Toggle */}
               <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Opsi Tikar
                 </label>
                 <label className={`w-full flex items-center space-x-2 px-2.5 py-2 border rounded-sm cursor-pointer transition ${
-                  isGantiTikar ? 'bg-amber-100 border-amber-400 text-amber-950 font-bold' : 'bg-white border-gray-300 text-gray-700'
+                  isGantiTikar ? 'bg-slate-200/80 border-slate-300 text-slate-900 font-semibold' : 'bg-white border-slate-300 text-slate-700'
                 }`}>
                   <input
                     type="checkbox"
                     checked={isGantiTikar}
                     onChange={(e) => setIsGantiTikar(e.target.checked)}
-                    className="accent-[#b81d24] w-4 h-4 cursor-pointer"
+                    className="rounded-xs border-slate-300 text-slate-900 focus:ring-slate-900 w-4 h-4 cursor-pointer"
                   />
                   <span className="text-[11px] whitespace-nowrap">
                     {isGantiTikar ? 'Ganti Tikar (+75rb)' : 'Tikar Standar'}
@@ -548,7 +548,7 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
                 <button
                   type="button"
                   onClick={handleAddBalItem}
-                  className="w-full py-2 bg-[#d89719] hover:bg-[#c28414] text-white font-bold text-xs rounded-sm transition flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs"
+                  className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-sm transition flex items-center justify-center space-x-1.5 cursor-pointer shadow-2xs"
                 >
                   <Plus className="w-4 h-4" />
                   <span>+ Tambah Bal</span>
@@ -560,7 +560,7 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
             {/* Adder Feedback */}
             {scanFeedback && (
               <div className={`text-xs px-3 py-1.5 rounded-sm font-medium flex items-center space-x-2 ${
-                scanFeedback.isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                scanFeedback.isError ? 'bg-rose-50 text-rose-800 border border-rose-200' : 'bg-slate-100 text-slate-800 border border-slate-200'
               }`}>
                 <span>{scanFeedback.text}</span>
               </div>
@@ -571,21 +571,21 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
           {/* Bal Items Table for Current Batch */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-800 flex items-center space-x-2">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
                 <span>Daftar Bal Ter-Sortir pada Kupon Ini</span>
-                <span className="px-2 py-0.5 bg-red-100 text-[#b81d24] rounded-full text-[10px] font-bold">
+                <span className="px-2 py-0.5 bg-slate-100 text-slate-800 border border-slate-200 rounded-xs text-[10px] font-semibold">
                   {balItems.length} Bal
                 </span>
               </h4>
-              <p className="text-[11px] text-gray-500">
+              <p className="text-[11px] text-slate-500">
                 Berat netto akan diisi saat bal tiba di Meja Timbang
               </p>
             </div>
 
-            <div className="border border-gray-200 rounded-sm overflow-hidden bg-white">
+            <div className="border border-slate-200 rounded-sm overflow-hidden bg-white">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-gray-800 text-white font-bold uppercase tracking-wider text-[10px]">
+                  <tr className="bg-slate-900 text-white font-semibold uppercase tracking-wider text-[10px]">
                     <th className="py-2.5 px-3 w-12 text-center">#</th>
                     <th className="py-2.5 px-3">No. Bal</th>
                     <th className="py-2.5 px-3">Mutu Grade</th>
@@ -640,7 +640,7 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
                           </button>
                         </td>
                         <td className="py-2 px-3 text-center">
-                          <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded text-[10px] font-bold">
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-xs text-[10px] font-medium">
                             Menunggu Timbang
                           </span>
                         </td>
@@ -648,7 +648,7 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleRemoveItem(index)}
-                            className="p-1 text-red-600 hover:bg-red-50 rounded transition cursor-pointer"
+                            className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xs transition cursor-pointer"
                             title="Hapus baris ini"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -663,12 +663,12 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
           </div>
 
           {/* Action Toolbar */}
-          <div className="p-4 bg-gray-50 border border-gray-200 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-xs text-gray-600">
-              Total Bal Disortir: <strong className="text-gray-900 text-sm font-bold">{balItems.length} Bal</strong>
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="text-xs text-slate-600">
+              Total Bal Disortir: <strong className="text-slate-900 text-sm font-semibold">{balItems.length} Bal</strong>
               {currentPetani && (
-                <span className="ml-2 text-gray-500">
-                  (Petani: <strong>{currentPetani.nama_petani}</strong> • Kupon: <strong>{noKupon}</strong>)
+                <span className="ml-2 text-slate-500">
+                  (Petani: <strong className="text-slate-700">{currentPetani.nama_petani}</strong> • Kupon: <strong className="text-slate-700 font-mono">{noKupon}</strong>)
                 </span>
               )}
             </div>
@@ -678,7 +678,7 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
                 type="button"
                 onClick={() => setBalItems([])}
                 disabled={balItems.length === 0}
-                className="px-3 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 font-bold text-xs rounded-sm transition cursor-pointer disabled:opacity-50"
+                className="px-3 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 font-medium text-xs rounded-sm transition cursor-pointer disabled:opacity-50"
               >
                 Reset Bal
               </button>
@@ -687,7 +687,7 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
                 type="button"
                 onClick={() => handleSaveSortirData(false)}
                 disabled={balItems.length === 0}
-                className="flex-1 sm:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-sm transition flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                className="flex-1 sm:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-medium text-xs rounded-sm transition flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50 shadow-2xs"
               >
                 <Check className="w-4 h-4 text-emerald-400" />
                 <span>Simpan Data Sortir</span>
@@ -697,7 +697,7 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
                 type="button"
                 onClick={() => handleSaveSortirData(true)}
                 disabled={balItems.length === 0}
-                className="flex-1 sm:flex-none px-4 py-2 bg-[#b81d24] hover:bg-[#9c181e] text-white font-bold text-xs rounded-sm transition flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                className="flex-1 sm:flex-none px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-sm transition flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50 shadow-2xs"
               >
                 <span>Simpan & Buka Meja Timbang</span>
                 <ArrowRight className="w-4 h-4" />
@@ -709,15 +709,15 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
       </div>
 
       {/* Bottom Queue Section: Kupon Hasil Sortir Menunggu Timbang */}
-      <div className="bg-white border border-gray-200 shadow-2xs">
-        <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-200 flex items-center justify-between">
+      <div className="bg-white border border-slate-200 shadow-2xs rounded-sm overflow-hidden">
+        <div className="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-amber-600" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800">
+            <Clock className="w-4 h-4 text-slate-600" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-800">
               Antrian Kupon Menunggu Timbangan ({waitingSortirList.length})
             </h3>
           </div>
-          <span className="text-[11px] text-gray-500">
+          <span className="text-[11px] text-slate-500">
             Dapat langsung dibuka di Meja Timbang
           </span>
         </div>
@@ -725,20 +725,20 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-gray-100 text-gray-700 font-bold border-b border-gray-200 text-[10px] uppercase">
-                <th className="py-2 px-3">No. Kupon</th>
-                <th className="py-2 px-3">Tanggal</th>
-                <th className="py-2 px-3">Petani Penyetor</th>
-                <th className="py-2 px-3">Grade Tembakau</th>
-                <th className="py-2 px-3 text-center">Jumlah Bal</th>
-                <th className="py-2 px-3 text-center">Progres Timbang</th>
-                <th className="py-2 px-3 text-right">Aksi</th>
+              <tr className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 text-[10px] uppercase">
+                <th className="py-2.5 px-3">No. Kupon</th>
+                <th className="py-2.5 px-3">Tanggal</th>
+                <th className="py-2.5 px-3">Petani Penyetor</th>
+                <th className="py-2.5 px-3">Grade Tembakau</th>
+                <th className="py-2.5 px-3 text-center">Jumlah Bal</th>
+                <th className="py-2.5 px-3 text-center">Progres Timbang</th>
+                <th className="py-2.5 px-3 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {waitingSortirList.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-6 text-center text-gray-400 text-xs">
+                  <td colSpan={7} className="py-6 text-center text-slate-400 text-xs">
                     Semua kupon yang disortir telah selesai ditimbang.
                   </td>
                 </tr>
@@ -749,29 +749,29 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
                   const totalCount = items.length || tx.total_bal || 1;
 
                   return (
-                    <tr key={tx.transaksi_id} className="hover:bg-amber-50/40">
-                      <td className="py-2 px-3 font-mono font-bold text-gray-900">
+                    <tr key={tx.transaksi_id} className="hover:bg-slate-50">
+                      <td className="py-2 px-3 font-mono font-semibold text-slate-900">
                         {tx.no_kupon || '-'}
                       </td>
-                      <td className="py-2 px-3 text-gray-600">
+                      <td className="py-2 px-3 text-slate-600">
                         {tx.tanggal_transaksi?.split(' ')[0] || '-'}
                       </td>
-                      <td className="py-2 px-3 font-bold text-gray-800">
+                      <td className="py-2 px-3 font-semibold text-slate-800">
                         {tx.nama_petani}
                       </td>
                       <td className="py-2 px-3">
-                        <span className="px-2 py-0.5 bg-red-50 text-[#b81d24] font-bold rounded-xs border border-red-200 text-[10px]">
-                          {tx.kode_grade}
+                        <span className="px-2 py-0.5 bg-slate-100 text-slate-700 font-medium rounded-xs border border-slate-200 text-[10px]">
+                          Grade {tx.kode_grade}
                         </span>
                       </td>
-                      <td className="py-2 px-3 text-center font-mono font-bold">
+                      <td className="py-2 px-3 text-center font-mono font-semibold text-slate-900">
                         {totalCount} Bal
                       </td>
                       <td className="py-2 px-3 text-center">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                        <span className={`px-2 py-0.5 rounded-xs text-[10px] font-medium border ${
                           weighedCount === totalCount
                             ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                            : 'bg-amber-50 text-amber-800 border-amber-200'
+                            : 'bg-slate-100 text-slate-700 border-slate-200'
                         }`}>
                           {weighedCount} / {totalCount} Bal Selesai
                         </span>
@@ -780,7 +780,7 @@ export const SortirPageView: React.FC<SortirPageViewProps> = ({
                         <button
                           type="button"
                           onClick={() => onNavigateToTimbangan(tx.no_kupon, tx.transaksi_id)}
-                          className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] rounded transition cursor-pointer shadow-2xs inline-flex items-center space-x-1"
+                          className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-white font-medium text-[11px] rounded-xs transition cursor-pointer shadow-2xs inline-flex items-center space-x-1"
                         >
                           <span>Timbang Kupon Ini</span>
                           <ArrowRight className="w-3 h-3" />

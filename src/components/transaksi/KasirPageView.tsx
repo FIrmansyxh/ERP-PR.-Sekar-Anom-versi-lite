@@ -250,18 +250,18 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
     <div className="space-y-4 font-sans pb-10">
       
       {/* Header Banner */}
-      <div className="bg-white border border-gray-200 p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-white border border-slate-200 p-4 shadow-2xs rounded-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#b81d24]"></span>
-            <h2 className="text-base font-bold text-gray-900 tracking-tight">
+            <span className="w-2 h-2 rounded-full bg-slate-800"></span>
+            <h2 className="text-sm font-semibold text-slate-900 tracking-tight">
               Data Pembelian Barang (Kasir & Pencairan Nota)
             </h2>
-            <span className="px-2 py-0.5 bg-red-50 text-[#b81d24] border border-red-200 text-[10px] font-bold rounded-xs">
+            <span className="px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-medium rounded-xs">
               Proses 3: Rekap Transaksi & Cetak Nota
             </span>
           </div>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Lihat rekapitulasi data pembelian, cek kupon, verifikasi potongan kuli/tali/tikar, dan cetak nota resmi.
           </p>
         </div>
@@ -270,29 +270,29 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
           <button
             type="button"
             onClick={() => onNavigateToSortir()}
-            className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-sm transition cursor-pointer"
+            className="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-xs rounded-sm transition cursor-pointer shadow-2xs"
           >
             + Intake Sortir Baru
           </button>
           <button
             type="button"
             onClick={() => onNavigateToTimbangan()}
-            className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs rounded-sm transition cursor-pointer"
+            className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-sm transition cursor-pointer shadow-2xs"
           >
             Meja Timbangan
           </button>
         </div>
       </div>
 
-      {/* Filter Section matching Screenshot 3 */}
-      <div className="bg-white border border-gray-200 p-4 shadow-2xs space-y-3">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-          <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-gray-800">
-            <Filter className="w-4 h-4 text-[#b81d24]" />
+      {/* Filter Section */}
+      <div className="bg-white border border-slate-200 p-4 shadow-2xs rounded-sm space-y-3">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+          <div className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-slate-800">
+            <Filter className="w-3.5 h-3.5 text-slate-600" />
             <span>Filter Pencarian Data Pembelian</span>
           </div>
-          <span className="text-[11px] text-gray-500">
-            Ditemukan <strong>{filteredList.length}</strong> dari {transaksiList.length} transaksi
+          <span className="text-[11px] text-slate-500">
+            Ditemukan <strong className="text-slate-800">{filteredList.length}</strong> dari {transaksiList.length} transaksi
           </span>
         </div>
 
@@ -300,33 +300,33 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
           
           {/* Tanggal Mulai */}
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               Tanggal Mulai
             </label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-[#b81d24]"
+              className="w-full bg-white border border-slate-300 rounded-sm px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
             />
           </div>
 
           {/* Tanggal Akhir */}
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               Tanggal Akhir
             </label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-[#b81d24]"
+              className="w-full bg-white border border-slate-300 rounded-sm px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
             />
           </div>
 
           {/* Kupon */}
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               Kupon / ID
             </label>
             <input
@@ -334,19 +334,19 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
               value={filterKupon}
               onChange={(e) => setFilterKupon(e.target.value)}
               placeholder="Masukkan kupon..."
-              className="w-full bg-white border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-[#b81d24]"
+              className="w-full bg-white border border-slate-300 rounded-sm px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 font-mono"
             />
           </div>
 
           {/* Petani */}
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               Petani
             </label>
             <select
               value={filterPetaniId}
               onChange={(e) => setFilterPetaniId(e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-[#b81d24]"
+              className="w-full bg-white border border-slate-300 rounded-sm px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
             >
               <option value="">-- Semua Petani --</option>
               {petaniList.map((p) => (
@@ -359,17 +359,17 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
 
           {/* Status Bayar */}
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               Status Pembayaran & Kas
             </label>
             <select
               value={filterStatusBayar}
               onChange={(e) => setFilterStatusBayar(e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded-sm px-2.5 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-[#b81d24]"
+              className="w-full bg-white border border-slate-300 rounded-sm px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800"
             >
               <option value="all">-- Semua Status Kas --</option>
-              <option value="cash">🟢 Cash / Masuk Kas ({transaksiList.filter(t => t.status_pembayaran === 'lunas' || t.metode_pembayaran === 'cash').length})</option>
-              <option value="kredit">🟡 Kredit / Hutang Petani ({transaksiList.filter(t => t.status_pembayaran !== 'lunas' && t.metode_pembayaran !== 'cash').length})</option>
+              <option value="cash">Cash / Masuk Kas ({transaksiList.filter(t => t.status_pembayaran === 'lunas' || t.metode_pembayaran === 'cash').length})</option>
+              <option value="kredit">Kredit / Pending ({transaksiList.filter(t => t.status_pembayaran !== 'lunas' && t.metode_pembayaran !== 'cash').length})</option>
             </select>
           </div>
 
@@ -378,7 +378,7 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
             <button
               type="button"
               onClick={() => setCurrentPage(1)}
-              className="flex-1 py-1.5 bg-[#d89719] hover:bg-[#c28414] text-white font-bold text-xs rounded-sm transition flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs"
+              className="flex-1 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-sm transition flex items-center justify-center space-x-1.5 cursor-pointer shadow-2xs"
             >
               <Search className="w-3.5 h-3.5" />
               <span>Cari</span>
@@ -386,7 +386,7 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
             <button
               type="button"
               onClick={handleResetFilter}
-              className="px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-sm transition cursor-pointer"
+              className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-sm transition cursor-pointer"
               title="Reset Filter"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -398,66 +398,66 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
 
       {/* Summary KPI Widgets */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div className="bg-white border border-gray-200 p-3 rounded-sm shadow-2xs">
-          <span className="text-[10px] uppercase font-bold text-gray-500 block">Total Transaksi</span>
-          <p className="text-base font-black text-gray-900 mt-0.5">{stats.totalTx} Nota</p>
-          <span className="text-[10px] text-gray-400 font-medium">Batch setoran</span>
+        <div className="bg-white border border-slate-200 p-3 rounded-sm shadow-2xs">
+          <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">Total Transaksi</span>
+          <p className="text-base font-semibold text-slate-900 mt-0.5">{stats.totalTx} Nota</p>
+          <span className="text-[10px] text-slate-400 font-normal">Batch setoran</span>
         </div>
 
-        <div className="bg-white border border-gray-200 p-3 rounded-sm shadow-2xs">
-          <span className="text-[10px] uppercase font-bold text-gray-500 block">Total Bal</span>
-          <p className="text-base font-black text-gray-900 mt-0.5">{stats.totalBal} Bal</p>
-          <span className="text-[10px] text-gray-400 font-medium">Karung masuk</span>
+        <div className="bg-white border border-slate-200 p-3 rounded-sm shadow-2xs">
+          <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">Total Bal</span>
+          <p className="text-base font-semibold text-slate-900 mt-0.5">{stats.totalBal} Bal</p>
+          <span className="text-[10px] text-slate-400 font-normal">Karung masuk</span>
         </div>
 
-        <div className="bg-white border border-gray-200 p-3 rounded-sm shadow-2xs">
-          <span className="text-[10px] uppercase font-bold text-gray-500 block">Total Tonase Netto</span>
-          <p className="text-base font-black text-slate-800 mt-0.5">{stats.totalNetto.toLocaleString('id-ID')} Kg</p>
-          <span className="text-[10px] text-gray-500 font-medium">{(stats.totalNetto / 1000).toFixed(2)} Ton</span>
+        <div className="bg-white border border-slate-200 p-3 rounded-sm shadow-2xs">
+          <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">Total Tonase Netto</span>
+          <p className="text-base font-semibold text-slate-900 mt-0.5 font-mono">{stats.totalNetto.toLocaleString('id-ID')} Kg</p>
+          <span className="text-[10px] text-slate-500 font-normal">{(stats.totalNetto / 1000).toFixed(2)} Ton</span>
         </div>
 
-        <div className="bg-white border border-gray-200 p-3 rounded-sm shadow-2xs">
-          <span className="text-[10px] uppercase font-bold text-gray-500 block">Total Pembelian</span>
-          <p className="text-base font-black text-gray-900 mt-0.5">{formatRupiah(stats.totalBayar)}</p>
-          <span className="text-[10px] text-red-500 font-medium">Pot: {formatRupiah(stats.totalPotongan)}</span>
+        <div className="bg-white border border-slate-200 p-3 rounded-sm shadow-2xs">
+          <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">Total Pembelian</span>
+          <p className="text-base font-semibold text-slate-900 mt-0.5 font-mono">{formatRupiah(stats.totalBayar)}</p>
+          <span className="text-[10px] text-slate-500 font-normal">Pot: {formatRupiah(stats.totalPotongan)}</span>
         </div>
 
-        <div className="bg-emerald-50/70 border border-emerald-300 p-3 rounded-sm shadow-2xs">
+        <div className="bg-slate-50 border border-slate-200 p-3 rounded-sm shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-emerald-800 block">Total Kas Keluar (Cash)</span>
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+            <span className="text-[10px] uppercase font-semibold text-slate-700 block tracking-wider">Kas Keluar (Cash)</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
           </div>
-          <p className="text-base font-black text-emerald-900 mt-0.5">{formatRupiah(stats.lunasNominal)}</p>
-          <span className="text-[10px] text-emerald-700 font-bold">{stats.lunasCount} Nota Cair Masuk Kas</span>
+          <p className="text-base font-semibold text-slate-900 mt-0.5 font-mono">{formatRupiah(stats.lunasNominal)}</p>
+          <span className="text-[10px] text-slate-600 font-medium">{stats.lunasCount} Nota Cair</span>
         </div>
 
-        <div className="bg-amber-50/70 border border-amber-300 p-3 rounded-sm shadow-2xs">
+        <div className="bg-slate-50 border border-slate-200 p-3 rounded-sm shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-amber-900 block">Hutang Petani (Kredit)</span>
-            <Clock className="w-3.5 h-3.5 text-amber-700" />
+            <span className="text-[10px] uppercase font-semibold text-slate-700 block tracking-wider">Hutang (Kredit)</span>
+            <Clock className="w-3.5 h-3.5 text-slate-500" />
           </div>
-          <p className="text-base font-black text-amber-900 mt-0.5">{formatRupiah(stats.belumLunasNominal)}</p>
-          <span className="text-[10px] text-amber-800 font-bold">{stats.belumLunasCount} Tiket Belum Diserahkan</span>
+          <p className="text-base font-semibold text-slate-900 mt-0.5 font-mono">{formatRupiah(stats.belumLunasNominal)}</p>
+          <span className="text-[10px] text-slate-600 font-medium">{stats.belumLunasCount} Nota Pending</span>
         </div>
       </div>
 
-      {/* Main Table matching Screenshot 3 */}
-      <div className="bg-white border border-gray-200 shadow-2xs overflow-hidden">
-        <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-200 flex items-center justify-between">
+      {/* Main Table */}
+      <div className="bg-white border border-slate-200 shadow-2xs rounded-sm overflow-hidden">
+        <div className="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Receipt className="w-4 h-4 text-[#b81d24]" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800">
+            <Receipt className="w-4 h-4 text-slate-700" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-800">
               Tabel Data Pembelian Barang & Status Kasir
             </h3>
           </div>
         </div>
 
         {/* Quick Filter Status Bar (Cash / Kredit) */}
-        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-white border-b border-gray-200">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-white border-b border-slate-200">
           <div className="flex items-center space-x-2 overflow-x-auto">
-            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
-              <Filter className="w-3.5 h-3.5 text-[#b81d24]" />
-              Filter Status Kas:
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5 text-slate-600" />
+              Status Kas:
             </span>
             
             <button
@@ -466,15 +466,15 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                 setFilterStatusBayar('all');
                 setCurrentPage(1);
               }}
-              className={`px-3 py-1 text-xs font-bold rounded-sm transition cursor-pointer flex items-center space-x-1.5 ${
+              className={`px-2.5 py-1 text-xs font-medium rounded-xs transition cursor-pointer flex items-center space-x-1.5 ${
                 filterStatusBayar === 'all'
-                  ? 'bg-slate-800 text-white shadow-2xs'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-300'
+                  ? 'bg-slate-900 text-white shadow-2xs'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               <span>Semua</span>
-              <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
-                filterStatusBayar === 'all' ? 'bg-slate-700 text-white' : 'bg-gray-100 text-gray-700 font-bold'
+              <span className={`px-1.5 py-0.2 rounded-xs text-[10px] font-mono ${
+                filterStatusBayar === 'all' ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
               }`}>
                 {transaksiList.length}
               </span>
@@ -486,16 +486,16 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                 setFilterStatusBayar('cash');
                 setCurrentPage(1);
               }}
-              className={`px-3 py-1 text-xs font-bold rounded-sm transition cursor-pointer flex items-center space-x-1.5 ${
+              className={`px-2.5 py-1 text-xs font-medium rounded-xs transition cursor-pointer flex items-center space-x-1.5 ${
                 filterStatusBayar === 'cash' || filterStatusBayar === 'lunas'
-                  ? 'bg-emerald-700 text-white shadow-2xs'
-                  : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
+                  ? 'bg-slate-900 text-white shadow-2xs'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>🟢 Cash (Masuk Kas)</span>
-              <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold ${
-                filterStatusBayar === 'cash' || filterStatusBayar === 'lunas' ? 'bg-emerald-800 text-white' : 'bg-emerald-200 text-emerald-900'
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+              <span>Cash (Lunas)</span>
+              <span className={`px-1.5 py-0.2 rounded-xs text-[10px] font-mono font-medium ${
+                filterStatusBayar === 'cash' || filterStatusBayar === 'lunas' ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
               }`}>
                 {transaksiList.filter(t => t.status_pembayaran === 'lunas' || t.metode_pembayaran === 'cash').length}
               </span>
@@ -507,16 +507,16 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                 setFilterStatusBayar('kredit');
                 setCurrentPage(1);
               }}
-              className={`px-3 py-1 text-xs font-bold rounded-sm transition cursor-pointer flex items-center space-x-1.5 ${
+              className={`px-2.5 py-1 text-xs font-medium rounded-xs transition cursor-pointer flex items-center space-x-1.5 ${
                 filterStatusBayar === 'kredit' || filterStatusBayar === 'belum_lunas'
-                  ? 'bg-amber-600 text-white shadow-2xs'
-                  : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-300'
+                  ? 'bg-slate-900 text-white shadow-2xs'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
-              <Clock className="w-3.5 h-3.5" />
-              <span>🟡 Kredit (Tiket Pending)</span>
-              <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold ${
-                filterStatusBayar === 'kredit' || filterStatusBayar === 'belum_lunas' ? 'bg-amber-700 text-white' : 'bg-amber-200 text-amber-900'
+              <Clock className="w-3 h-3 text-slate-500" />
+              <span>Kredit (Pending)</span>
+              <span className={`px-1.5 py-0.2 rounded-xs text-[10px] font-mono font-medium ${
+                filterStatusBayar === 'kredit' || filterStatusBayar === 'belum_lunas' ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-600'
               }`}>
                 {transaksiList.filter(t => t.status_pembayaran !== 'lunas' && t.metode_pembayaran !== 'cash').length}
               </span>
@@ -524,8 +524,8 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
           </div>
 
           <div className="flex items-center space-x-2">
-            <span className="text-[11px] text-gray-500">
-              Menampilkan <strong className="text-gray-800">{paginatedList.length}</strong> dari <strong className="text-gray-800">{filteredList.length}</strong> data
+            <span className="text-[11px] text-slate-500">
+              Menampilkan <strong className="text-slate-800">{paginatedList.length}</strong> dari <strong className="text-slate-800">{filteredList.length}</strong> data
             </span>
           </div>
         </div>
@@ -533,29 +533,29 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-gray-800 text-white font-bold uppercase tracking-wider text-[10px]">
-                <th className="py-3 px-3 w-10 text-center">#</th>
-                <th className="py-3 px-3">Kupon</th>
-                <th className="py-3 px-3">Tanggal</th>
-                <th className="py-3 px-3">Petani</th>
-                <th className="py-3 px-3 text-center">Jumlah / Bal</th>
-                <th className="py-3 px-3 text-right">Netto</th>
-                <th className="py-3 px-3 text-right">Total Kotor</th>
-                <th className="py-3 px-3 text-right">Potongan</th>
-                <th className="py-3 px-3 text-right">Jumlah Bayar</th>
-                <th className="py-3 px-3 text-center">Status Bayar</th>
-                <th className="py-3 px-3 text-center">Status Nota</th>
-                <th className="py-3 px-3 text-right">AVG</th>
-                <th className="py-3 px-3 text-center w-36">Opsi</th>
+              <tr className="bg-slate-900 text-white font-semibold uppercase tracking-wider text-[10px]">
+                <th className="py-2.5 px-3 w-10 text-center">#</th>
+                <th className="py-2.5 px-3">Kupon</th>
+                <th className="py-2.5 px-3">Tanggal</th>
+                <th className="py-2.5 px-3">Petani</th>
+                <th className="py-2.5 px-3 text-center">Jumlah / Bal</th>
+                <th className="py-2.5 px-3 text-right">Netto</th>
+                <th className="py-2.5 px-3 text-right">Total Kotor</th>
+                <th className="py-2.5 px-3 text-right">Potongan</th>
+                <th className="py-2.5 px-3 text-right">Jumlah Bayar</th>
+                <th className="py-2.5 px-3 text-center">Status Bayar</th>
+                <th className="py-2.5 px-3 text-center">Status Nota</th>
+                <th className="py-2.5 px-3 text-right">AVG</th>
+                <th className="py-2.5 px-3 text-center w-36">Opsi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {paginatedList.length === 0 ? (
                 <tr>
-                  <td colSpan={13} className="py-10 text-center text-gray-400">
-                    <Receipt className="w-10 h-10 mx-auto text-gray-300 mb-2" />
-                    <p className="font-semibold text-gray-700 text-xs">Tidak ada data transaksi pembelian yang cocok</p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">
+                  <td colSpan={13} className="py-10 text-center text-slate-400">
+                    <Receipt className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+                    <p className="font-medium text-slate-700 text-xs">Tidak ada data transaksi pembelian yang cocok</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
                       Ubah kata kunci pencarian atau tanggal filter di atas.
                     </p>
                   </td>
@@ -565,7 +565,6 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                   const seq = (currentPage - 1) * itemsPerPage + index + 1;
                   const items = tx.items || [];
                   const balCount = tx.total_bal || (items.length > 0 ? items.length : 1);
-                  const isWeighed = items.length > 0 && items.every((it) => (it.berat_kg || 0) > 0);
                   const hasZeroWeight = items.some((it) => (it.berat_kg || 0) <= 0);
                   const isPrinted = tx.status_nota === 'sudah_cetak' || localPrintedTxIds.has(tx.transaksi_id);
                   const isLunas = tx.status_pembayaran === 'lunas';
@@ -574,47 +573,47 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                   const avgPrice = tx.berat_kg > 0 ? Math.round((tx.total_kotor || tx.total_harga_beli) / tx.berat_kg) : tx.harga_per_kg;
 
                   return (
-                    <tr key={tx.transaksi_id} className="hover:bg-amber-50/30 transition">
-                      <td className="py-2.5 px-3 text-center font-mono font-bold text-gray-500">
+                    <tr key={tx.transaksi_id} className="hover:bg-slate-50 transition">
+                      <td className="py-2.5 px-3 text-center font-mono text-slate-500">
                         {seq}
                       </td>
                       <td className="py-2.5 px-3">
-                        <span className="font-mono font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded border border-gray-300 text-xs">
+                        <span className="font-mono font-medium text-slate-900 bg-slate-100 px-2 py-0.5 rounded-xs border border-slate-200 text-xs">
                           {tx.no_kupon || '-'}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 text-gray-600 font-medium">
+                      <td className="py-2.5 px-3 text-slate-600">
                         {tx.tanggal_transaksi?.split(' ')[0] || '-'}
                       </td>
                       <td className="py-2.5 px-3">
-                        <div className="font-bold text-gray-900">{tx.nama_petani}</div>
-                        <span className="text-[10px] text-gray-500 font-mono">
+                        <div className="font-medium text-slate-900">{tx.nama_petani}</div>
+                        <span className="text-[10px] text-slate-500 font-mono">
                           {tx.nomor_kartu || tx.petani_id}
                         </span>
                       </td>
                       <td className="py-2.5 px-3 text-center">
-                        <span className="font-mono font-bold text-gray-800 bg-slate-100 px-2 py-0.5 rounded text-xs">
+                        <span className="font-mono font-medium text-slate-800 bg-slate-100 px-2 py-0.5 rounded-xs text-xs">
                           {balCount} Bal
                         </span>
                       </td>
                       <td className="py-2.5 px-3 text-right">
                         {hasZeroWeight ? (
-                          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                            ⏳ Belum Timbang
+                          <span className="text-[10px] font-medium text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded-xs border border-slate-200">
+                            Belum Timbang
                           </span>
                         ) : (
-                          <span className="font-mono font-bold text-emerald-800 text-xs">
+                          <span className="font-mono font-medium text-slate-900 text-xs">
                             {tx.berat_kg} Kg
                           </span>
                         )}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono font-medium text-gray-700">
+                      <td className="py-2.5 px-3 text-right font-mono text-slate-700">
                         {formatRupiah(tx.total_kotor || tx.total_harga_beli)}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono font-bold text-red-600">
-                        -{formatRupiah(tx.total_potongan)}
+                      <td className="py-2.5 px-3 text-right font-mono text-slate-600">
+                        {tx.total_potongan > 0 ? `-${formatRupiah(tx.total_potongan)}` : '-'}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono font-black text-gray-900 text-xs">
+                      <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-900 text-xs">
                         {formatRupiah(tx.harga_final)}
                       </td>
 
@@ -622,21 +621,21 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                       <td className="py-2.5 px-3 text-center">
                         {isLunas ? (
                           <div className="flex flex-col items-center">
-                            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-full font-bold text-[10px] inline-flex items-center space-x-1 shadow-2xs">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-700 shrink-0" />
-                              <span>Cash (Masuk Kas)</span>
+                            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xs text-[10px] font-medium inline-flex items-center space-x-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                              <span>Lunas (Cash)</span>
                             </span>
-                            <span className="text-[9px] text-gray-500 font-mono mt-0.5" title="Nomor Bukti Kas Keluar">
+                            <span className="text-[9px] text-slate-500 font-mono mt-0.5" title="Nomor Bukti Kas Keluar">
                               {tx.no_bukti_kas || 'BKK-LUNAS'}
                             </span>
                           </div>
                         ) : (
                           <div className="flex flex-col items-center">
-                            <span className="px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded-full font-bold text-[10px] inline-flex items-center space-x-1 shadow-2xs">
-                              <Clock className="w-3 h-3 text-amber-700 shrink-0" />
-                              <span>Kredit (Tiket Pending)</span>
+                            <span className="px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-xs text-[10px] font-medium inline-flex items-center space-x-1">
+                              <Clock className="w-3 h-3 text-slate-500 shrink-0" />
+                              <span>Kredit (Pending)</span>
                             </span>
-                            <span className="text-[9px] text-amber-800 font-medium mt-0.5">
+                            <span className="text-[9px] text-slate-500 mt-0.5">
                               Belum Diserahkan
                             </span>
                           </div>
@@ -646,18 +645,18 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                       {/* Status Cetak Nota */}
                       <td className="py-2.5 px-3 text-center">
                         {isPrinted ? (
-                          <span className="px-1.5 py-0.5 bg-gray-100 text-gray-700 border border-gray-300 rounded font-bold text-[10px] inline-flex items-center space-x-1">
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-xs text-[10px] font-medium inline-flex items-center space-x-1">
                             <span>Sudah Cetak</span>
                           </span>
                         ) : (
-                          <span className="px-1.5 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded font-bold text-[10px] inline-flex items-center space-x-1">
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-500 border border-slate-200 rounded-xs text-[10px] font-medium inline-flex items-center space-x-1">
                             <span>Belum Cetak</span>
                           </span>
                         )}
                       </td>
 
                       {/* AVG / Rata-rata per kg */}
-                      <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-800">
+                      <td className="py-2.5 px-3 text-right font-mono font-medium text-slate-800">
                         {formatRupiah(avgPrice)}
                       </td>
 
@@ -670,11 +669,11 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedTxForBayar(tx)}
-                              className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded transition cursor-pointer shadow-2xs flex items-center space-x-1"
+                              className="px-2 py-1 bg-slate-900 hover:bg-slate-800 text-white font-medium text-[10px] rounded-xs transition cursor-pointer shadow-2xs flex items-center space-x-1"
                               title="Proses Pembayaran Cash ke Petani (Buku Kas)"
                             >
-                              <CheckCircle2 className="w-3 h-3" />
-                              <span>Bayar Cash</span>
+                              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                              <span>Bayar</span>
                             </button>
                           )}
 
@@ -682,7 +681,7 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedTxForDetail(tx)}
-                            className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded transition cursor-pointer"
+                            className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xs transition cursor-pointer"
                             title="Lihat Detail & Cetak Nota PDF"
                           >
                             <Receipt className="w-3.5 h-3.5" />
@@ -692,7 +691,7 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleOpenSampleLabelPrint(tx)}
-                            className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded transition cursor-pointer"
+                            className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xs transition cursor-pointer"
                             title="Cetak Label Sample QC Bal"
                           >
                             <Tag className="w-3.5 h-3.5" />
@@ -703,7 +702,7 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                             <button
                               type="button"
                               onClick={() => onNavigateToTimbangan(tx.no_kupon, tx.transaksi_id)}
-                              className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded transition cursor-pointer"
+                              className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xs transition cursor-pointer"
                               title="Lanjutkan Penimbangan"
                             >
                               <Scale className="w-3.5 h-3.5" />
@@ -714,7 +713,7 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
                           <button
                             type="button"
                             onClick={() => setTxToDelete(tx)}
-                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition cursor-pointer"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xs transition cursor-pointer"
                             title="Hapus Transaksi"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -731,8 +730,8 @@ export const KasirPageView: React.FC<KasirPageViewProps> = ({
         </div>
 
         {/* Pagination Toolbar */}
-        <div className="p-3 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="text-xs text-gray-500">
+        <div className="p-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="text-xs text-slate-500">
             Halaman {currentPage} dari {totalPages} ({filteredList.length} total data)
           </div>
 
