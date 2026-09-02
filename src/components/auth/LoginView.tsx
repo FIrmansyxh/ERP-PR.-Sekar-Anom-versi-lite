@@ -87,10 +87,10 @@ export const LoginView: React.FC<LoginViewProps> = ({
       <header className="bg-white border-b border-gray-200 px-6 py-2.5 flex items-center justify-between shadow-2xs">
         <div className="flex items-center space-x-3">
           <div className="w-6 h-6 rounded-xs bg-[#b81d24] flex items-center justify-center text-white font-bold text-xs shadow-2xs">
-            SA
+            SMS
           </div>
           <div className="flex items-center space-x-2 text-xs">
-            <span className="font-bold text-gray-900 tracking-tight">PR. SEKAR ANOM</span>
+            <span className="font-bold text-gray-900 tracking-tight">PR. SEKAR MAJU SEJAHTERA</span>
             <span className="text-gray-300">|</span>
             <span className="text-gray-500">Sistem Data Gudang Tembakau</span>
           </div>
@@ -117,7 +117,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
               {/* Title */}
               <h1 className="text-2xl font-black tracking-tight text-white mb-2">
-                PR. SEKAR ANOM
+                PR. SEKAR MAJU SEJAHTERA
               </h1>
               <p className="text-xs text-red-100/90 leading-relaxed mb-6 font-normal">
                 Sistem Enterprise Resource Planning (ERP) Manajemen Data Petani, Stok Bal, Intake Timbangan, & Logistik.
@@ -333,7 +333,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
       {/* Bottom Footer */}
       <footer className="py-2.5 px-6 text-center text-[11px] text-gray-500">
-        Hak Cipta © 2026 PR. SEKAR ANOM Pamekasan. Seluruh hak cipta dilindungi undang-undang.
+        Hak Cipta © 2026 PR. SEKAR MAJU SEJAHTERA Pamekasan. Seluruh hak cipta dilindungi undang-undang.
       </footer>
 
     </div>

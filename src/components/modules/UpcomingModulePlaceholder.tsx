@@ -2,52 +2,48 @@ import React from 'react';
 import { 
   Package, 
   Tag, 
-  Scale, 
   FlaskConical, 
   Truck, 
   BarChart3, 
-  Layers, 
-  CheckCircle, 
-  ArrowRight,
-  Sparkles,
+  ArrowRight, 
   Database,
-  KeyRound
+  ArrowLeft,
+  CheckCircle2
 } from 'lucide-react';
-import { ModuleNav } from '../../types';
 
 interface UpcomingModulePlaceholderProps {
-  module: ModuleNav;
+  moduleId: string;
   onGoToPetani: () => void;
 }
 
 export const UpcomingModulePlaceholder: React.FC<UpcomingModulePlaceholderProps> = ({
-  module,
+  moduleId,
   onGoToPetani,
 }) => {
   const getDetails = (id: string) => {
     switch (id) {
       case 'modul-2-barang':
         return {
-          icon: <Package className="w-8 h-8 text-amber-600" />,
+          icon: <Package className="w-8 h-8 text-gray-700" />,
           badge: 'PRD 02 (Urutan Berikutnya)',
-          title: 'Modul Data Barang — Master Grade & Barcode Generator',
-          desc: 'Modul untuk manajemen master tembakau per grade (Grade A s/d F), auto-generate barcode fisik tiap bal saat create, auto-decrement stok saat barcode di-scan keluar gudang.',
+          title: 'Modul Data Barang — Master Grade & Penataan Bal',
+          desc: 'Modul untuk manajemen master tembakau per grade (Grade A s/d F), penomoran fisik tiap bal saat intake, pengurangan stok saat bal keluar gudang.',
           entities: [
             { field: 'barang_id', type: 'PK (UUID / Auto)', desc: 'Identitas unik master barang' },
             { field: 'kode_grade', type: 'string (A, B, C, D, E, F)', desc: 'Klasifikasi grade mutu tembakau' },
-            { field: 'barcode', type: 'string (Unik)', desc: 'Auto-generate saat barang dibuat' },
+            { field: 'no_bal', type: 'string (Unik)', desc: 'Nomor bal saat penerimaan' },
             { field: 'berat_standar_kg', type: 'number (default 45 kg)', desc: 'Standar berat bal tembakau' },
             { field: 'status_stok', type: 'string', desc: 'di_gudang / dalam_pengiriman / keluar' },
             { field: 'lokasi_gudang', type: 'string', desc: 'Blok / Rak penyimpanan' },
           ],
-          relations: 'Barcode pada modul ini akan menjadi kunci penghubung ke Pengiriman Sample dan Pengiriman Barang.',
+          relations: 'No. bal pada modul ini menjadi kunci penghubung ke Pengiriman Sample dan Pengiriman Barang.',
         };
       case 'modul-3-harga':
         return {
-          icon: <Tag className="w-8 h-8 text-emerald-600" />,
+          icon: <Tag className="w-8 h-8 text-gray-700" />,
           badge: 'PRD 03 (Menunggu Data Barang)',
           title: 'Modul Tabel Harga — Tarif Grade & Rate Potongan',
-          desc: 'Modul pengelolaan tarif harga beli per kg per grade, versioning tanggal berlaku, serta konfigurasi rate potongan per 10 kg.',
+          desc: 'Modul pengelolaan tarif harga beli per kg per grade, versioning tanggal berlaku, serta konfigurasi rate potongan.',
           entities: [
             { field: 'harga_id', type: 'PK', desc: 'Identitas acuan harga' },
             { field: 'barang_id', type: 'FK → Barang.kode_grade', desc: 'Relasi ke Grade Barang' },
@@ -59,7 +55,7 @@ export const UpcomingModulePlaceholder: React.FC<UpcomingModulePlaceholderProps>
         };
       case 'modul-4-sample':
         return {
-          icon: <FlaskConical className="w-8 h-8 text-purple-600" />,
+          icon: <FlaskConical className="w-8 h-8 text-gray-700" />,
           badge: 'PRD 04 (Logistik & Lab)',
           title: 'Modul Pengiriman Sample — Uji Mutu & Approval Lab',
           desc: 'Pencatatan pengiriman sampel tembakau ke pabrik/laboratorium buyer, status approval (Diterima / Ditolak), dan referensi grade.',
@@ -75,150 +71,126 @@ export const UpcomingModulePlaceholder: React.FC<UpcomingModulePlaceholderProps>
         };
       case 'modul-5-pengiriman':
         return {
-          icon: <Truck className="w-8 h-8 text-blue-600" />,
+          icon: <Truck className="w-8 h-8 text-gray-700" />,
           badge: 'PRD 05 (Logistik Bal Fisik)',
-          title: 'Modul Pengiriman Barang — Scan Barcode Outbound',
-          desc: 'Pengiriman bal tembakau fisik skala penuh keluar gudang menuju pabrik rokok/mitra, validasi via scan barcode dan auto-update status stok.',
+          title: 'Modul Pengiriman Barang — Surat Jalan Outbound',
+          desc: 'Pengiriman bal tembakau fisik skala penuh keluar gudang menuju pabrik rokok/mitra, validasi nomor bal dan pembaruan status stok.',
           entities: [
             { field: 'pengiriman_id', type: 'PK', desc: 'Nomor surat jalan / DO' },
-            { field: 'barcode', type: 'FK → Barang.barcode', desc: 'Scan barcode bal fisik yang keluar' },
+            { field: 'no_bal', type: 'FK → Barang.no_bal', desc: 'Nomor bal fisik yang keluar' },
             { field: 'sumber', type: 'string', desc: 'Gudang Temanggung' },
             { field: 'tujuan', type: 'string', desc: 'Pabrik Rokok Tujuan' },
             { field: 'tanggal_kirim', type: 'date', desc: 'Waktu keberangkatan truk' },
             { field: 'referensi_sample_id', type: 'FK (opsional)', desc: 'Tautan ke approval sample' },
           ],
-          relations: 'Memvalidasi barcode fisik bal dan memperbarui status stok di Data Barang.',
+          relations: 'Memvalidasi nomor bal fisik dan memperbarui status stok di Data Barang.',
         };
       case 'modul-6-laporan':
         return {
-          icon: <BarChart3 className="w-8 h-8 text-rose-600" />,
+          icon: <BarChart3 className="w-8 h-8 text-gray-700" />,
           badge: 'PRD 06 (Konsumen Data & Analytic)',
           title: 'Modul Laporan & Analytic — Dashboard Ranking & Volume',
           desc: 'Modul analitik agregasi: ranking grade tembakau terlaris/tersedikit, ranking petani paling aktif/setoran terbanyak, tren volume panen per wilayah.',
           entities: [
             { field: 'agregasi_petani', type: 'Ranking Metric', desc: 'Top pemasok by volume bal & kg' },
             { field: 'agregasi_grade', type: 'Distribusi Mutu', desc: 'Persentase Grade A, B, C, D, E' },
-            { field: 'tren_harian', type: 'Timeseries', desc: 'Volume masuk vs volume keluar' },
-            { field: 'zonasi_wilayah', type: 'Geographic Analysis', desc: 'Produktivitas Temanggung, Jember, Madura' },
+            { field: 'agregasi_gudang', type: 'Kapasitas & Mutasi', desc: 'Stok masuk vs keluar' },
+            { field: 'agregasi_pembelian', type: 'Rekap Finansial', desc: 'Total tonase & biaya beli' },
           ],
-          relations: 'Mengkonsumsi data gabungan dari Petani (petani_id), Transaksi Pembelian, dan Pengiriman Barang.',
+          relations: 'Mengkonsumsi data dari seluruh modul (Petani, Barang, Harga, Transaksi, Pengiriman).',
         };
-      case 'modul-0-transaksi':
       default:
         return {
-          icon: <Scale className="w-8 h-8 text-emerald-600" />,
-          badge: 'Modul Prasyarat / Loket Timbang',
-          title: 'Transaksi Pembelian Tembakau',
-          desc: 'Penerimaan bal langsung di loket timbang: Scan kartu petani, timbang berat gross, tentukan mutu grade, hitung potongan dan harga final.',
-          entities: [
-            { field: 'transaksi_id', type: 'PK', desc: 'Nomor kupon transaksi unik' },
-            { field: 'petani_id', type: 'FK → Petani.petani_id', desc: 'Petani aktif penyetor' },
-            { field: 'no_bal', type: 'string', desc: 'Nomor bal fisik' },
-            { field: 'barang_id', type: 'FK → Grade', desc: 'Grade tembakau hasil taksir' },
-            { field: 'berat_kg', type: 'number', desc: 'Berat netto setelah potongan' },
-            { field: 'harga_final', type: 'currency', desc: 'Total pembayaran ke petani' },
-          ],
-          relations: 'Terkoneksi langsung ke Modul 1 (Tabel Petani) yang saat ini aktif.',
+          icon: <Database className="w-8 h-8 text-gray-700" />,
+          badge: 'Modul Tambahan',
+          title: 'Modul Sistem ERP Tembakau',
+          desc: 'Modul dalam perencanaan arsitektur roadmap terpadu.',
+          entities: [],
+          relations: 'Terintegrasi dengan Master Petani.',
         };
     }
   };
 
-  const details = getDetails(module.id);
+  const details = getDetails(moduleId);
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-5 font-sans">
       
-      {/* Module Overview Banner */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-slate-100 rounded-2xl border border-slate-200">
-              {details.icon}
-            </div>
-            <div>
-              <span className="bg-slate-100 text-slate-700 font-bold text-xs px-2.5 py-1 rounded-md border border-slate-300">
-                {details.badge}
-              </span>
-              <h2 className="text-xl font-bold text-slate-900 mt-1">
-                {details.title}
-              </h2>
-            </div>
-          </div>
-
-          <button
-            onClick={onGoToPetani}
-            className="px-4 py-2 text-xs font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded-xl transition flex items-center space-x-1.5 self-start sm:self-auto cursor-pointer"
-          >
-            <span>Buka Modul 1 (Tabel Petani Aktif)</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+      {/* Top Banner Notice */}
+      <div className="bg-[#f8f9fa] border border-gray-300 p-4 flex items-start space-x-3 text-xs text-gray-700">
+        <div className="p-2 bg-white border border-gray-200 shrink-0">
+          {details.icon}
         </div>
+        <div className="space-y-1">
+          <div className="flex items-center space-x-2">
+            <span className="font-bold text-xs uppercase px-2 py-0.5 bg-gray-200 text-gray-800">
+              {details.badge}
+            </span>
+          </div>
+          <h1 className="text-base font-bold text-gray-900">{details.title}</h1>
+          <p className="text-gray-600 text-xs leading-relaxed">{details.desc}</p>
+        </div>
+      </div>
 
-        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-          {details.desc}
+      {/* Relational Foundation Notice */}
+      <div className="border border-gray-200 p-4 bg-white space-y-3">
+        <div className="flex items-center space-x-2 text-gray-900 font-bold text-xs">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <span>Fondasi Master Data (PRD 01: Data Petani) Telah Siap</span>
+        </div>
+        <p className="text-xs text-gray-600 leading-relaxed">
+          Arsitektur database relasional dirancang agar modul ini terhubung langsung dengan master data yang sudah aktif.
         </p>
       </div>
 
-      {/* Contract & Schema Card */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Left 2 Cols: Data Model Schema */}
-        <div className="md:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h3 className="font-bold text-sm text-slate-900 flex items-center space-x-2">
-              <Database className="w-4 h-4 text-slate-600" />
-              <span>Struktur Skema Data (Master Outline)</span>
-            </h3>
-            <span className="text-xs text-slate-400 font-mono">
-              Siap dihubungkan saat PRD diunggah
-            </span>
+      {/* Entity Design Preview Table */}
+      {details.entities.length > 0 && (
+        <div className="border border-gray-200 bg-white">
+          <div className="p-3 bg-[#f8f9fa] border-b border-gray-200 font-bold text-xs text-gray-900">
+            Skema Relasi Data
           </div>
-
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
-                  <th className="py-2.5 px-3">Field Name</th>
-                  <th className="py-2.5 px-3">Tipe / Key</th>
-                  <th className="py-2.5 px-3">Keterangan Relasi</th>
+                <tr className="bg-gray-50 border-b border-gray-200 font-bold text-gray-700">
+                  <th className="py-2 px-3">Nama Field</th>
+                  <th className="py-2 px-3">Tipe Data / Relasi</th>
+                  <th className="py-2 px-3">Keterangan Fungsi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-mono">
+              <tbody className="divide-y divide-gray-100">
                 {details.entities.map((ent, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50">
-                    <td className="py-2.5 px-3 font-bold text-slate-800">
-                      {ent.field}
-                    </td>
-                    <td className="py-2.5 px-3 text-emerald-700">
-                      {ent.type}
-                    </td>
-                    <td className="py-2.5 px-3 font-sans text-slate-600">
-                      {ent.desc}
-                    </td>
+                  <tr key={idx} className="hover:bg-gray-50/50">
+                    <td className="py-2 px-3 font-mono font-bold text-gray-900">{ent.field}</td>
+                    <td className="py-2 px-3 font-mono text-gray-600">{ent.type}</td>
+                    <td className="py-2 px-3 text-gray-600">{ent.desc}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
+      )}
 
-        {/* Right 1 Col: Relationship Card */}
-        <div className="space-y-4">
-          <div className="bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 space-y-3">
-            <div className="flex items-center space-x-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-              <KeyRound className="w-4 h-4" />
-              <span>Kunci Integrasi PRD</span>
-            </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              {details.relations}
-            </p>
+      {/* Relationship Note */}
+      <div className="bg-gray-50 border border-gray-200 p-3 text-xs space-y-1">
+        <span className="font-bold text-gray-900 block">Keterhubungan Antar Modul:</span>
+        <p className="text-gray-600">{details.relations}</p>
+      </div>
 
-            <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400">
-              Silakan kirimkan file atau teks <strong>PRD berikutnya</strong> kapan saja untuk langsung mengimplementasikan modul ini!
-            </div>
-          </div>
-        </div>
+      {/* Action Button */}
+      <div className="flex items-center justify-between pt-2">
+        <button
+          onClick={onGoToPetani}
+          className="px-4 py-2 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Kembali ke Master Petani</span>
+        </button>
 
+        <span className="text-[11px] text-gray-500 font-mono">
+          ERP Gudang Tembakau
+        </span>
       </div>
 
     </div>

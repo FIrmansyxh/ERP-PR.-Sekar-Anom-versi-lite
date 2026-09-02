@@ -121,7 +121,7 @@ export const BonProduksiPrintModal: React.FC<BonProduksiPrintModalProps> = ({
           <div className="flex justify-between items-start border-b-2 border-gray-900 pb-4">
             <div className="space-y-1">
               <h1 className="text-xl font-bold tracking-tight text-[#b81d24]">
-                PR. SEKAR ANOM
+                PR. SEKAR MAJU SEJAHTERA
               </h1>
               <p className="text-xs text-gray-700 font-semibold">
                 PABRIK ROKOK & PENGOLAHAN TEMBAKAU RAJANG
@@ -154,7 +154,7 @@ export const BonProduksiPrintModal: React.FC<BonProduksiPrintModalProps> = ({
                 {pengeluaran.unit_produksi || pengeluaran.tujuan}
               </div>
               <div className="text-[11px] text-red-800 font-semibold bg-red-50 border border-red-200 px-2 py-0.5 inline-block">
-                Peruntukan: Produksi Rokok Sendiri (Internal PR. Sekar Anom)
+                Peruntukan: Produksi Rokok Sendiri (Internal PR. Sekar Maju Sejahtera)
               </div>
             </div>
 

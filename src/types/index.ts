@@ -77,7 +77,6 @@ export interface Gudang {
 
 export interface Barang {
   barang_id: string; // Unique ID, e.g. BAL-20260823-001
-  barcode: string; // Unique ID alias
   kode_grade: string; // A, B, C, A1, A+, etc.
   no_bal: string; // Bal number
   berat_kg: number; // Netto weight in kg

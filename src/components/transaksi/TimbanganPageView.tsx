@@ -935,7 +935,7 @@ export const TimbanganPageView: React.FC<TimbanganPageViewProps> = ({
               <Scale className="w-10 h-10 mx-auto text-slate-300" />
               <h3 className="text-sm font-semibold text-slate-700">Tidak ada bal yang aktif dipilih</h3>
               <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Silakan scan barcode fisik karung atau pilih salah satu bal dari daftar di sebelah kiri untuk menginput berat.
+                Silakan scan / ketik nomor bal atau pilih salah satu bal dari daftar di sebelah kiri untuk menginput berat.
               </p>
             </div>
           )}

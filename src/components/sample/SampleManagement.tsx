@@ -65,7 +65,7 @@ export const SampleManagement: React.FC<SampleManagementProps> = ({
   const [sumberGudang, setSumberGudang] = useState(gudangList[0]?.nama_gudang || 'Gudang Pusat Induk');
   const [beratGramPerBal, setBeratGramPerBal] = useState<number>(250);
   const [tanggalKirim, setTanggalKirim] = useState(new Date().toISOString().split('T')[0]);
-  const [dikirimOleh, setDikirimOleh] = useState('Petugas Lab QC PR. Sekar Anom');
+  const [dikirimOleh, setDikirimOleh] = useState('Petugas Lab QC PR. Sekar Maju Sejahtera');
   const [catatan, setCatatan] = useState('Pengujian organoleptik, kadar air, dan indeks nikotin laboratorium');
 
   // Filters for bal selection (Grade, Gudang, Petani)

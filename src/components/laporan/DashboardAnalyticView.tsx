@@ -218,10 +218,9 @@ export const DashboardAnalyticView: React.FC<DashboardAnalyticViewProps> = ({
   };
 
   const exportInventarisBalGudang = () => {
-    const headers = ['No', 'Barcode', 'No Bal', 'Grade', 'Berat Netto (kg)', 'Status Stok', 'Lokasi Simpan', 'Tanggal Masuk', 'Petani'];
+    const headers = ['No', 'No Bal', 'Grade', 'Berat Netto (kg)', 'Status Stok', 'Lokasi Simpan', 'Tanggal Masuk', 'Petani'];
     const rows = barangList.map((b, idx) => [
       idx + 1,
-      b.barcode,
       b.no_bal,
       b.kode_grade,
       b.berat_kg,
@@ -561,7 +560,7 @@ export const DashboardAnalyticView: React.FC<DashboardAnalyticViewProps> = ({
                   <Package className="w-4 h-4 text-gray-400" />
                 </div>
                 <p className="text-[11px] text-gray-500 mt-1">
-                  Daftar seluruh bal tembakau fisik, barcode, status stok, dan lokasi penyimpanan.
+                  Daftar seluruh bal tembakau fisik, status stok, dan lokasi penyimpanan.
                 </p>
               </div>
               <button

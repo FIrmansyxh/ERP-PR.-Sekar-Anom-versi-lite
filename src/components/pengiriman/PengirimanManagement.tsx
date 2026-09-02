@@ -227,7 +227,7 @@ export const PengirimanManagement: React.FC<PengirimanManagementProps> = ({
       plat_nomor: platNomor.toUpperCase(),
       nomor_kontrak: noKontrak,
       catatan: catatan,
-      petugas: 'Petugas Ekspedisi PR. Sekar Anom',
+      petugas: 'Petugas Ekspedisi PR. Sekar Maju Sejahtera',
       barang_ids: selectedBalIds,
       rincian_grade: gradesBreakdown,
     };

@@ -375,6 +375,15 @@ export default function App() {
     }
   };
 
+  const handleDeletePetani = (petaniId: string) => {
+    const target = petaniList.find((p) => p.petani_id === petaniId);
+    const updated = petaniList.filter((p) => p.petani_id !== petaniId);
+    setPetaniList(updated);
+    savePetaniData(updated);
+    setViewingPetani(null);
+    showToast(`Data petani "${target?.nama_petani || petaniId}" (${target?.nomor_kartu || ''}) berhasil dihapus.`);
+  };
+
   // --- PRD 4.2: Harga Handlers ---
   const handleSaveNewPrice = (newPrice: TabelHarga, oldPriceIdToArchive?: string) => {
     let updatedList = [...hargaList];
@@ -387,6 +396,14 @@ export default function App() {
     setHargaList(updatedList);
     saveHargaData(updatedList);
     showToast(`Tarif baru Grade ${newPrice.kode_grade} (Rp ${newPrice.harga_per_kg.toLocaleString('id-ID')}) aktif!`);
+  };
+
+  const handleDeleteHarga = (hargaId: string) => {
+    const target = hargaList.find((h) => h.harga_id === hargaId);
+    const updated = hargaList.filter((h) => h.harga_id !== hargaId);
+    setHargaList(updated);
+    saveHargaData(updated);
+    showToast(`Tarif Grade "${target?.kode_grade || hargaId}" (Rp ${(target?.harga_per_kg || 0).toLocaleString('id-ID')}) berhasil dihapus dari Master Harga.`);
   };
 
   // --- PRD 5.6: Barang / Inventaris Handlers ---
@@ -557,7 +574,7 @@ export default function App() {
   const getPageTitleAndBreadcrumb = () => {
     switch (activeModuleId) {
       case 'modul-home':
-        return { title: 'Dasbor Menu Utama', breadcrumb: 'PR. SEKAR ANOM / Beranda' };
+        return { title: 'Dasbor Menu Utama', breadcrumb: 'PR. SEKAR MAJU SEJAHTERA / Beranda' };
       case 'modul-6-dashboard-analytic':
         return { title: 'Dashboard Laporan & Analytic ERP', breadcrumb: 'Beranda / Dashboard Analytic' };
       case 'modul-6-laporan-grade':
@@ -592,7 +609,7 @@ export default function App() {
       case 'modul-users':
         return { title: 'Manajemen Pengguna (RBAC)', breadcrumb: 'Beranda / Manajemen Pengguna' };
       default:
-        return { title: 'Sistem Data Gudang Tembakau', breadcrumb: 'PR. SEKAR ANOM / Sistem Data Gudang' };
+        return { title: 'Sistem Data Gudang Tembakau', breadcrumb: 'PR. SEKAR MAJU SEJAHTERA / Sistem Data Gudang' };
     }
   };
 
@@ -766,6 +783,7 @@ export default function App() {
                 onPrintCard={(p) => setPrintingPetani(p)}
                 onToggleStatus={(p) => setDeactivatingPetani(p)}
                 onResetCardNumber={(p) => setResettingCardPetani(p)}
+                onDeletePetani={(p) => handleDeletePetani(p.petani_id)}
                 onOpenImportExport={() => setIsImportExportOpen(true)}
               />
             )}
@@ -776,6 +794,7 @@ export default function App() {
                 hargaList={hargaList}
                 userRole={currentRole}
                 onSaveNewPrice={handleSaveNewPrice}
+                onDeleteHarga={handleDeleteHarga}
               />
             )}
 
@@ -953,6 +972,7 @@ export default function App() {
         onPrintCard={(p) => setPrintingPetani(p)}
         onToggleStatus={(p) => setDeactivatingPetani(p)}
         onResetCard={(p) => setResettingCardPetani(p)}
+        onDeletePetani={(p) => handleDeletePetani(p.petani_id)}
       />
 
       <PetaniDeactivateModal

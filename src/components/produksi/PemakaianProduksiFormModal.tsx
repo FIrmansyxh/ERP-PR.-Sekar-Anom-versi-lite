@@ -33,7 +33,7 @@ export const PemakaianProduksiFormModal: React.FC<PemakaianProduksiFormModalProp
   const [customUnit, setCustomUnit] = useState('');
   const [mandorProduksi, setMandorProduksi] = useState('Bpk. Ahmad Dahlan (Mandor Produksi)');
   const [saranaAngkut, setSaranaAngkut] = useState('Internal Hand-Trolley / Forklift Gudang');
-  const [targetBatchRokok, setTargetBatchRokok] = useState('Produksi Rokok PR. Sekar Anom SKT Kretek Super');
+  const [targetBatchRokok, setTargetBatchRokok] = useState('Produksi Rokok PR. Sekar Maju Sejahtera SKT Kretek Super');
   const [catatan, setCatatan] = useState('');
   const [selectedBarangIds, setSelectedBarangIds] = useState<string[]>([]);
   const [searchBalQuery, setSearchBalQuery] = useState('');
@@ -154,7 +154,7 @@ export const PemakaianProduksiFormModal: React.FC<PemakaianProduksiFormModalProp
       jenis_pengeluaran: 'produksi_sendiri',
       no_surat_jalan: noBon,
       tanggal_kirim: now.toISOString().split('T')[0],
-      tujuan: `Pabrik PR. Sekar Anom - ${finalUnit}`,
+      tujuan: `Pabrik PR. Sekar Maju Sejahtera - ${finalUnit}`,
       unit_produksi: finalUnit,
       mandor_produksi: mandorProduksi.trim(),
       total_bal: totalBalCount,
@@ -165,7 +165,7 @@ export const PemakaianProduksiFormModal: React.FC<PemakaianProduksiFormModalProp
       catatan: catatan.trim() ? `${targetBatchRokok} | ${catatan.trim()}` : targetBatchRokok,
       barang_ids: selectedBarangIds,
       barcode_list: selectedBarcodes,
-      dibuat_oleh: 'Kepala Gudang Bahan Baku PR. Sekar Anom',
+      dibuat_oleh: 'Kepala Gudang Bahan Baku PR. Sekar Maju Sejahtera',
     };
 
     onSavePengeluaran(newPengeluaran, selectedBarangIds);
@@ -184,7 +184,7 @@ export const PemakaianProduksiFormModal: React.FC<PemakaianProduksiFormModalProp
             <Factory className="w-4 h-4 text-[#b81d24]" />
             <div>
               <h2 className="text-sm font-bold text-gray-900 tracking-tight">
-                Bon Pengeluaran Bahan Baku Produksi Rokok PR. Sekar Anom
+                Bon Pengeluaran Bahan Baku Produksi Rokok PR. Sekar Maju Sejahtera
               </h2>
               <p className="text-[11px] text-gray-500">
                 Pilih atau scan bal tembakau untuk dialirkan ke lantai produksi rokok internal
@@ -224,7 +224,7 @@ export const PemakaianProduksiFormModal: React.FC<PemakaianProduksiFormModalProp
               
               <div className="space-y-1">
                 <label className="font-semibold text-gray-700 block">
-                  Unit Kerja / Lini Produksi PR. Sekar Anom <span className="text-red-500">*</span>
+                  Unit Kerja / Lini Produksi PR. Sekar Maju Sejahtera <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={unitProduksi}
@@ -282,7 +282,7 @@ export const PemakaianProduksiFormModal: React.FC<PemakaianProduksiFormModalProp
                   type="text"
                   value={targetBatchRokok}
                   onChange={(e) => setTargetBatchRokok(e.target.value)}
-                  placeholder="Contoh: Batch SKT Sekar Anom Merah #2026-08A"
+                  placeholder="Contoh: Batch SKT Sekar Maju Sejahtera Merah #2026-08A"
                   className="w-full px-2.5 py-1.5 border border-[#ced4da] rounded-sm focus:border-[#b81d24] focus:outline-none bg-white text-gray-900"
                 />
               </div>

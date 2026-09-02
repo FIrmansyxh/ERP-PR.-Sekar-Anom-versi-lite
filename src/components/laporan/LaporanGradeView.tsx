@@ -262,14 +262,14 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
       if (filterStatusStok !== 'ALL' && b.status_stok !== filterStatusStok) {
         return false;
       }
-      // Search query (Barcode, No Bal, Petani, Lokasi)
+      // Search query (ID Bal, No Bal, Petani, Lokasi)
       if (searchBalQuery.trim()) {
         const q = searchBalQuery.toLowerCase().trim();
-        const matchBarcode = (b.barcode || '').toLowerCase().includes(q);
+        const matchBalId = (b.barang_id || '').toLowerCase().includes(q);
         const matchNoBal = (b.no_bal || '').toLowerCase().includes(q);
         const matchPetani = (b.nama_petani || '').toLowerCase().includes(q);
         const matchLokasi = (b.lokasi_gudang || '').toLowerCase().includes(q);
-        if (!matchBarcode && !matchNoBal && !matchPetani && !matchLokasi) {
+        if (!matchBalId && !matchNoBal && !matchPetani && !matchLokasi) {
           return false;
         }
       }
@@ -341,7 +341,7 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
   const handleDownloadBalDetailCsv = () => {
     const headers = [
       'No',
-      'Barcode',
+      'ID Bal',
       'No Bal',
       'Grade',
       'Berat Netto (kg)',
@@ -358,7 +358,7 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
       const estPrice = gMetric ? gMetric.price * b.berat_kg : 0;
       return [
         idx + 1,
-        b.barcode,
+        b.barang_id,
         b.no_bal,
         b.kode_grade,
         b.berat_kg,
@@ -710,14 +710,14 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
               )}
             </h3>
             <p className="text-[11px] text-gray-500 mt-0.5">
-              Daftar rincian bal tembakau terverifikasi barcode dan lokasi blok rak penyimpanan
+              Daftar rincian bal tembakau dan lokasi blok rak penyimpanan
             </p>
           </div>
 
           <div className="flex items-center space-x-2">
             <button
               onClick={handleDownloadBalDetailCsv}
-              className="px-2.5 py-1 text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+              className="px-2.5 py-1 text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-none transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
             >
               <Download className="w-3.5 h-3.5 text-gray-500" />
               <span>Download Detail Bal (CSV)</span>
@@ -736,7 +736,7 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
                 setSelectedGradeCode(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full bg-white border border-gray-300 px-2 py-1.5 text-xs rounded-none focus:border-[#b81d24] focus:outline-none font-semibold text-gray-800"
+              className="w-full bg-white border border-gray-300 px-2 py-1.5 text-xs rounded-none focus:border-gray-800 focus:outline-none font-semibold text-gray-800"
             >
               <option value="ALL">Semua Grade ({uniqueGrades.length})</option>
               {uniqueGrades.map((g) => (
@@ -756,7 +756,7 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
                 setFilterGudang(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full bg-white border border-gray-300 px-2 py-1.5 text-xs rounded-none focus:border-[#b81d24] focus:outline-none text-gray-800"
+              className="w-full bg-white border border-gray-300 px-2 py-1.5 text-xs rounded-none focus:border-gray-800 focus:outline-none text-gray-800"
             >
               <option value="ALL">Semua Gudang</option>
               {gudangList.map((gdg) => (
@@ -776,7 +776,7 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
                 setFilterStatusStok(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full bg-white border border-gray-300 px-2 py-1.5 text-xs rounded-none focus:border-[#b81d24] focus:outline-none text-gray-800"
+              className="w-full bg-white border border-gray-300 px-2 py-1.5 text-xs rounded-none focus:border-gray-800 focus:outline-none text-gray-800"
             >
               <option value="ALL">Semua Status ({barangList.length})</option>
               <option value="di_gudang">Di Gudang (Stok Aktif)</option>
@@ -788,7 +788,7 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
 
           {/* Search Bal */}
           <div>
-            <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">Cari Barcode / Petani:</label>
+            <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">Cari No. Bal / Petani:</label>
             <div className="relative">
               <input
                 type="text"
@@ -797,8 +797,8 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
                   setSearchBalQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                placeholder="No Bal, Barcode, Petani..."
-                className="w-full bg-white border border-gray-300 pl-7 pr-2 py-1.5 text-xs rounded-none focus:border-[#b81d24] focus:outline-none text-gray-800"
+                placeholder="No. Bal, Petani, Lokasi..."
+                className="w-full bg-white border border-gray-300 pl-7 pr-2 py-1.5 text-xs rounded-none focus:border-gray-800 focus:outline-none text-gray-800"
               />
               <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2 top-2" />
             </div>
@@ -811,7 +811,7 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
             <thead>
               <tr className="bg-gray-50 text-gray-700 font-bold border-b border-gray-200 text-[10px] uppercase">
                 <th className="py-2 px-3 text-center w-10">No</th>
-                <th className="py-2 px-3">Barcode Bal</th>
+                <th className="py-2 px-3">ID Bal</th>
                 <th className="py-2 px-3">No. Bal</th>
                 <th className="py-2 px-3 text-center">Grade</th>
                 <th className="py-2 px-3 text-right">Berat (kg)</th>
@@ -841,7 +841,7 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
                         {(currentPage - 1) * itemsPerPage + idx + 1}
                       </td>
                       <td className="py-2 px-3 font-mono font-bold text-gray-900">
-                        {bal.barcode}
+                        {bal.barang_id}
                       </td>
                       <td className="py-2 px-3 font-mono text-gray-800">
                         {bal.no_bal}
@@ -905,7 +905,7 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
           {/* Header */}
           <div className="border-b-2 border-gray-900 pb-4 flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-gray-900">PR. SEKAR ANOM</h1>
+              <h1 className="text-xl font-bold tracking-tight text-gray-900">PR. SEKAR MAJU SEJAHTERA</h1>
               <p className="text-xs font-semibold text-gray-600">SISTEM DATA GUDANG TEMBAKAU & LOGISTIK ERP</p>
               <p className="text-[10px] text-gray-500">Pusat Intake & Pengolahan Tembakau Madura - Pamekasan, Jawa Timur</p>
             </div>
@@ -995,7 +995,7 @@ export const LaporanGradeView: React.FC<LaporanGradeViewProps> = ({
               <p className="font-bold border-t border-gray-400 pt-1">Ir. Hendra Wijaya</p>
             </div>
             <div>
-              <p className="text-gray-500 mb-12">Kepala Gudang PR. Sekar Anom,</p>
+              <p className="text-gray-500 mb-12">Kepala Gudang PR. Sekar Maju Sejahtera,</p>
               <p className="font-bold border-t border-gray-400 pt-1">Bambang Sutrisno, S.T.</p>
             </div>
           </div>

@@ -263,7 +263,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                     <option key={g.gudang_id} value={g.nama_gudang} />
                   ))}
                   <option value="Laboratorium Uji Mutu & QC Temanggung" />
-                  <option value="Armada & Distribusi Pabrik Sekar Anom" />
+                  <option value="Armada & Distribusi Pabrik Sekar Maju Sejahtera" />
                 </datalist>
               </div>
             </div>
@@ -277,7 +277,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="nama@sekaranom.co.id"
+                placeholder="nama@sekarmajusejahtera.co.id"
                 className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-red-500 focus:border-red-500 text-xs"
               />
             </div>

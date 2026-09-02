@@ -7,28 +7,32 @@ import {
   CheckCircle2, 
   ShieldAlert, 
   History,
-  Scale,
+  Scale, 
   DollarSign
 } from 'lucide-react';
 import { TabelHarga, UserRole } from '../../types';
 import { GradePriceCard } from './GradePriceCard';
 import { HargaFormModal } from './HargaFormModal';
 import { HargaHistoryModal } from './HargaHistoryModal';
+import { ConfirmModal } from '../common/ConfirmModal';
 
 interface HargaManagementProps {
   hargaList: TabelHarga[];
   userRole: UserRole;
   onSaveNewPrice: (newPrice: TabelHarga, oldPriceIdToArchive?: string) => void;
+  onDeleteHarga?: (hargaId: string) => void;
 }
 
 export const HargaManagement: React.FC<HargaManagementProps> = ({
   hargaList = [],
   userRole,
   onSaveNewPrice,
+  onDeleteHarga,
 }) => {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [selectedTargetGrade, setSelectedTargetGrade] = useState<string | null>(null);
   const [historyTargetGrade, setHistoryTargetGrade] = useState<string | null>(null);
+  const [deletingHargaTarget, setDeletingHargaTarget] = useState<TabelHarga | null>(null);
 
   // Active prices only
   const activePrices = hargaList.filter((h) => h.status === 'aktif');
@@ -76,6 +80,7 @@ export const HargaManagement: React.FC<HargaManagementProps> = ({
             harga={harga}
             onEditHarga={handleEditGrade}
             onViewHistory={(code) => setHistoryTargetGrade(code)}
+            onDeleteHarga={(target) => setDeletingHargaTarget(target)}
           />
         ))}
       </div>
@@ -98,6 +103,23 @@ export const HargaManagement: React.FC<HargaManagementProps> = ({
           allHargaList={hargaList}
         />
       )}
+
+      {/* Confirmation Modal Delete Harga */}
+      <ConfirmModal
+        isOpen={Boolean(deletingHargaTarget)}
+        title="Konfirmasi Hapus Tarif Grade"
+        message={`Apakah Anda yakin ingin menghapus data tarif untuk "${deletingHargaTarget?.nama_grade}" (Grade ${deletingHargaTarget?.kode_grade}) dari Master Harga?`}
+        detail="Perhatian: Grade ini tidak akan lagi muncul sebagai opsi acuan saat proses timbang dan sortir."
+        variant="danger"
+        confirmText="Hapus Tarif"
+        onConfirm={() => {
+          if (deletingHargaTarget && onDeleteHarga) {
+            onDeleteHarga(deletingHargaTarget.harga_id);
+          }
+          setDeletingHargaTarget(null);
+        }}
+        onCancel={() => setDeletingHargaTarget(null)}
+      />
 
     </div>
   );

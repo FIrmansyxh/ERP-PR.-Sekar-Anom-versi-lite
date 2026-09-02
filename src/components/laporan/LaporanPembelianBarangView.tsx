@@ -665,16 +665,16 @@ export const LaporanPembelianBarangView: React.FC<LaporanPembelianBarangViewProp
           id="printable-laporan-pembelian"
           className="w-full max-w-5xl bg-white p-6 text-gray-900 font-sans text-xs space-y-4"
         >
-          {/* Kop Surat PR. Sekar Anom */}
+          {/* Kop Surat PR. Sekar Maju Sejahtera */}
           <div className="text-center border-b-2 border-gray-900 pb-3 mb-4">
             <h2 className="text-lg font-black tracking-widest uppercase text-gray-950">
-              PR. SEKAR ANOM
+              PR. SEKAR MAJU SEJAHTERA
             </h2>
             <p className="text-[11px] text-gray-600 tracking-wide font-medium">
               SISTEM DATA GUDANG & PENGADAAN TEMBAKAU RAJANGAN
             </p>
             <p className="text-[10px] text-gray-500">
-              Jl. Raya Sentol Pamekasan - Madura | Telp: (0324) 321888 | Email: gudang@sekaranom.co.id
+              Jl. Raya Sentol Pamekasan - Madura | Telp: (0324) 321888 | Email: gudang@sekarmajusejahtera.co.id
             </p>
           </div>
 

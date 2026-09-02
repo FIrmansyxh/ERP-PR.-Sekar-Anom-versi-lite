@@ -8,6 +8,7 @@ import {
   CreditCard, 
   Printer, 
   Edit3, 
+  Trash2,
   History, 
   Scale, 
   Layers, 
@@ -19,7 +20,8 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { Petani, UserRole } from '../../types';
-import { formatDateIndo, formatNumber, generateBarcodeBars } from '../../utils/formatters';
+import { formatDateIndo, formatNumber } from '../../utils/formatters';
+import { ConfirmModal } from '../common/ConfirmModal';
 
 interface PetaniDetailDrawerProps {
   isOpen: boolean;
@@ -30,6 +32,7 @@ interface PetaniDetailDrawerProps {
   onPrintCard: (petani: Petani) => void;
   onToggleStatus: (petani: Petani) => void;
   onResetCard: (petani: Petani) => void;
+  onDeletePetani?: (petani: Petani) => void;
 }
 
 export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
@@ -41,13 +44,14 @@ export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
   onPrintCard,
   onToggleStatus,
   onResetCard,
+  onDeletePetani,
 }) => {
   const [activeTab, setActiveTab] = useState<'info' | 'transaksi' | 'kartu'>('info');
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   if (!isOpen || !petani) return null;
 
   const isAdmin = userRole === 'admin_gudang';
-  const barcodeBars = generateBarcodeBars(petani.nomor_kartu);
 
   const mockTransactions = [
     {
@@ -75,7 +79,7 @@ export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
         {/* Header */}
         <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-white">
           <div className="flex items-center space-x-2">
-            <User className="w-4 h-4 text-[#b81d24]" />
+            <User className="w-4 h-4 text-gray-700" />
             <div>
               <h2 className="text-sm font-bold text-gray-900 tracking-tight">
                 Detail Master Petani & Profil Timbang
@@ -87,7 +91,7 @@ export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
           <div className="flex items-center space-x-2">
             <button
               onClick={() => onEdit(petani)}
-              className="px-2.5 py-1 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-sm transition flex items-center space-x-1 cursor-pointer"
+              className="px-2.5 py-1 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-none transition flex items-center space-x-1 cursor-pointer"
             >
               <Edit3 className="w-3 h-3" />
               <span>Edit</span>
@@ -95,15 +99,26 @@ export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
 
             <button
               onClick={() => onPrintCard(petani)}
-              className="px-2.5 py-1 text-xs font-bold text-white bg-[#b81d24] hover:bg-[#a0181e] rounded-sm transition flex items-center space-x-1 cursor-pointer shadow-xs"
+              className="px-2.5 py-1 text-xs font-bold text-white bg-gray-900 hover:bg-gray-800 rounded-none transition flex items-center space-x-1 cursor-pointer shadow-xs"
             >
               <Printer className="w-3 h-3" />
               <span>Cetak Kartu</span>
             </button>
 
+            {onDeletePetani && (
+              <button
+                onClick={() => setIsDeleteConfirmOpen(true)}
+                className="px-2.5 py-1 text-xs font-bold text-white bg-[#dc3545] hover:bg-[#c82333] rounded-none transition flex items-center space-x-1 cursor-pointer shadow-xs"
+                title="Hapus Data Petani"
+              >
+                <Trash2 className="w-3 h-3" />
+                <span>Hapus</span>
+              </button>
+            )}
+
             <button
               onClick={onClose}
-              className="p-1 text-gray-400 hover:text-gray-700 rounded-sm transition cursor-pointer"
+              className="p-1 text-gray-400 hover:text-gray-700 rounded-none transition cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -116,7 +131,7 @@ export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
             onClick={() => setActiveTab('info')}
             className={`px-4 py-2 text-xs font-bold transition cursor-pointer border-b-2 -mb-px ${
               activeTab === 'info'
-                ? 'border-[#b81d24] text-[#b81d24] bg-white'
+                ? 'border-gray-900 text-gray-900 bg-white'
                 : 'border-transparent text-gray-500 hover:text-gray-800'
             }`}
           >
@@ -126,7 +141,7 @@ export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
             onClick={() => setActiveTab('transaksi')}
             className={`px-4 py-2 text-xs font-bold transition cursor-pointer border-b-2 -mb-px ${
               activeTab === 'transaksi'
-                ? 'border-[#b81d24] text-[#b81d24] bg-white'
+                ? 'border-gray-900 text-gray-900 bg-white'
                 : 'border-transparent text-gray-500 hover:text-gray-800'
             }`}
           >
@@ -136,11 +151,11 @@ export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
             onClick={() => setActiveTab('kartu')}
             className={`px-4 py-2 text-xs font-bold transition cursor-pointer border-b-2 -mb-px ${
               activeTab === 'kartu'
-                ? 'border-[#b81d24] text-[#b81d24] bg-white'
+                ? 'border-gray-900 text-gray-900 bg-white'
                 : 'border-transparent text-gray-500 hover:text-gray-800'
             }`}
           >
-            Status Kartu Barcode
+            Status Kartu Petani
           </button>
         </div>
 
@@ -253,22 +268,15 @@ export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
               
               {/* Card visual preview */}
               <div className="bg-[#f8f9fa] border border-gray-300 p-4 space-y-3 text-center">
-                <span className="text-xs font-bold text-gray-700 block uppercase">Kartu Fisik Barcode Petani</span>
-                <div className="bg-white border border-gray-300 p-3 max-w-xs mx-auto shadow-2xs space-y-2">
+                <span className="text-xs font-bold text-gray-700 block uppercase">Kartu Fisik Identitas Petani</span>
+                <div className="bg-white border border-gray-300 p-4 max-w-xs mx-auto shadow-2xs space-y-2">
                   <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider block">KARTU PETANI TEMBAKAU</span>
-                  <span className="text-xs font-bold text-gray-900 block">{petani.nama_petani}</span>
-                  
-                  {/* Barcode visual */}
-                  <div className="py-1 flex justify-center items-end space-x-0.5 h-10 overflow-hidden">
-                    {barcodeBars.map((bar, i) => (
-                      <div
-                        key={i}
-                        className={`bg-gray-900 ${bar.width === 2 ? 'w-1' : 'w-0.5'}`}
-                        style={{ height: `${bar.height}%` }}
-                      />
-                    ))}
+                  <span className="text-sm font-bold text-gray-900 block">{petani.nama_petani}</span>
+                  <div className="bg-gray-50 border border-gray-200 p-2 my-2">
+                    <span className="text-[10px] text-gray-500 block uppercase">Nomor Kartu</span>
+                    <span className="text-base font-mono font-bold text-gray-900 block tracking-widest">{petani.nomor_kartu}</span>
                   </div>
-                  <span className="text-xs font-mono font-bold text-gray-900 block">{petani.nomor_kartu}</span>
+                  <span className="text-[11px] text-gray-500 block">{petani.desa_kecamatan}</span>
                 </div>
               </div>
 
@@ -279,7 +287,7 @@ export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
                   <button
                     type="button"
                     onClick={() => onResetCard(petani)}
-                    className="flex-1 px-3 py-2 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-sm flex items-center justify-center space-x-1 cursor-pointer"
+                    className="flex-1 px-3 py-2 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-none flex items-center justify-center space-x-1 cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>Ganti / Reset Nomor Kartu</span>
@@ -288,8 +296,8 @@ export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
                   <button
                     type="button"
                     onClick={() => onToggleStatus(petani)}
-                    className={`px-3 py-2 text-xs font-bold text-white rounded-sm flex items-center justify-center space-x-1 cursor-pointer ${
-                      petani.status_aktif ? 'bg-[#b81d24] hover:bg-[#a0181e]' : 'bg-[#28a745] hover:bg-[#218838]'
+                    className={`px-3 py-2 text-xs font-bold text-white rounded-none flex items-center justify-center space-x-1 cursor-pointer ${
+                      petani.status_aktif ? 'bg-gray-800 hover:bg-gray-900' : 'bg-emerald-700 hover:bg-emerald-800'
                     }`}
                   >
                     <span>{petani.status_aktif ? 'Nonaktifkan' : 'Aktifkan'}</span>
@@ -301,7 +309,39 @@ export const PetaniDetailDrawer: React.FC<PetaniDetailDrawerProps> = ({
           )}
         </div>
 
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+          <span className="text-[11px] text-gray-500">
+            Terakhir diubah: {petani.tanggal_daftar}
+          </span>
+          <button
+            onClick={onClose}
+            className="px-4 py-1.5 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-none transition cursor-pointer"
+          >
+            Tutup
+          </button>
+        </div>
+
       </div>
+
+      {/* Confirmation Modal Delete Petani */}
+      <ConfirmModal
+        isOpen={isDeleteConfirmOpen}
+        title="Konfirmasi Hapus Data Petani"
+        message={`Apakah Anda yakin ingin menghapus data petani "${petani.nama_petani}" (${petani.nomor_kartu}) secara permanen?`}
+        detail="Tindakan ini akan menghapus master data registrasi petani dari sistem."
+        variant="danger"
+        confirmText="Hapus Permanen"
+        onConfirm={() => {
+          if (onDeletePetani) {
+            onDeletePetani(petani);
+          }
+          setIsDeleteConfirmOpen(false);
+          onClose();
+        }}
+        onCancel={() => setIsDeleteConfirmOpen(false)}
+      />
+
     </div>
   );
 };

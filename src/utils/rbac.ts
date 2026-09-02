@@ -74,7 +74,7 @@ export const ROLE_DEFINITIONS: Record<UserRole, RolePermissionInfo> = {
   admin_timbang: {
     role: 'admin_timbang',
     label: 'Admin Timbang',
-    deskripsi: 'Akses khusus modul timbangan (input berat bruto/netto & barcode bal) dan Laporan Okupansi & Stok Gudang.',
+    deskripsi: 'Akses khusus modul timbangan (input berat bruto/netto) dan Laporan Okupansi & Stok Gudang.',
     badgeBg: 'bg-amber-50',
     badgeText: 'text-amber-800',
     badgeBorder: 'border-amber-300',

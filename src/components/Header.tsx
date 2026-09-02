@@ -35,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({
   onResetData,
   onOpenRoadmap,
   pageTitle = 'Sistem Data Gudang',
-  pageBreadcrumb = 'PR. SEKAR ANOM / Sistem Data Gudang',
+  pageBreadcrumb = 'PR. SEKAR MAJU SEJAHTERA / Sistem Data Gudang',
   onToggleSidebar,
   currentUser,
   onLogout,

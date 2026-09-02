@@ -214,12 +214,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Top Logo Brand */}
       <div className="h-16 border-b border-slate-200 flex items-center px-4 space-x-3 bg-white">
         <div className="w-8 h-8 rounded-sm bg-slate-900 flex items-center justify-center text-white font-bold text-xs shadow-2xs shrink-0 tracking-wider">
-          <span>SA</span>
+          <span>SMS</span>
         </div>
         {!isCollapsed && (
           <div className="overflow-hidden">
             <h2 className="text-sm font-semibold tracking-tight text-slate-900 leading-tight">
-              PR. SEKAR ANOM
+              PR. SEKAR MAJU SEJAHTERA
             </h2>
             <p className="text-[10px] text-slate-500 font-normal leading-none mt-0.5">
               Sistem Data Gudang Tembakau

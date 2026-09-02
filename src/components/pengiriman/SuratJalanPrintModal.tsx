@@ -135,7 +135,7 @@ export const SuratJalanPrintModal: React.FC<SuratJalanPrintModalProps> = ({
             <div className="border-b-2 border-gray-900 pb-4 mb-4 flex justify-between items-start">
               <div>
                 <div className="text-base font-black tracking-tight text-[#b81d24] uppercase">
-                  PR. SEKAR ANOM
+                  PR. SEKAR MAJU SEJAHTERA
                 </div>
                 <div className="text-xs font-semibold text-gray-800">
                   GUDANG INTAKE & PENGOLAHAN TEMBAKAU MADURA
@@ -143,7 +143,7 @@ export const SuratJalanPrintModal: React.FC<SuratJalanPrintModalProps> = ({
                 <div className="text-[10px] text-gray-600 max-w-sm mt-0.5 leading-tight">
                   Jl. Raya Proppo No. 88, Kec. Proppo, Kab. Pamekasan, Madura - Jawa Timur
                   <br />
-                  Telp: (0324) 321889 • Email: logistik@sekaranom.co.id
+                  Telp: (0324) 321889 • Email: logistik@sekarmajusejahtera.co.id
                 </div>
               </div>
 
@@ -262,7 +262,7 @@ export const SuratJalanPrintModal: React.FC<SuratJalanPrintModalProps> = ({
 
             {/* Footer Notice */}
             <div className="mt-6 pt-2 border-t border-gray-200 text-[9px] text-gray-500 flex justify-between">
-              <span>Dicetak otomatis oleh Sistem Gudang PR. Sekar Anom</span>
+              <span>Dicetak otomatis oleh Sistem Gudang PR. Sekar Maju Sejahtera</span>
               <span>Dokumen sah tanda terima pengiriman barang</span>
             </div>
 

@@ -1,32 +1,34 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  X, 
-  FlaskConical, 
   Scan, 
   Search, 
   CheckCircle2, 
-  AlertCircle, 
-  Scale, 
-  Truck, 
-  Building2, 
-  User, 
-  FileText, 
-  Zap, 
+  Trash2, 
+  Send, 
   ArrowRight, 
-  ArrowLeft,
-  Filter,
-  Check,
-  RotateCcw
+  ArrowLeft, 
+  FileText, 
+  AlertCircle, 
+  Layers, 
+  Scale, 
+  Building2, 
+  UserCheck, 
+  Printer, 
+  X,
+  Zap
 } from 'lucide-react';
 import { Barang, PengirimanSample } from '../../types';
-import { generateSampleId } from '../../utils/formatters';
 import { ConfirmModal } from '../common/ConfirmModal';
+import { useBarcodeScanner } from '../../hooks/useBarcodeScanner';
 
 interface SampleWizardModalProps {
   isOpen: boolean;
   onClose: () => void;
   barangList: Barang[];
-  onSaveBatchSamples: (newSamples: PengirimanSample[], updatedBarangs: Barang[]) => void;
+  onSaveBatchSamples: (
+    newSamples: PengirimanSample[],
+    updatedBarangList: Barang[]
+  ) => void;
 }
 
 export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
@@ -37,7 +39,7 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
 }) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedBarangIds, setSelectedBarangIds] = useState<string[]>([]);
-  const [barcodeInput, setBarcodeInput] = useState<string>('');
+  const [balInput, setBalInput] = useState<string>('');
   const [searchBalQuery, setSearchBalQuery] = useState<string>('');
   const [scanFeedback, setScanFeedback] = useState<{
     type: 'success' | 'error' | 'info';
@@ -67,13 +69,57 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
     'PT Wismilak Inti Makmur Surabaya',
   ];
 
+  const handleScanNoBal = (codeToScan: string) => {
+    const trimmed = codeToScan.trim();
+    if (!trimmed) return;
+
+    const matched = availableBal.find(
+      (b) =>
+        b.no_bal.toLowerCase() === trimmed.toLowerCase() ||
+        b.barang_id.toLowerCase() === trimmed.toLowerCase()
+    );
+
+    if (!matched) {
+      setScanFeedback({
+        type: 'error',
+        message: `No. Bal "${trimmed}" tidak ditemukan di gudang!`,
+      });
+      setBalInput('');
+      return;
+    }
+
+    if (selectedBarangIds.includes(matched.barang_id)) {
+      setScanFeedback({
+        type: 'info',
+        message: `Bal ${matched.no_bal} sudah tercentang dalam daftar sampel.`,
+      });
+      setBalInput('');
+      return;
+    }
+
+    setSelectedBarangIds((prev) => [...prev, matched.barang_id]);
+    setScanFeedback({
+      type: 'success',
+      message: `BERHASIL SCAN: Bal #${matched.no_bal} (${matched.kode_grade} - ${matched.berat_kg}kg) berhasil ditambahkan!`,
+    });
+    setBalInput('');
+    setTimeout(() => scannerInputRef.current?.focus(), 100);
+  };
+
+  // Hardware barcode scanner hook
+  useBarcodeScanner((scannedBal) => {
+    if (isOpen && step === 1) {
+      handleScanNoBal(scannedBal);
+    }
+  });
+
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => scannerInputRef.current?.focus(), 150);
     } else {
       setSelectedBarangIds([]);
       setScanFeedback(null);
-      setBarcodeInput('');
+      setBalInput('');
       setStep(1);
     }
   }, [isOpen]);
@@ -83,8 +129,8 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
   const filteredAvailableBal = availableBal.filter((b) => {
     return (
       searchBalQuery === '' ||
-      b.barcode.toLowerCase().includes(searchBalQuery.toLowerCase()) ||
       b.no_bal.toLowerCase().includes(searchBalQuery.toLowerCase()) ||
+      b.barang_id.toLowerCase().includes(searchBalQuery.toLowerCase()) ||
       b.kode_grade.toLowerCase().includes(searchBalQuery.toLowerCase()) ||
       (b.nama_petani && b.nama_petani.toLowerCase().includes(searchBalQuery.toLowerCase()))
     );
@@ -98,180 +144,140 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
     );
   };
 
-  const handleScanBarcode = (codeToScan: string) => {
-    const trimmed = codeToScan.trim();
-    if (!trimmed) return;
-
-    const matched = availableBal.find(
-      (b) =>
-        b.barcode.toLowerCase() === trimmed.toLowerCase() ||
-        b.no_bal.toLowerCase() === trimmed.toLowerCase()
-    );
-
-    if (!matched) {
-      setScanFeedback({
-        type: 'error',
-        message: `Barcode / No. Bal "${trimmed}" tidak ditemukan di gudang!`,
-      });
-      setBarcodeInput('');
-      return;
-    }
-
-    if (selectedBarangIds.includes(matched.barang_id)) {
-      setScanFeedback({
-        type: 'info',
-        message: `Bal ${matched.no_bal} (${matched.barcode}) sudah tercentang dalam daftar sampel.`,
-      });
-      setBarcodeInput('');
-      return;
-    }
-
-    setSelectedBarangIds((prev) => [...prev, matched.barang_id]);
-    setScanFeedback({
-      type: 'success',
-      message: `BERHASIL SCAN: Bal #${matched.no_bal} (${matched.kode_grade} - ${matched.berat_kg}kg) berhasil ditambahkan!`,
-    });
-    setBarcodeInput('');
-    setTimeout(() => scannerInputRef.current?.focus(), 100);
-  };
-
   const handleScannerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleScanBarcode(barcodeInput);
+    handleScanNoBal(balInput);
   };
 
   const handleSelectAllFiltered = () => {
-    const allFilteredIds = filteredAvailableBal.map((b) => b.barang_id);
-    setSelectedBarangIds((prev) => Array.from(new Set([...prev, ...allFilteredIds])));
+    const idsToAdd = filteredAvailableBal.map((b) => b.barang_id);
+    setSelectedBarangIds((prev) => Array.from(new Set([...prev, ...idsToAdd])));
   };
 
   const handleDeselectAll = () => {
     setSelectedBarangIds([]);
   };
 
-  const handleFinishBatchSample = () => {
-    if (selectedBarangIds.length === 0) return;
-    setIsConfirmOpen(true);
-  };
+  const totalPenguranganKg = (selectedBalObjects.length * beratGramPerBal) / 1000;
 
-  const handleConfirmBatchSample = () => {
-    const finalTujuan = tujuanBuyer === 'lainnya' ? (customTujuan.trim() || 'Pabrik Rokok Rekanan') : tujuanBuyer;
-    const now = new Date();
-    const dateFormatted = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const handleConfirmSubmit = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const finalTujuan = tujuanBuyer === 'Lainnya / Input Manual' ? customTujuan : tujuanBuyer;
 
-    const generatedSamples: PengirimanSample[] = [];
-    const updatedBarangs: Barang[] = [];
-
-    const effectiveWeightKg = Math.min(beratGramPerBal, 500) / 1000;
-
-    selectedBalObjects.forEach((bal, idx) => {
-      const sampleId = generateSampleId(bal.kode_grade, now, idx + 1);
-      const newWeight = Math.max(0.1, Math.round((bal.berat_kg - effectiveWeightKg) * 100) / 100);
-
-      const newSample: PengirimanSample = {
+    // Generate batch sample records
+    const newSamples: PengirimanSample[] = selectedBalObjects.map((bal, idx) => {
+      const sampleId = `SMP-${today.replace(/-/g, '').slice(2)}-${String(idx + 1).padStart(3, '0')}`;
+      return {
         sample_id: sampleId,
         barang_id: bal.barang_id,
-        barcode_sumber: bal.barcode,
         kode_grade: bal.kode_grade,
-        sumber: bal.lokasi_gudang || 'Gudang Utama',
+        sumber: bal.lokasi_gudang || 'Gudang Pusat',
         tujuan: finalTujuan,
-        tanggal_kirim: dateFormatted,
-        berat_sample_gram: Math.min(beratGramPerBal, 500),
+        berat_sample_gram: beratGramPerBal,
+        tanggal_kirim: today,
         status: 'dikirim',
-        catatan: catatan.trim() || `Pengambilan sampel ${beratGramPerBal} gram dari bal ${bal.no_bal} untuk uji lab`,
-        dikirim_oleh: 'Operator QC Gudang Pamekasan',
+        catatan: `${catatan} (Dari Bal #${bal.no_bal})`,
+        dikirim_oleh: 'Petugas QC Lab',
+        nama_petani: bal.nama_petani,
       };
+    });
 
-      generatedSamples.push(newSample);
-
-      const updatedBal: Barang = {
+    // Update original barang weight
+    const updatedBarangList: Barang[] = selectedBalObjects.map((bal) => {
+      const weightReductionKg = beratGramPerBal / 1000;
+      const newWeight = Math.max(0.1, Math.round((bal.berat_kg - weightReductionKg) * 100) / 100);
+      return {
         ...bal,
         berat_kg: newWeight,
         status_stok: 'terkirim_sample',
-        catatan: `${bal.catatan || ''} | Sampel ${beratGramPerBal}g (${sampleId}) pada ${dateFormatted}. Netto: ${newWeight} kg.`.trim(),
       };
-
-      updatedBarangs.push(updatedBal);
     });
 
-    onSaveBatchSamples(generatedSamples, updatedBarangs);
+    onSaveBatchSamples(newSamples, updatedBarangList);
     setIsConfirmOpen(false);
     onClose();
-    setStep(1);
   };
 
-  const totalReductionKg = (selectedBalObjects.length * Math.min(beratGramPerBal, 500)) / 1000;
-
   return (
-    <>
-      <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4 overflow-y-auto font-sans animate-in fade-in duration-150">
-        <div className="bg-white border border-gray-300 w-full max-w-4xl rounded-none shadow-2xl flex flex-col max-h-[92vh] text-xs text-gray-800">
-          
-          {/* Header */}
-          <div className="px-5 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
-            <div className="flex items-center space-x-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-sm bg-red-50 border border-red-100 flex items-center justify-center shrink-0">
-                <FlaskConical className="w-4 h-4 text-[#b81d24]" />
-              </div>
-              <div className="min-w-0">
-                <h2 className="text-sm font-bold text-gray-900 tracking-tight truncate">
-                  Pengiriman Sample Uji Mutu (Batch & Scan Barcode)
-                </h2>
-                <p className="text-[11px] text-gray-500 font-medium">
-                  Langkah {step} dari 3: {step === 1 ? 'Scan / Pilih Bal Tembakau (Batch)' : step === 2 ? 'Pengaturan Gramasi & Lab Tujuan' : 'Konfirmasi Dispatch Sample'}
-                </p>
-              </div>
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto font-sans animate-in fade-in duration-150">
+      <div className="bg-white border border-gray-300 w-full max-w-3xl rounded-none shadow-2xl flex flex-col text-xs text-gray-800 max-h-[94vh]">
+        
+        {/* Header Modal */}
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-white">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-8 h-8 rounded-sm bg-gray-100 border border-gray-300 flex items-center justify-center">
+              <Layers className="w-4 h-4 text-gray-700" />
             </div>
-
-            <div className="flex items-center space-x-2 shrink-0">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-3.5 py-1.5 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Batal</span>
-              </button>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="px-1.5 py-0.5 bg-gray-100 text-gray-800 font-bold text-[10px] rounded-none uppercase">
+                  Quality Control Lab
+                </span>
+                <span className="text-[11px] text-gray-500 font-medium">
+                  Langkah {step} dari 3
+                </span>
+              </div>
+              <h2 className="text-sm font-bold text-gray-900 tracking-tight">
+                Pengiriman Sample Uji Mutu (Batch & Scanner)
+              </h2>
             </div>
           </div>
 
-        {/* Wizard Progression Steps */}
-        <div className="bg-[#f8f9fa] px-4 py-2 flex items-center justify-between border-b border-gray-200 text-xs">
-          <div className={`flex items-center space-x-2 ${step >= 1 ? 'text-[#b81d24] font-bold' : 'text-gray-400'}`}>
-            <span className={`w-5 h-5 rounded-none flex items-center justify-center text-[10px] font-bold ${step >= 1 ? 'bg-[#b81d24] text-white' : 'bg-gray-200 text-gray-600'}`}>
-              1
-            </span>
-            <span>1. Scan / Pilih Bal Batch ({selectedBarangIds.length} Terpilih)</span>
+          <button
+            onClick={onClose}
+            className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-sm transition cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Wizard Steps Navigation Indicator */}
+        <div className="bg-[#f8f9fa] border-b border-gray-200 px-4 py-2.5 flex items-center justify-between text-xs">
+          <div className="flex items-center space-x-6">
+            <div className={`flex items-center space-x-1.5 ${step === 1 ? 'font-bold text-[#b81d24]' : 'text-gray-500'}`}>
+              <span className={`w-5 h-5 rounded-none flex items-center justify-center text-[10px] font-mono ${step === 1 ? 'bg-[#b81d24] text-white' : 'bg-gray-200 text-gray-700'}`}>
+                1
+              </span>
+              <span>Pilih Bal / Scan</span>
+            </div>
+
+            <div className="text-gray-300">➔</div>
+
+            <div className={`flex items-center space-x-1.5 ${step === 2 ? 'font-bold text-[#b81d24]' : 'text-gray-500'}`}>
+              <span className={`w-5 h-5 rounded-none flex items-center justify-center text-[10px] font-mono ${step === 2 ? 'bg-[#b81d24] text-white' : 'bg-gray-200 text-gray-700'}`}>
+                2
+              </span>
+              <span>Tujuan & Gramasi</span>
+            </div>
+
+            <div className="text-gray-300">➔</div>
+
+            <div className={`flex items-center space-x-1.5 ${step === 3 ? 'font-bold text-[#b81d24]' : 'text-gray-500'}`}>
+              <span className={`w-5 h-5 rounded-none flex items-center justify-center text-[10px] font-mono ${step === 3 ? 'bg-[#b81d24] text-white' : 'bg-gray-200 text-gray-700'}`}>
+                3
+              </span>
+              <span>Konfirmasi & Cetak</span>
+            </div>
           </div>
 
-          <div className={`flex items-center space-x-2 ${step >= 2 ? 'text-[#b81d24] font-bold' : 'text-gray-400'}`}>
-            <span className={`w-5 h-5 rounded-none flex items-center justify-center text-[10px] font-bold ${step >= 2 ? 'bg-[#b81d24] text-white' : 'bg-gray-200 text-gray-600'}`}>
-              2
-            </span>
-            <span>2. Gramasi Sampel & Pabrik Tujuan</span>
-          </div>
-
-          <div className={`flex items-center space-x-2 ${step >= 3 ? 'text-[#b81d24] font-bold' : 'text-gray-400'}`}>
-            <span className={`w-5 h-5 rounded-none flex items-center justify-center text-[10px] font-bold ${step === 3 ? 'bg-[#b81d24] text-white' : 'bg-gray-200 text-gray-600'}`}>
-              3
-            </span>
-            <span>3. Konfirmasi & Potong Netto</span>
+          <div className="font-mono text-gray-600 font-bold text-[11px]">
+            Terpilih: <span className="text-[#b81d24]">{selectedBarangIds.length}</span> Bal
           </div>
         </div>
 
         {/* Body Content */}
         <div className="p-4 overflow-y-auto flex-1 space-y-4 text-xs">
           
-          {/* STEP 1: SCAN BARCODE OR SELECT BAL BATCH */}
+          {/* STEP 1: SCAN OR SELECT BAL BATCH */}
           {step === 1 && (
             <div className="space-y-3.5">
               
-              {/* Barcode Scanner Box */}
+              {/* Scanner Box */}
               <div className="p-3 bg-[#f8f9fa] border border-gray-300 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-gray-900 flex items-center space-x-1.5">
-                    <Scan className="w-4 h-4 text-[#b81d24]" />
-                    <span>TEMBAKKAN BARCODE SCANNER (AUTO CENTANG)</span>
+                    <Scan className="w-4 h-4 text-gray-700" />
+                    <span>SCANNER / INPUT NO. BAL (AUTO CENTANG)</span>
                   </span>
                   <span className="text-[11px] text-gray-500 font-mono">
                     Scan = Otomatis Tercentang
@@ -282,18 +288,18 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
                   <input
                     ref={scannerInputRef}
                     type="text"
-                    value={barcodeInput}
-                    onChange={(e) => setBarcodeInput(e.target.value)}
-                    placeholder="Arahkan barcode scanner / ketik misal: E-140826-034..."
-                    className="flex-1 bg-white border border-[#ced4da] rounded-sm px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#b81d24]"
+                    value={balInput}
+                    onChange={(e) => setBalInput(e.target.value)}
+                    placeholder="Arahkan scanner / ketik No. Bal misal: A0001..."
+                    className="flex-1 bg-white border border-[#ced4da] rounded-none px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-gray-900"
                     autoFocus
                   />
                   <button
                     type="submit"
-                    className="px-4 py-1.5 bg-[#b81d24] hover:bg-[#a0181e] text-white rounded-sm font-bold text-xs flex items-center space-x-1 transition cursor-pointer shadow-xs"
+                    className="px-4 py-1.5 bg-gray-900 hover:bg-black text-white rounded-none font-bold text-xs flex items-center space-x-1 transition cursor-pointer shadow-xs"
                   >
                     <Zap className="w-3.5 h-3.5" />
-                    <span>Scan Bal</span>
+                    <span>Pilih Bal</span>
                   </button>
                 </form>
 
@@ -326,7 +332,7 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
                       Daftar Bal Tembakau di Gudang (Bisa Pilih Batch)
                     </span>
                     <span className="text-[11px] text-gray-500">
-                      Tersedia: {availableBal.length} Bal • Tercentang: <strong className="text-[#b81d24] font-mono">{selectedBarangIds.length} Bal</strong>
+                      Tersedia: {availableBal.length} Bal • Tercentang: <strong className="text-gray-900 font-mono">{selectedBarangIds.length} Bal</strong>
                     </span>
                   </div>
 
@@ -334,14 +340,14 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
                     <button
                       type="button"
                       onClick={handleSelectAllFiltered}
-                      className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-sm text-gray-700 font-semibold cursor-pointer"
+                      className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-none text-gray-700 font-semibold cursor-pointer"
                     >
                       Pilih Semua
                     </button>
                     <button
                       type="button"
                       onClick={handleDeselectAll}
-                      className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-sm text-gray-700 font-semibold cursor-pointer"
+                      className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-none text-gray-700 font-semibold cursor-pointer"
                     >
                       Reset Pilihan
                     </button>
@@ -355,8 +361,8 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
                     type="text"
                     value={searchBalQuery}
                     onChange={(e) => setSearchBalQuery(e.target.value)}
-                    placeholder="Cari bal, no bal, barcode (E-140826-034), petani, grade..."
-                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-[#ced4da] rounded-sm focus:outline-none focus:border-[#b81d24]"
+                    placeholder="Cari no. bal, grade, petani..."
+                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-[#ced4da] rounded-none focus:outline-none focus:border-gray-800"
                   />
                 </div>
 
@@ -374,7 +380,7 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
                           key={b.barang_id}
                           className={`flex items-center justify-between p-2 cursor-pointer transition text-xs ${
                             isSelected
-                              ? 'bg-red-50/60 border border-[#b81d24] text-gray-900 font-bold'
+                              ? 'bg-gray-100 border border-gray-400 text-gray-900 font-bold'
                               : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-700'
                           }`}
                         >
@@ -383,15 +389,12 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
                               type="checkbox"
                               checked={isSelected}
                               onChange={() => toggleSelectBal(b.barang_id)}
-                              className="w-3.5 h-3.5 text-[#b81d24] rounded-none focus:ring-0 cursor-pointer"
+                              className="w-3.5 h-3.5 text-gray-900 rounded-none focus:ring-0 cursor-pointer"
                             />
                             <div>
                               <div className="flex items-center space-x-2">
                                 <span className="font-mono font-bold text-gray-900">
                                   Bal #{b.no_bal}
-                                </span>
-                                <span className="text-[10px] text-gray-500 font-mono bg-gray-100 px-1 py-0.2 border border-gray-300">
-                                  {b.barcode}
                                 </span>
                               </div>
                               <span className="text-[11px] text-gray-500 font-normal">
@@ -413,190 +416,159 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
                     })
                   )}
                 </div>
-
-                {/* Summary Band */}
-                <div className="bg-[#f8f9fa] border border-gray-200 p-2.5 flex items-center justify-between font-mono">
-                  <div>
-                    <span className="text-[10px] text-gray-500 font-sans block">Total Bal Sampel:</span>
-                    <span className="text-sm font-bold text-[#b81d24]">{selectedBarangIds.length} Bal Terpilih</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-gray-500 font-sans block">Maksimal Sampel:</span>
-                    <span className="text-xs font-semibold text-gray-700">0.50 kg (500g) per bal</span>
-                  </div>
-                </div>
-
               </div>
 
             </div>
           )}
 
-          {/* STEP 2: GRAMASI SAMPLE & DESTINATION LAB */}
+          {/* STEP 2: GRAMASI & TUJUAN PENGIRIMAN */}
           {step === 2 && (
-            <div className="space-y-3.5">
+            <div className="space-y-4">
               
-              {/* Gramasi Per Bal Configuration */}
-              <div className="p-3.5 bg-[#f8f9fa] border border-gray-300 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-gray-900 text-xs flex items-center space-x-1.5">
-                    <Scale className="w-4 h-4 text-[#b81d24]" />
-                    <span>Berat Sample yang Diambil per Bal (Maksimal 500 gram)</span>
+              {/* Summary Bal Terpilih */}
+              <div className="p-3 bg-[#f8f9fa] border border-gray-200 flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-gray-900 block text-xs">
+                    Batch Pengambilan Sampel ({selectedBalObjects.length} Bal)
                   </span>
-                  <span className="font-mono font-bold text-xs text-white bg-[#b81d24] px-2 py-0.5">
-                    {beratGramPerBal} Gram ({(beratGramPerBal / 1000).toFixed(2)} kg/bal)
+                  <span className="text-[11px] text-gray-500 font-mono">
+                    Grade: {Array.from(new Set(selectedBalObjects.map((b) => b.kode_grade))).join(', ')}
                   </span>
                 </div>
+                <div className="text-right font-mono">
+                  <span className="text-[11px] text-gray-500 block">Total Pengurangan Berat:</span>
+                  <span className="font-bold text-[#b81d24] text-sm">-{totalPenguranganKg} Kg</span>
+                </div>
+              </div>
 
-                <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <span className="text-[11px] text-gray-600 font-medium mr-1">Preset:</span>
-                  {[100, 200, 250, 350, 500].map((g) => (
+              {/* Weight per Sample Form */}
+              <div className="p-3.5 bg-white border border-gray-200 space-y-3">
+                <label className="block font-bold text-gray-900 text-xs">
+                  Gramasi / Berat Sampel per Bal:
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[100, 250, 500, 1000].map((gr) => (
                     <button
-                      key={g}
+                      key={gr}
                       type="button"
-                      onClick={() => setBeratGramPerBal(g)}
-                      className={`px-2.5 py-1 text-xs font-mono font-bold transition cursor-pointer border ${
-                        beratGramPerBal === g
-                          ? 'bg-[#b81d24] text-white border-[#b81d24]'
-                          : 'bg-white border-gray-300 text-gray-800 hover:bg-gray-100'
+                      onClick={() => setBeratGramPerBal(gr)}
+                      className={`py-2 text-center rounded-none font-bold text-xs border transition cursor-pointer ${
+                        beratGramPerBal === gr
+                          ? 'bg-gray-900 text-white border-gray-900 shadow-xs'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
-                      {g}g {g === 500 ? '(Maks)' : ''}
+                      {gr} Gram ({gr / 1000} Kg)
                     </button>
                   ))}
                 </div>
+                <p className="text-[11px] text-gray-500 leading-relaxed">
+                  Berat setiap bal tembakau di master barang akan otomatis dikurangi {beratGramPerBal} gram secara presisi saat konfirmasi disimpan.
+                </p>
+              </div>
 
-                <input
-                  type="range"
-                  min={50}
-                  max={500}
-                  step={10}
-                  value={beratGramPerBal}
-                  onChange={(e) => setBeratGramPerBal(Number(e.target.value))}
-                  className="w-full h-1.5 bg-gray-300 rounded-none appearance-none cursor-pointer accent-[#b81d24]"
-                />
+              {/* Tujuan Pabrik / Buyer */}
+              <div className="p-3.5 bg-white border border-gray-200 space-y-3">
+                <label className="block font-bold text-gray-900 text-xs">
+                  Tujuan Lab / Perusahaan Penguji:
+                </label>
+                <select
+                  value={tujuanBuyer}
+                  onChange={(e) => setTujuanBuyer(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#ced4da] rounded-none text-xs font-semibold focus:outline-none focus:border-gray-800"
+                >
+                  {popularBuyers.map((pb) => (
+                    <option key={pb} value={pb}>
+                      {pb}
+                    </option>
+                  ))}
+                  <option value="Lainnya / Input Manual">Lainnya (Tulis Manual)...</option>
+                </select>
 
-                <div className="p-2 bg-white border border-gray-200 flex items-center justify-between text-xs font-mono">
-                  <span className="text-gray-600">
-                    Jumlah Bal Terpilih: <strong>{selectedBarangIds.length} Bal</strong>
-                  </span>
-                  <span className="text-[#b81d24] font-bold">
-                    Total Berat Sampel Diambil: {totalReductionKg.toFixed(2)} kg
-                  </span>
+                {tujuanBuyer === 'Lainnya / Input Manual' && (
+                  <input
+                    type="text"
+                    value={customTujuan}
+                    onChange={(e) => setCustomTujuan(e.target.value)}
+                    placeholder="Ketik nama pabrik/laboratorium tujuan..."
+                    className="w-full px-3 py-1.5 bg-white border border-[#ced4da] rounded-none text-xs focus:outline-none focus:border-gray-800"
+                  />
+                )}
+              </div>
+
+              {/* Detail Petugas & Catatan */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block font-bold text-gray-700 text-[11px]">Petugas Pengirim:</label>
+                  <input
+                    type="text"
+                    value={dikirimOleh}
+                    onChange={(e) => setDikirimOleh(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-white border border-[#ced4da] rounded-none text-xs focus:outline-none focus:border-gray-800"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block font-bold text-gray-700 text-[11px]">Gudang Asal:</label>
+                  <input
+                    type="text"
+                    value={sumberGudang}
+                    onChange={(e) => setSumberGudang(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-white border border-[#ced4da] rounded-none text-xs focus:outline-none focus:border-gray-800"
+                  />
                 </div>
               </div>
 
-              {/* Destination Lab & QC Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                
-                <div className="space-y-1">
-                  <label className="font-semibold text-gray-700 block">
-                    Pilih Pabrik / Buyer / Lab QC Tujuan <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={tujuanBuyer}
-                    onChange={(e) => {
-                      setTujuanBuyer(e.target.value);
-                      setCustomTujuan('');
-                    }}
-                    className="w-full px-2.5 py-1.5 border border-[#ced4da] rounded-sm focus:border-[#b81d24] focus:outline-none bg-white text-gray-900"
-                  >
-                    {popularBuyers.map((b) => (
-                      <option key={b} value={b}>
-                        {b}
-                      </option>
-                    ))}
-                    <option value="lainnya">-- Input Nama Pabrik / Lab Baru Lainnya --</option>
-                  </select>
-                </div>
-
-                {tujuanBuyer === 'lainnya' && (
-                  <div className="space-y-1 md:col-span-2">
-                    <label className="font-semibold text-gray-700 block">
-                      Nama Pabrik / Lab Baru <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={customTujuan}
-                      onChange={(e) => setCustomTujuan(e.target.value)}
-                      placeholder="Contoh: PT Tri Sakti Purwosari Makmur Pasuruan"
-                      className="w-full px-2.5 py-1.5 border border-[#ced4da] rounded-sm focus:border-[#b81d24] focus:outline-none bg-white text-gray-900"
-                    />
-                  </div>
-                )}
-
-                <div className="space-y-1">
-                  <label className="font-semibold text-gray-700 block">
-                    Gudang Asal Pengambilan <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={sumberGudang}
-                    onChange={(e) => setSumberGudang(e.target.value)}
-                    className="w-full px-2.5 py-1.5 border border-[#ced4da] rounded-sm focus:border-[#b81d24] focus:outline-none bg-white text-gray-900"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-semibold text-gray-700 block">
-                    Petugas QC / Pengirim <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={dikirimOleh}
-                    onChange={(e) => setDikirimOleh(e.target.value)}
-                    className="w-full px-2.5 py-1.5 border border-[#ced4da] rounded-sm focus:border-[#b81d24] focus:outline-none bg-white text-gray-900"
-                  />
-                </div>
-
-                <div className="space-y-1 md:col-span-2">
-                  <label className="font-semibold text-gray-700 block">
-                    Catatan Pengujian / Parameter QC Lab
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={catatan}
-                    onChange={(e) => setCatatan(e.target.value)}
-                    placeholder="Contoh: Uji kadar air, elastisitas rajangan, aroma tembakau..."
-                    className="w-full px-2.5 py-1.5 border border-[#ced4da] rounded-sm focus:border-[#b81d24] focus:outline-none bg-white text-gray-900"
-                  />
-                </div>
-
+              <div className="space-y-1">
+                <label className="block font-bold text-gray-700 text-[11px]">Catatan Uji Mutu:</label>
+                <input
+                  type="text"
+                  value={catatan}
+                  onChange={(e) => setCatatan(e.target.value)}
+                  className="w-full px-3 py-1.5 bg-white border border-[#ced4da] rounded-none text-xs focus:outline-none focus:border-gray-800"
+                />
               </div>
 
             </div>
           )}
 
-          {/* STEP 3: BATCH CONFIRMATION & SUMMARY */}
+          {/* STEP 3: REVIEW & KONFIRMASI */}
           {step === 3 && (
             <div className="space-y-3.5">
-              <div className="bg-[#f8f9fa] p-3.5 border border-gray-200 space-y-2.5">
-                <span className="font-bold text-gray-900 text-xs uppercase tracking-wider block">
-                  Ringkasan Pengiriman Batch {selectedBarangIds.length} Sample Tembakau
-                </span>
+              <div className="bg-white border border-gray-300 p-4 space-y-3">
+                <div className="border-b border-gray-200 pb-2 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-gray-900 text-sm">
+                      Ringkasan Pengiriman Batch Sampel Tembakau
+                    </h3>
+                    <span className="text-[11px] text-gray-500 font-mono">
+                      Tanggal: {new Date().toLocaleDateString('id-ID')}
+                    </span>
+                  </div>
+                  <span className="px-2.5 py-1 bg-emerald-50 text-emerald-800 font-bold border border-emerald-300 text-xs">
+                    Siap Dikirim Lab
+                  </span>
+                </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs pt-2 border-t border-gray-200">
+                <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <span className="text-gray-500 block text-[10px]">Total Sample:</span>
-                    <span className="font-bold text-gray-900">{selectedBarangIds.length} Sample Bal</span>
+                    <span className="text-gray-500 block">Tujuan Buyer / Lab:</span>
+                    <span className="font-bold text-gray-900">
+                      {tujuanBuyer === 'Lainnya / Input Manual' ? customTujuan : tujuanBuyer}
+                    </span>
                   </div>
                   <div>
-                    <span className="text-gray-500 block text-[10px]">Berat per Sample:</span>
-                    <span className="font-mono font-bold text-gray-900">{beratGramPerBal} Gram</span>
+                    <span className="text-gray-500 block">Gramasi per Bal:</span>
+                    <span className="font-bold font-mono text-gray-900">
+                      {beratGramPerBal} Gram / Bal ({totalPenguranganKg} Kg Total)
+                    </span>
                   </div>
                   <div>
-                    <span className="text-gray-500 block text-[10px]">Total Pengurangan Fisik:</span>
-                    <span className="font-mono font-bold text-[#b81d24]">-{totalReductionKg.toFixed(2)} kg</span>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-gray-500 block text-[10px]">Pabrik / Buyer Tujuan:</span>
-                    <span className="font-bold text-gray-900">{tujuanBuyer === 'lainnya' ? customTujuan : tujuanBuyer}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 block text-[10px]">Petugas QC:</span>
+                    <span className="text-gray-500 block">Petugas QC:</span>
                     <span className="font-semibold text-gray-800">{dikirimOleh}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block">Gudang Asal:</span>
+                    <span className="font-semibold text-gray-800">{sumberGudang}</span>
                   </div>
                 </div>
 
@@ -616,12 +588,11 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
                           <div className="flex items-center space-x-2">
                             <span className="text-gray-400">{idx + 1}.</span>
                             <span className="font-bold text-gray-900">Bal #{bal.no_bal}</span>
-                            <span className="text-gray-500">({bal.barcode})</span>
                             <span className="px-1.5 py-0.2 bg-gray-800 text-white text-[10px]">Grade {bal.kode_grade}</span>
                           </div>
                           <div className="text-right">
                             <span className="text-gray-400">{bal.berat_kg} kg ➔ </span>
-                            <span className="font-bold text-[#b81d24]">{newW} kg</span>
+                            <span className="font-bold text-gray-900">{newW} kg</span>
                           </div>
                         </div>
                       );
@@ -644,19 +615,13 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
             <button
               type="button"
               onClick={() => setStep((s) => (s - 1) as 1 | 2 | 3)}
-              className="px-3 py-1.5 text-xs font-semibold text-white bg-[#545b62] hover:bg-[#464c52] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+              className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-none transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Sebelumnya</span>
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3 py-1.5 text-xs font-semibold text-white bg-[#545b62] hover:bg-[#464c52] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
-            >
-              <span>Batal</span>
-            </button>
+            <div></div>
           )}
 
           {step < 3 ? (
@@ -664,36 +629,38 @@ export const SampleWizardModal: React.FC<SampleWizardModalProps> = ({
               type="button"
               disabled={selectedBarangIds.length === 0}
               onClick={() => setStep((s) => (s + 1) as 1 | 2 | 3)}
-              className="px-4 py-1.5 text-xs font-bold text-white bg-[#b81d24] hover:bg-[#a0181e] disabled:opacity-50 disabled:cursor-not-allowed rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+              className="px-4 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed rounded-none transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
             >
-              <span>Lanjut Langkah {step + 1} ({selectedBarangIds.length} Bal)</span>
+              <span>Lanjut ({selectedBarangIds.length} Bal Terpilih)</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           ) : (
             <button
               type="button"
-              onClick={handleFinishBatchSample}
-              className="px-4 py-1.5 text-xs font-bold text-white bg-[#b81d24] hover:bg-[#a0181e] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+              onClick={() => setIsConfirmOpen(true)}
+              className="px-5 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-black rounded-none transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
             >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Simpan & Kirim {selectedBarangIds.length} Sample</span>
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Simpan & Terbitkan Sample Batch</span>
             </button>
           )}
         </div>
 
       </div>
-    </div>
 
-    <ConfirmModal
-      isOpen={isConfirmOpen}
-      onClose={() => setIsConfirmOpen(false)}
-      onConfirm={handleConfirmBatchSample}
-      title="Konfirmasi Pengiriman Sample Batch"
-      message={`Apakah Anda yakin ingin memproses dan mencatat pengiriman sample untuk ${selectedBarangIds.length} bal tembakau yang dipilih?`}
-      confirmText="Ya, Kirim Sample"
-      cancelText="Batal"
-      variant="primary"
-    />
-  </>
-);
+      {/* Konfirmasi Simpan Sample Modal */}
+      {isConfirmOpen && (
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          title="Konfirmasi Pengiriman Sampel QC"
+          message={`Apakah Anda yakin ingin memproses pengiriman sampel untuk ${selectedBalObjects.length} bal tembakau ke ${
+            tujuanBuyer === 'Lainnya / Input Manual' ? customTujuan : tujuanBuyer
+          }?\n\nBerat stok gudang akan otomatis dipotong total sebesar ${totalPenguranganKg} Kg.`}
+          confirmLabel="Proses & Potong Stok"
+          onConfirm={handleConfirmSubmit}
+          onCancel={() => setIsConfirmOpen(false)}
+        />
+      )}
+    </div>
+  );
 };

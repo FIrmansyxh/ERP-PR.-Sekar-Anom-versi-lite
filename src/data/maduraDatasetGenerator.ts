@@ -208,7 +208,6 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
       const balNumberStr = String(balCounter).padStart(3, '0');
       const dateCompact = `202608${day}`;
       const barangId = `BAL-${dateCompact}-${balNumberStr}`;
-      const barcode = barangId;
       const noBal = `BAL-${balNumberStr}`;
 
       const grade = gradePool[gradePoolIndex++] || 'A';
@@ -227,7 +226,6 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
       const itemBal: TransaksiItemBal = {
         item_id: `ITM-${dateCompact}-${balNumberStr}`,
         no_bal: noBal,
-        barcode: barcode,
         kode_grade: grade,
         harga_per_kg: hargaKg,
         ganti_tikar: b % 3 === 0,
@@ -257,7 +255,6 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
       if (!isBelumDitimbang) {
         const barang: Barang = {
           barang_id: barangId,
-          barcode: barcode,
           kode_grade: grade,
           no_bal: noBal,
           berat_kg: beratNetto,
@@ -386,7 +383,6 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
   shipmentConfigs.forEach((cfg, sIdx) => {
     const dest = factoryDestinations[cfg.destIdx];
     const shipmentBarangIds: string[] = [];
-    const shipmentBarcodes: string[] = [];
     let totalKg = 0;
     const rincianGrade: Record<string, { bal: number; kg: number }> = {};
 
@@ -399,7 +395,6 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
         item.catatan = `${item.catatan || ''} [Terkirim ke ${dest.pabrik} via ${cfg.sjNo}]`.trim();
 
         shipmentBarangIds.push(item.barang_id);
-        shipmentBarcodes.push(item.barcode);
         totalKg += item.berat_kg;
 
         if (!rincianGrade[item.kode_grade]) {
@@ -421,11 +416,10 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
       tanggal_kirim: cfg.date,
       tanggal_diterima: cfg.date.replace('T', ' ').substring(0, 10),
       barang_ids: shipmentBarangIds,
-      barcode_list: shipmentBarcodes,
       total_bal: shipmentBarangIds.length,
       total_berat_kg: totalKg,
       status: 'dikirim',
-      nomor_kontrak: `KTR-SA-2026/08/${String(sIdx + 1).padStart(3, '0')}`,
+      nomor_kontrak: `KTR-SMS-2026/08/${String(sIdx + 1).padStart(3, '0')}`,
       catatan: `Pengiriman resmi Bal Tembakau Madura ke ${dest.pabrik}`,
       petugas: 'Hendra Gunawan (Logistik & Ekspedisi)',
       dibuat_oleh: 'Hendra Gunawan',
@@ -447,7 +441,6 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
   const sample1: PengirimanSample = {
     sample_id: 'SMP-20260805-001',
     barang_id: qcBal1.barang_id,
-    barcode_sumber: qcBal1.barcode,
     kode_grade: qcBal1.kode_grade,
     sumber: qcBal1.lokasi_gudang || 'Gudang Pusat Induk & Intake Pamekasan',
     tujuan: 'PT Djarum Kudus - Laboratorium Uji Mutu & Nikotin',
@@ -463,7 +456,6 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
   const sample2: PengirimanSample = {
     sample_id: 'SMP-20260809-002',
     barang_id: qcBal2.barang_id,
-    barcode_sumber: qcBal2.barcode,
     kode_grade: qcBal2.kode_grade,
     sumber: qcBal2.lokasi_gudang || 'Gudang Penyangga & Fermentasi Sumenep',
     tujuan: 'PT Gudang Garam Tbk Kediri - QC Flavor & Elastisitas Daun',
@@ -479,7 +471,6 @@ export function generateMaduraTobaccoDataset(): GeneratorResult {
   const sample3: PengirimanSample = {
     sample_id: 'SMP-20260814-003',
     barang_id: qcBal3.barang_id,
-    barcode_sumber: qcBal3.barcode,
     kode_grade: qcBal3.kode_grade,
     sumber: qcBal3.lokasi_gudang || 'Gudang Transit Pantura & QC Sampang',
     tujuan: 'Balai Pengujian Mutu Tembakau Jawa Timur - Surabaya',

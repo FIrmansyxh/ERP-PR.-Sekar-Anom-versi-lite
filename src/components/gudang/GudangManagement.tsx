@@ -139,6 +139,28 @@ export const GudangManagement: React.FC<GudangManagementProps> = ({
     });
   };
 
+  const handleDelete = (gudang: Gudang) => {
+    // Check if any bal is in this gudang
+    const balInGudang = barangList.filter(
+      (b) => b.lokasi_gudang.toLowerCase().includes(gudang.nama_gudang.toLowerCase()) ||
+             b.lokasi_gudang.toLowerCase().includes(gudang.kode_gudang.toLowerCase())
+    ).length;
+
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Konfirmasi Hapus Data Master Gudang',
+      message: `Apakah Anda yakin ingin menghapus data fasilitas gudang "${gudang.nama_gudang}" (${gudang.kode_gudang})?`,
+      variant: 'danger',
+      confirmText: 'Hapus Permanen',
+      onConfirm: () => {
+        if (onDeleteGudang) {
+          onDeleteGudang(gudang.gudang_id);
+        }
+        setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
+  };
+
   return (
     <div className="space-y-4 font-sans text-gray-800">
       
@@ -365,6 +387,16 @@ export const GudangManagement: React.FC<GudangManagementProps> = ({
                               title={gudang.status_aktif ? 'Nonaktifkan Gudang' : 'Aktifkan Gudang'}
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+
+                          {canManageGudang && onDeleteGudang && (
+                            <button
+                              onClick={() => handleDelete(gudang)}
+                              className="w-6 h-6 rounded-full bg-[#dc3545] hover:bg-[#c82333] text-white flex items-center justify-center text-[10px] transition cursor-pointer shadow-xs"
+                              title="Hapus Fasilitas Gudang"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           )}
                         </div>

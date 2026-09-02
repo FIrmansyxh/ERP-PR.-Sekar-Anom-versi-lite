@@ -300,7 +300,7 @@ export const LaporanPetaniView: React.FC<LaporanPetaniViewProps> = ({
       'No',
       'ID Petani',
       'Nama Petani',
-      'No Kartu / Barcode',
+      'No Kartu',
       'No HP',
       'Desa / Wilayah',
       'Status Petani',
@@ -1078,10 +1078,10 @@ export const LaporanPetaniView: React.FC<LaporanPetaniViewProps> = ({
           <div className="border-b-2 border-gray-800 pb-3 mb-4 flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-[#b81d24] text-white font-bold flex items-center justify-center text-sm">
-                SA
+                SMS
               </div>
               <div>
-                <h1 className="text-base font-bold tracking-tight text-gray-900">PR. SEKAR ANOM</h1>
+                <h1 className="text-base font-bold tracking-tight text-gray-900">PR. SEKAR MAJU SEJAHTERA</h1>
                 <p className="text-[11px] text-gray-600 font-medium">
                   Sistem Data Gudang Tembakau & Rekapitulasi Kinerja Petani
                 </p>

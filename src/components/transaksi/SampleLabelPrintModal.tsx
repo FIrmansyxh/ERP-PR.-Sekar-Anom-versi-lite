@@ -1,11 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { Printer, Download, ArrowLeft, Tag, CheckCircle2, Box, Layers } from 'lucide-react';
-import { BarcodeSvg } from '../common/BarcodeSvg';
 import { downloadElementAsPdf, printHtmlElementDirectly } from '../../utils/printDownload';
 
 export interface SampleLabelData {
   no_bal: string;
-  barcode: string;
+  barcode?: string;
   kode_grade: string;
   nama_petani: string;
   nomor_kartu: string;
@@ -52,7 +51,7 @@ export const SampleLabelPrintModal: React.FC<SampleLabelPrintModalProps> = ({
     if (!printAreaRef.current) return;
     printHtmlElementDirectly(
       printAreaRef.current,
-      `Label Sample Tembakau QC - PR Sekar Anom`
+      `Label Sample Tembakau QC - PR Sekar Maju Sejahtera`
     );
   };
 
@@ -70,12 +69,12 @@ export const SampleLabelPrintModal: React.FC<SampleLabelPrintModalProps> = ({
         {/* Modal Header */}
         <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
           <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-sm bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
-              <Tag className="w-4 h-4 text-amber-700" />
+            <div className="w-8 h-8 rounded-sm bg-gray-100 border border-gray-300 flex items-center justify-center shrink-0">
+              <Tag className="w-4 h-4 text-gray-700" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="px-1.5 py-0.5 bg-amber-100 text-amber-800 font-bold text-[10px] rounded-xs uppercase">
+                <span className="px-1.5 py-0.5 bg-gray-100 text-gray-800 font-bold text-[10px] rounded-none uppercase">
                   Label Sampel QC
                 </span>
                 <span className="text-[11px] text-gray-500 font-medium">
@@ -83,7 +82,7 @@ export const SampleLabelPrintModal: React.FC<SampleLabelPrintModalProps> = ({
                 </span>
               </div>
               <h2 className="text-sm font-bold text-gray-900 tracking-tight">
-                Cetak Label Sampel Tembakau (Barcode Identik Bal)
+                Cetak Label Sampel Tembakau QC
               </h2>
             </div>
           </div>
@@ -102,7 +101,7 @@ export const SampleLabelPrintModal: React.FC<SampleLabelPrintModalProps> = ({
               type="button"
               disabled={isGeneratingPdf}
               onClick={handleDownloadPdf}
-              className="px-3 py-1.5 text-xs font-bold text-white bg-[#17a2b8] hover:bg-[#138496] disabled:opacity-50 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+              className="px-3 py-1.5 text-xs font-bold text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 disabled:opacity-50 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
               title="Unduh Lembar Label Format PDF"
             >
               <Download className="w-3.5 h-3.5" />
@@ -112,7 +111,7 @@ export const SampleLabelPrintModal: React.FC<SampleLabelPrintModalProps> = ({
             <button
               type="button"
               onClick={handlePrint}
-              className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#b81d24] hover:bg-[#a0181e] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+              className="px-3.5 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Cetak Label</span>
@@ -121,10 +120,10 @@ export const SampleLabelPrintModal: React.FC<SampleLabelPrintModalProps> = ({
         </div>
 
         {/* Info Instruction Banner */}
-        <div className="bg-amber-50/70 border-b border-amber-200 px-4 py-2 flex items-center space-x-2 text-[11px] text-amber-900">
-          <Box className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+        <div className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex items-center space-x-2 text-[11px] text-gray-700">
+          <Box className="w-3.5 h-3.5 text-gray-600 shrink-0" />
           <div>
-            Tempelkan label ini pada plastik/wadah sampel tembakau dari meja sortir. Kode barcode identik dengan bal fisik tembakau untuk pengujian mutu QC.
+            Tempelkan label ini pada wadah sampel tembakau dari meja sortir untuk pengujian mutu di ruang QC.
           </div>
         </div>
 
@@ -139,47 +138,40 @@ export const SampleLabelPrintModal: React.FC<SampleLabelPrintModalProps> = ({
               {samples.map((sample, idx) => (
                 <div 
                   key={idx}
-                  className="border-2 border-dashed border-gray-400 p-3.5 rounded-sm bg-white flex flex-col justify-between space-y-2 page-break-inside-avoid"
+                  className="border-2 border-dashed border-gray-400 p-3.5 rounded-none bg-white flex flex-col justify-between space-y-2 page-break-inside-avoid"
                 >
                   {/* Top Label Header */}
                   <div className="flex items-center justify-between border-b border-gray-300 pb-1.5">
                     <div>
-                      <span className="text-[9px] font-black text-[#b81d24] tracking-wider uppercase block">
-                        PR. SEKAR ANOM • LAB QC
+                      <span className="text-[9px] font-bold text-gray-600 tracking-wider uppercase block">
+                        PR. SEKAR MAJU SEJAHTERA • LAB QC
                       </span>
                       <span className="text-[10px] font-bold text-gray-800">
                         SAMPLE TEMBAKAU SORTIR
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="inline-block px-2 py-0.5 bg-gray-900 text-white font-black text-xs rounded-xs">
+                      <span className="inline-block px-2 py-0.5 bg-gray-900 text-white font-bold text-xs rounded-none">
                         GRADE {sample.kode_grade}
                       </span>
                     </div>
                   </div>
 
-                  {/* Barcode SVG Rendering */}
-                  <div className="py-1 flex flex-col items-center justify-center bg-gray-50/70 border border-gray-200 rounded-xs">
-                    <BarcodeSvg 
-                      value={sample.barcode || sample.no_bal} 
-                      width={1.6} 
-                      height={36} 
-                      displayValue={false} 
-                    />
-                    <span className="font-mono font-bold text-[11px] text-gray-900 tracking-wider mt-0.5">
-                      {sample.barcode || sample.no_bal}
+                  {/* Highlight No Bal */}
+                  <div className="py-2.5 flex flex-col items-center justify-center bg-gray-50 border border-gray-200">
+                    <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">
+                      Nomor Bal Tembakau
+                    </span>
+                    <span className="font-mono font-bold text-lg text-gray-900 tracking-wider mt-0.5">
+                      {sample.no_bal}
                     </span>
                   </div>
 
                   {/* Sample Details */}
                   <div className="text-[10px] space-y-0.5 text-gray-700 bg-white pt-1">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">No. Bal Fisik:</span>
-                      <span className="font-mono font-bold text-gray-900">{sample.no_bal}</span>
-                    </div>
-                    <div className="flex justify-between">
                       <span className="text-gray-500">Kupon Intake:</span>
-                      <span className="font-mono font-bold text-red-700">{sample.no_kupon}</span>
+                      <span className="font-mono font-bold text-gray-900">{sample.no_kupon}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Petani:</span>
@@ -213,7 +205,7 @@ export const SampleLabelPrintModal: React.FC<SampleLabelPrintModalProps> = ({
               type="checkbox"
               checked={isStoredConfirmed}
               onChange={(e) => setIsStoredConfirmed(e.target.checked)}
-              className="w-4 h-4 text-[#b81d24] rounded-xs border-gray-300 focus:ring-[#b81d24]"
+              className="w-4 h-4 text-gray-900 rounded-none border-gray-300 focus:ring-gray-800"
             />
             <span className="font-medium">
               Saya konfirmasi seluruh sampel tembakau telah diberi label dan dikumpulkan ke bagian QC/Sample Room
@@ -223,7 +215,7 @@ export const SampleLabelPrintModal: React.FC<SampleLabelPrintModalProps> = ({
           <button
             type="button"
             onClick={handleFinish}
-            className="w-full sm:w-auto px-4 py-2 text-xs font-bold text-white bg-[#28a745] hover:bg-[#218838] rounded-sm transition flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+            className="w-full sm:w-auto px-4 py-2 text-xs font-bold text-white bg-gray-900 hover:bg-black rounded-sm transition flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Selesai Labeling Sample & Lanjut Timbang</span>

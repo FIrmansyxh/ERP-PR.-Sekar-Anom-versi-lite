@@ -14,6 +14,7 @@ import {
 import { Barang, StatusStokBarang, UserRole } from '../../types';
 import { BarangEditLocationModal } from './BarangEditLocationModal';
 import { Pagination } from '../common/Pagination';
+import { useBarcodeScanner } from '../../hooks/useBarcodeScanner';
 
 interface BarangManagementProps {
   barangList: Barang[];
@@ -39,6 +40,12 @@ export const BarangManagement: React.FC<BarangManagementProps> = ({
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>('all');
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Hook scanner: when barcode scanner reads a bal number on this page, fill search query automatically
+  useBarcodeScanner((scannedNoBal) => {
+    setSearchQuery(scannedNoBal);
+    setCurrentPage(1);
+  });
 
   // Modals
   const [editingLocationBarang, setEditingLocationBarang] = useState<Barang | null>(null);

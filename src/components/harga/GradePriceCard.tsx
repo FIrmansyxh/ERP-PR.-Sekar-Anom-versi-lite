@@ -3,6 +3,7 @@ import {
   Tag, 
   History, 
   Edit, 
+  Trash2,
   CheckCircle2,
   Scale
 } from 'lucide-react';
@@ -14,12 +15,14 @@ interface GradePriceCardProps {
   harga: TabelHarga;
   onEditHarga: (harga: TabelHarga) => void;
   onViewHistory: (gradeCode: string) => void;
+  onDeleteHarga?: (harga: TabelHarga) => void;
 }
 
 export const GradePriceCard: React.FC<GradePriceCardProps> = ({
   harga,
   onEditHarga,
   onViewHistory,
+  onDeleteHarga,
 }) => {
   const simulasi = hitungSimulasiHarga(
     harga.harga_per_kg,
@@ -100,13 +103,25 @@ export const GradePriceCard: React.FC<GradePriceCardProps> = ({
           <span>Histori Tarif</span>
         </button>
 
-        <button
-          onClick={() => onEditHarga(harga)}
-          className="px-2.5 py-1 bg-[#545b62] hover:bg-[#464c52] text-white rounded-sm font-semibold text-[11px] flex items-center space-x-1 cursor-pointer"
-        >
-          <Edit className="w-3 h-3" />
-          <span>Ubah Tarif</span>
-        </button>
+        <div className="flex items-center space-x-1.5">
+          <button
+            onClick={() => onEditHarga(harga)}
+            className="px-2.5 py-1 bg-[#545b62] hover:bg-[#464c52] text-white rounded-sm font-semibold text-[11px] flex items-center space-x-1 cursor-pointer"
+          >
+            <Edit className="w-3 h-3" />
+            <span>Ubah Tarif</span>
+          </button>
+
+          {onDeleteHarga && (
+            <button
+              onClick={() => onDeleteHarga(harga)}
+              className="p-1 bg-[#dc3545] hover:bg-[#c82333] text-white rounded-sm font-semibold text-[11px] flex items-center justify-center cursor-pointer shadow-xs"
+              title="Hapus Tarif Grade"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
     </div>

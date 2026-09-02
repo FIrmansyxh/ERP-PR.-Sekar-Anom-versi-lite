@@ -4,22 +4,17 @@ import {
   MapPin, 
   User, 
   Calendar, 
-  Printer, 
   Edit3, 
   Clock, 
   CheckCircle2, 
   ArrowUpRight, 
-  Tag, 
   Scale 
 } from 'lucide-react';
 import { Barang, StatusStokBarang } from '../../types';
-import { BarcodeSvg } from '../common/BarcodeSvg';
-import { GRADE_COLOR_MAP } from '../../data/initialHargaData';
 
 interface BarangCardGridProps {
   items?: Barang[];
   barangList?: Barang[];
-  onPrintBarcode: (barang: Barang) => void;
   onEditLocation: (barang: Barang) => void;
   onQuickScanOut?: (barang: Barang) => void;
 }
@@ -27,7 +22,6 @@ interface BarangCardGridProps {
 export const BarangCardGrid: React.FC<BarangCardGridProps> = ({
   items,
   barangList,
-  onPrintBarcode,
   onEditLocation,
   onQuickScanOut,
 }) => {
@@ -65,7 +59,7 @@ export const BarangCardGrid: React.FC<BarangCardGridProps> = ({
         <Package className="w-8 h-8 text-gray-400 mx-auto" />
         <h3 className="text-xs font-bold text-gray-800">Tidak Ada Bal Tembakau yang Sesuai</h3>
         <p className="text-xs text-gray-500 max-w-md mx-auto">
-          Coba sesuaikan filter pencarian grade, status stok, atau kata kunci pencarian barcode.
+          Coba sesuaikan filter pencarian grade, status stok, atau kata kunci nomor bal.
         </p>
       </div>
     );
@@ -84,13 +78,13 @@ export const BarangCardGrid: React.FC<BarangCardGridProps> = ({
             }`}
           >
             {/* Top Card Header */}
-            <div className="p-3 border-b border-gray-200 space-y-2.5 bg-white">
+            <div className="p-3 border-b border-gray-200 space-y-2 bg-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <span className="text-xs font-black px-2 py-0.5 bg-[#212529] text-white font-mono rounded-none">
                     GRADE {barang.kode_grade}
                   </span>
-                  <span className="font-mono font-bold text-xs text-gray-900">
+                  <span className="font-mono font-bold text-sm text-gray-900">
                     {barang.no_bal}
                   </span>
                 </div>
@@ -106,11 +100,6 @@ export const BarangCardGrid: React.FC<BarangCardGridProps> = ({
                 <span className="text-base font-mono font-bold text-gray-900">
                   {barang.berat_kg} <span className="text-xs text-gray-500 font-normal">KG</span>
                 </span>
-              </div>
-
-              {/* Barcode Vector Graphic */}
-              <div className="bg-white p-2 border border-gray-200 text-center flex flex-col items-center justify-center">
-                <BarcodeSvg value={barang.barcode} height={36} />
               </div>
             </div>
 
@@ -148,23 +137,15 @@ export const BarangCardGrid: React.FC<BarangCardGridProps> = ({
               )}
             </div>
 
-            {/* Card Action Buttons matching ERP */}
-            <div className="p-2.5 bg-[#f8f9fa] flex items-center justify-between space-x-2">
-              <button
-                onClick={() => onPrintBarcode(barang)}
-                className="flex-1 flex items-center justify-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[#545b62] hover:bg-[#464c52] rounded-sm transition cursor-pointer shadow-xs"
-                title="Cetak Label Barcode Thermal Bal"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Label Thermal</span>
-              </button>
-
+            {/* Card Action Buttons */}
+            <div className="p-2.5 bg-[#f8f9fa] flex items-center justify-end">
               <button
                 onClick={() => onEditLocation(barang)}
-                className="px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-100 border border-gray-300 rounded-sm transition cursor-pointer"
+                className="flex items-center space-x-1 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-100 border border-gray-300 rounded-sm transition cursor-pointer"
                 title="Ubah lokasi rak bal"
               >
                 <Edit3 className="w-3.5 h-3.5" />
+                <span>Ubah Lokasi</span>
               </button>
             </div>
 

@@ -119,7 +119,7 @@ export function formatDateDDMMYY(inputDate?: Date | string | null): string {
   return `${dd}${mm}${yy}`;
 }
 
-// Generate Standard Tobacco Bal ID / Barcode: [Grade]-[DDMMYY]-[Urutan 001-999]
+// Generate Standard Tobacco Bal ID: [Grade]-[DDMMYY]-[Urutan 001-999]
 // Example: A-140826-001, E-140826-034
 export function generateBalId(grade: string, date?: Date | string | null, sequenceNumber: number = 1): string {
   const cleanGrade = (grade || 'A').toUpperCase().trim();
@@ -199,28 +199,6 @@ export function generateSampleId(grade: string, date?: Date | string | null, seq
 export function generateSuggestedCardNumber(regionCode: string = 'TMG'): string {
   const randomNum = Math.floor(1000 + Math.random() * 9000);
   return `KRT-${regionCode.toUpperCase()}-${randomNum}`;
-}
-
-// Generate simple visual barcode pattern based on string hash for high-fidelity ID card rendering
-export function generateBarcodeBars(code: string): { width: number; height: number }[] {
-  const bars: { width: number; height: number }[] = [];
-  let seed = 0;
-  for (let i = 0; i < code.length; i++) {
-    seed = (seed << 5) - seed + code.charCodeAt(i);
-    seed |= 0;
-  }
-  const absSeed = Math.abs(seed);
-  // standard guard bars
-  bars.push({ width: 2, height: 100 }, { width: 1, height: 100 }, { width: 2, height: 100 });
-  for (let i = 0; i < 28; i++) {
-    const bit = (absSeed >> (i % 24)) & (i % 3 === 0 ? 3 : 1);
-    const width = bit === 0 ? 1 : bit === 1 ? 2 : 2;
-    const height = 70 + ((i * 13 + absSeed) % 30);
-    bars.push({ width, height });
-    bars.push({ width: 1, height: 60 }); // space/shorter
-  }
-  bars.push({ width: 2, height: 100 }, { width: 1, height: 100 }, { width: 2, height: 100 });
-  return bars;
 }
 
 // Simple pseudo QR Matrix renderer for printable ID card

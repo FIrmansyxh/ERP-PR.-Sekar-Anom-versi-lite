@@ -126,7 +126,7 @@ export const PetaniDeactivateModal: React.FC<PetaniDeactivateModalProps> = ({
             </div>
           ) : (
             <p className="text-xs text-gray-600 leading-relaxed">
-              Petani akan diaktifkan kembali dan kartu barcode dapat langsung digunakan untuk proses loket timbangan penerimaan.
+              Petani akan diaktifkan kembali dan nomor kartu dapat langsung digunakan untuk proses loket timbangan penerimaan.
             </p>
           )}
 

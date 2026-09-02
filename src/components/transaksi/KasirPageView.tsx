@@ -26,7 +26,6 @@ import { formatRupiah } from '../../utils/formatters';
 import { TransaksiDetailModal } from './TransaksiDetailModal';
 import { PembayaranKasirModal } from './PembayaranKasirModal';
 import { SampleLabelPrintModal, SampleLabelData } from './SampleLabelPrintModal';
-import { BarangBarcodeThermalModal } from '../barang/BarangBarcodeThermalModal';
 import { Pagination } from '../common/Pagination';
 import { ConfirmModal } from '../common/ConfirmModal';
 

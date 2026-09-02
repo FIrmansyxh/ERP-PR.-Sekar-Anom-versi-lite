@@ -174,7 +174,7 @@ export const PetaniResetCardModal: React.FC<PetaniResetCardModalProps> = ({
           </div>
 
           <div className="bg-[#f8f9fa] border border-gray-300 p-2.5 text-[11px] text-gray-600">
-            <strong>Catatan Keamanan:</strong> Nomor kartu lama akan secara otomatis dinonaktifkan dari scanner barcode loket dan dicatat dalam log riwayat mutasi kartu.
+            <strong>Catatan Keamanan:</strong> Nomor kartu lama akan secara otomatis dinonaktifkan dari sistem loket dan dicatat dalam log riwayat mutasi kartu.
           </div>
 
         </form>

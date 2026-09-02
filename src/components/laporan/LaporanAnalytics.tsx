@@ -138,9 +138,9 @@ export const LaporanAnalytics: React.FC<LaporanAnalyticsProps> = ({
       ]);
       downloadCsvFile(filename, headers, rows);
     } else if (type === 'stok') {
-      const headers = ['Barcode', 'No Bal', 'Grade', 'Berat (KG)', 'Status Stok', 'Lokasi Gudang', 'Petani Asal', 'Tanggal Masuk', 'Tanggal Keluar'];
+      const headers = ['ID Bal', 'No Bal', 'Grade', 'Berat (KG)', 'Status Stok', 'Lokasi Gudang', 'Petani Asal', 'Tanggal Masuk', 'Tanggal Keluar'];
       const rows = barangList.map((b) => [
-        b.barcode,
+        b.barang_id,
         b.no_bal,
         b.kode_grade,
         b.berat_kg,
@@ -408,7 +408,7 @@ export const LaporanAnalytics: React.FC<LaporanAnalyticsProps> = ({
               <Download className="w-3.5 h-3.5 text-[#b81d24]" />
             </div>
             <p className="text-[11px] text-gray-500">
-              Barcode lengkap, grade mutu, berat timbang, dan histori status bal fisik.
+              Rincian nomor bal, grade mutu, berat timbang, dan histori status bal fisik.
             </p>
           </button>
 

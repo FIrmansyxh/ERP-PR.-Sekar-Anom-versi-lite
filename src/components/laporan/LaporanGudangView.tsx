@@ -227,12 +227,12 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
       if (appliedFilters.search) {
         const q = appliedFilters.search.toLowerCase().trim();
         const matchBal = (b.no_bal || '').toLowerCase().includes(q);
-        const matchBarcode = (b.barcode || b.barang_id || '').toLowerCase().includes(q);
+        const matchBalId = (b.barang_id || '').toLowerCase().includes(q);
         const matchGrade = (b.kode_grade || '').toLowerCase().includes(q);
         const matchPetani = (b.nama_petani || '').toLowerCase().includes(q);
         const matchDesa = (b.desa_kecamatan || '').toLowerCase().includes(q);
         const matchLokasi = (b.lokasi_gudang || '').toLowerCase().includes(q);
-        if (!matchBal && !matchBarcode && !matchGrade && !matchPetani && !matchDesa && !matchLokasi) {
+        if (!matchBal && !matchBalId && !matchGrade && !matchPetani && !matchDesa && !matchLokasi) {
           return false;
         }
       }
@@ -293,7 +293,7 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
     const headers = [
       'No',
       'No Bal',
-      'Barcode ID',
+      'ID Bal',
       'Lokasi Gudang / Rak',
       'Kode Grade',
       'Berat Netto (Kg)',
@@ -306,7 +306,7 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
     const rows: (string | number)[][] = filteredBarangList.map((b, idx) => [
       idx + 1,
       b.no_bal || '-',
-      b.barcode || b.barang_id || '-',
+      b.barang_id || '-',
       b.lokasi_gudang || '-',
       b.kode_grade || '-',
       b.berat_kg || 0,
@@ -606,11 +606,11 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
                 <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="Cari No. Bal, Barcode, Petani, Desa, Lokasi..."
+                  placeholder="Cari No. Bal, ID Bal, Petani, Desa, Lokasi..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleApplyFilter()}
-                  className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded-sm bg-white focus:outline-none focus:border-[#b81d24]"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded-none bg-white focus:outline-none focus:border-gray-800"
                 />
                 {searchQuery && (
                   <button
@@ -893,7 +893,7 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
               <tr className="bg-[#f1f3f5] border-b border-gray-200 text-gray-700 font-bold">
                 <th className="py-2.5 px-3 text-center border-r border-gray-200 w-10">No</th>
                 <th className="py-2.5 px-3 border-r border-gray-200">No. Bal</th>
-                <th className="py-2.5 px-3 border-r border-gray-200">Barcode ID</th>
+                <th className="py-2.5 px-3 border-r border-gray-200">ID Bal</th>
                 <th className="py-2.5 px-3 border-r border-gray-200">Lokasi / Fasilitas Gudang</th>
                 <th className="py-2.5 px-3 border-r border-gray-200 text-center">Grade</th>
                 <th className="py-2.5 px-3 border-r border-gray-200 text-right">Berat Netto (Kg)</th>
@@ -925,7 +925,7 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
 
                   return (
                     <tr 
-                      key={b.barang_id || b.barcode || idx}
+                      key={b.barang_id || idx}
                       className="hover:bg-[#f8f9fa] transition-colors"
                     >
                       <td className="py-2.5 px-3 text-center border-r border-gray-200 font-mono text-gray-600">
@@ -937,7 +937,7 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
                       </td>
 
                       <td className="py-2.5 px-3 border-r border-gray-200 font-mono text-gray-600">
-                        {b.barcode || b.barang_id}
+                        {b.barang_id}
                       </td>
 
                       <td className="py-2.5 px-3 border-r border-gray-200 font-medium text-gray-800">
@@ -1031,7 +1031,7 @@ export const LaporanGudangView: React.FC<LaporanGudangViewProps> = ({
           {/* Kop Surat */}
           <div className="text-center border-b-2 border-gray-800 pb-4 space-y-1">
             <span className="text-[10px] font-black tracking-widest text-[#b81d24] uppercase block">
-              PR. SEKAR ANOM • PUSAT PAMEKASAN MADURA
+              PR. SEKAR MAJU SEJAHTERA • PUSAT PAMEKASAN MADURA
             </span>
             <h3 className="text-base font-black tracking-tight text-gray-900 uppercase">
               LAPORAN STATUS OKUPANSI & STOK INVENTARIS GUDANG

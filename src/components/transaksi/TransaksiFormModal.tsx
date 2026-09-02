@@ -284,7 +284,6 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
 
       generatedBarangs.push({
         barang_id: balId,
-        barcode: balId,
         kode_grade: item.kodeGrade,
         no_bal: cleanNoBal,
         berat_kg: Number(item.beratKg),
@@ -353,7 +352,7 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
                   Tambah Transaksi / Intake Tembakau (Batch Input)
                 </h2>
                 <p className="text-[11px] text-gray-500 font-medium">
-                  Loket Timbang PR. Sekar Anom Pusat Pamekasan • Kupon Intake Petani
+                  Loket Timbang PR. Sekar Maju Sejahtera Pusat Pamekasan • Kupon Intake Petani
                 </p>
               </div>
             </div>

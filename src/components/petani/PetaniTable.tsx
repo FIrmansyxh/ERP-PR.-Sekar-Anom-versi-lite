@@ -6,6 +6,7 @@ import {
   Upload, 
   Printer, 
   Edit3, 
+  Trash2,
   Info, 
   Ban, 
   CheckCircle, 
@@ -21,6 +22,7 @@ import { Petani, UserRole } from '../../types';
 import { formatNumber } from '../../utils/formatters';
 import { canUserPerform } from '../../utils/rbac';
 import { Pagination } from '../common/Pagination';
+import { ConfirmModal } from '../common/ConfirmModal';
 
 interface PetaniTableProps {
   data: Petani[];
@@ -30,6 +32,8 @@ interface PetaniTableProps {
   onViewDetail: (petani: Petani) => void;
   onPrintCard: (petani: Petani) => void;
   onToggleStatus: (petani: Petani) => void;
+  onResetCardNumber?: (petani: Petani) => void;
+  onDeletePetani?: (petani: Petani) => void;
   onOpenImportExport: () => void;
 }
 
@@ -41,6 +45,8 @@ export const PetaniTable: React.FC<PetaniTableProps> = ({
   onViewDetail,
   onPrintCard,
   onToggleStatus,
+  onResetCardNumber,
+  onDeletePetani,
   onOpenImportExport,
 }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
@@ -50,6 +56,7 @@ export const PetaniTable: React.FC<PetaniTableProps> = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortBy, setSortBy] = useState<string>('petani_id');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [deletingPetaniTarget, setDeletingPetaniTarget] = useState<Petani | null>(null);
 
   // Filter & Sort Logic
   const filteredData = useMemo(() => {
@@ -389,6 +396,16 @@ export const PetaniTable: React.FC<PetaniTableProps> = ({
                               {petani.status_aktif ? <Ban className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
                             </button>
                           )}
+                          {/* Delete Petani Button */}
+                          {canManagePetani && onDeletePetani && (
+                            <button
+                              onClick={() => setDeletingPetaniTarget(petani)}
+                              className="w-6 h-6 rounded-full bg-[#dc3545] hover:bg-[#c82333] text-white flex items-center justify-center text-[10px] transition cursor-pointer shadow-xs"
+                              title="Hapus Data Petani"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -411,6 +428,23 @@ export const PetaniTable: React.FC<PetaniTableProps> = ({
         </div>
 
       </div>
+
+      {/* Confirmation Modal Delete Petani */}
+      <ConfirmModal
+        isOpen={Boolean(deletingPetaniTarget)}
+        title="Konfirmasi Hapus Data Petani"
+        message={`Apakah Anda yakin ingin menghapus data petani "${deletingPetaniTarget?.nama_petani}" (${deletingPetaniTarget?.nomor_kartu}) dari Master Petani?`}
+        detail="Perhatian: Tindakan ini akan menghapus data registrasi petani dari sistem master data."
+        variant="danger"
+        confirmText="Hapus Permanen"
+        onConfirm={() => {
+          if (deletingPetaniTarget && onDeletePetani) {
+            onDeletePetani(deletingPetaniTarget);
+          }
+          setDeletingPetaniTarget(null);
+        }}
+        onCancel={() => setDeletingPetaniTarget(null)}
+      />
 
     </div>
   );

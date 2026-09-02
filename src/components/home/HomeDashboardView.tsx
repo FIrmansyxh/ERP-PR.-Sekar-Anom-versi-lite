@@ -45,8 +45,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
     { no: 9, nama: 'Master Kualitas & Harga', judul: 'Tarif Acuan Grade A-F & Ketentuan Kualitas (PRD 4.2)', modId: 'modul-3-harga' },
     { no: 10, nama: 'Master Data Gudang', judul: 'Lokasi Simpan, Blok & Kapasitas Pergudangan (PRD 4.3)', modId: 'modul-7-gudang' },
     { no: 11, nama: 'Inventaris Bal Gudang', judul: 'Stok Fisik Bal & Lokasi Simpan (PRD 5.6)', modId: 'modul-2-barang' },
-    { no: 12, nama: 'Sortir', judul: 'Proses 1: Kupon Petani, Sortir Mutu Grade Bal & Scan Barcode Stiker', modId: 'modul-0-sortir' },
-    { no: 13, nama: 'Timbangan', judul: 'Proses 2: Standby Scan Barcode Bal, Input Berat Bruto/Netto & Lokasi Gudang', modId: 'modul-0-timbangan' },
+    { no: 12, nama: 'Sortir', judul: 'Proses 1: Kupon Petani, Sortir Mutu Grade Bal & Penentuan No. Bal', modId: 'modul-0-sortir' },
+    { no: 13, nama: 'Timbangan', judul: 'Proses 2: Standby Scan No. Bal, Input Berat Bruto/Netto & Lokasi Gudang', modId: 'modul-0-timbangan' },
     { no: 14, nama: 'Kasir', judul: 'Proses 3: Data Pembelian Barang, Rekap Pembayaran & Cetak Nota Resmi', modId: 'modul-0-kasir' },
     { no: 15, nama: 'Pengiriman Reguler (DO Luar)', judul: 'Surat Jalan Pengiriman Bal ke Buyer Pabrik Rokok (PRD 6.1)', modId: 'modul-5-pengiriman' },
     { no: 16, nama: 'Pengiriman Sample QC', judul: 'Uji Laboratorium Mutu & Approval Grade Sample (PRD 6.2)', modId: 'modul-4-sample' },
@@ -109,7 +109,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             Menu Akses Anda ({roleInfo?.label})
           </h2>
           <span className="text-xs text-gray-500 font-medium">
-            Sistem Data Gudang Tembakau - PR. SEKAR ANOM
+            Sistem Data Gudang Tembakau - PR. SEKAR MAJU SEJAHTERA
           </span>
         </div>
 
@@ -166,7 +166,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
         <div className="p-3 bg-[#f8f9fa] border-t border-gray-200 text-xs text-gray-500 flex justify-between items-center">
           <span>Menampilkan {menuList.length} modul aktif sesuai wewenang peran {roleInfo?.label}</span>
-          <span className="font-semibold text-gray-700">PR. SEKAR ANOM</span>
+          <span className="font-semibold text-gray-700">PR. SEKAR MAJU SEJAHTERA</span>
         </div>
       </div>
 

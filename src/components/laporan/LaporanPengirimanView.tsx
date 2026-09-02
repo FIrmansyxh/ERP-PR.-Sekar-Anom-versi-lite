@@ -882,7 +882,7 @@ export const LaporanPengirimanView: React.FC<LaporanPengirimanViewProps> = ({
               <thead>
                 <tr className="bg-gray-100 text-gray-700 font-bold uppercase text-[10px] border-b border-gray-200">
                   <th className="py-2.5 px-3 border-r border-gray-200 text-center w-10">No</th>
-                  <th className="py-2.5 px-3 border-r border-gray-200">Barcode / ID Bal</th>
+                  <th className="py-2.5 px-3 border-r border-gray-200">ID Bal</th>
                   <th className="py-2.5 px-3 border-r border-gray-200 text-center">No. Bal Fisik</th>
                   <th className="py-2.5 px-3 border-r border-gray-200 text-center">Grade</th>
                   <th className="py-2.5 px-3 border-r border-gray-200 text-right">Berat Netto (Kg)</th>
@@ -902,14 +902,14 @@ export const LaporanPengirimanView: React.FC<LaporanPengirimanViewProps> = ({
                   balKeluarList.map((b, idx) => (
                     <tr key={b.barang_id} className="hover:bg-gray-50">
                       <td className="py-2.5 px-3 border-r border-gray-200 text-center font-mono text-gray-500">{idx + 1}</td>
-                      <td className="py-2.5 px-3 border-r border-gray-200 font-mono font-bold text-gray-900">{b.barcode || b.barang_id}</td>
+                      <td className="py-2.5 px-3 border-r border-gray-200 font-mono font-bold text-gray-900">{b.barang_id}</td>
                       <td className="py-2.5 px-3 border-r border-gray-200 text-center font-mono font-bold text-gray-800">{b.no_bal}</td>
                       <td className="py-2.5 px-3 border-r border-gray-200 text-center">
-                        <span className="px-2 py-0.5 bg-zinc-900 text-white rounded-xs text-[10px] font-bold">
+                        <span className="px-2 py-0.5 bg-zinc-900 text-white rounded-none text-[10px] font-bold">
                           Grade {b.kode_grade}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 border-r border-gray-200 text-right font-mono font-bold text-blue-900">
+                      <td className="py-2.5 px-3 border-r border-gray-200 text-right font-mono font-bold text-gray-900">
                         {b.berat_kg} kg
                       </td>
                       <td className="py-2.5 px-3 border-r border-gray-200 font-semibold text-gray-800">
@@ -949,7 +949,7 @@ export const LaporanPengirimanView: React.FC<LaporanPengirimanViewProps> = ({
               </div>
               <button
                 onClick={() => setSelectedDOForDetail(null)}
-                className="p-1 hover:bg-gray-200 rounded-xs text-gray-500 hover:text-gray-900 cursor-pointer"
+                className="p-1 hover:bg-gray-200 rounded-none text-gray-500 hover:text-gray-900 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -970,28 +970,19 @@ export const LaporanPengirimanView: React.FC<LaporanPengirimanViewProps> = ({
               </div>
               <div className="p-2.5 bg-gray-50 border border-gray-200 text-center">
                 <div className="text-[10px] font-bold text-gray-500 uppercase">Total Tonase</div>
-                <div className="text-base font-bold font-mono text-blue-900 mt-0.5">
+                <div className="text-base font-bold font-mono text-gray-900 mt-0.5">
                   {selectedDOForDetail.total_berat_kg.toLocaleString('id-ID')} kg
                 </div>
               </div>
             </div>
 
-            {/* Modal Barcode List */}
+            {/* Modal Bal List */}
             <div className="p-4 flex-1 overflow-y-auto">
               <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider mb-2">
-                Daftar Barcode & Bal Tembakau yang Dimuat
+                Daftar No. Bal Tembakau yang Dimuat
               </h4>
 
-              {selectedDOForDetail.barcode_list && selectedDOForDetail.barcode_list.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {selectedDOForDetail.barcode_list.map((barcode, idx) => (
-                    <div key={idx} className="p-2 bg-gray-50 border border-gray-200 text-xs font-mono flex items-center justify-between">
-                      <span className="font-bold text-gray-800">{barcode}</span>
-                      <span className="text-[10px] text-gray-400">#{idx + 1}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : selectedDOForDetail.barang_ids && selectedDOForDetail.barang_ids.length > 0 ? (
+              {selectedDOForDetail.barang_ids && selectedDOForDetail.barang_ids.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {selectedDOForDetail.barang_ids.map((id, idx) => (
                     <div key={idx} className="p-2 bg-gray-50 border border-gray-200 text-xs font-mono flex items-center justify-between">
@@ -1002,7 +993,7 @@ export const LaporanPengirimanView: React.FC<LaporanPengirimanViewProps> = ({
                 </div>
               ) : (
                 <div className="p-4 text-center text-gray-500 italic bg-gray-50 border border-gray-200">
-                  Rincian barcode bal tercantum pada lembar fisik surat jalan asli.
+                  Rincian bal tercantum pada lembar fisik surat jalan asli.
                 </div>
               )}
 
@@ -1035,10 +1026,10 @@ export const LaporanPengirimanView: React.FC<LaporanPengirimanViewProps> = ({
           <div className="border-b-2 border-gray-800 pb-3 mb-4 flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-[#b81d24] text-white font-bold flex items-center justify-center text-sm">
-                SA
+                SMS
               </div>
               <div>
-                <h1 className="text-base font-bold tracking-tight text-gray-900">PR. SEKAR ANOM</h1>
+                <h1 className="text-base font-bold tracking-tight text-gray-900">PR. SEKAR MAJU SEJAHTERA</h1>
                 <p className="text-[11px] text-gray-600 font-medium">
                   Sistem Data Gudang Tembakau & Rekapitulasi Pengiriman (DO)
                 </p>

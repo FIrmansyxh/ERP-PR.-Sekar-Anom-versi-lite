@@ -139,10 +139,10 @@ export const PetaniCardPrintModal: React.FC<PetaniCardPrintModalProps> = ({
                 <div className="border-b-2 border-[#b81d24] pb-2 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <div className="w-7 h-7 rounded bg-[#b81d24] flex items-center justify-center text-white font-black text-xs">
-                      SA
+                      SMS
                     </div>
                     <div>
-                      <div className="font-bold text-xs tracking-tight text-[#b81d24] uppercase">PR. SEKAR ANOM</div>
+                      <div className="font-bold text-xs tracking-tight text-[#b81d24] uppercase">PR. SEKAR MAJU SEJAHTERA</div>
                       <div className="text-[9px] text-gray-500 font-medium">KARTU ANGGOTA PETANI TEMBAKAU</div>
                     </div>
                   </div>
@@ -195,14 +195,14 @@ export const PetaniCardPrintModal: React.FC<PetaniCardPrintModalProps> = ({
               <div className="w-[360px] h-[220px] bg-white border-2 border-gray-800 rounded-lg p-4 flex flex-col justify-between shadow-lg relative font-sans text-gray-900">
                 <div className="border-b border-gray-300 pb-1.5">
                   <div className="font-bold text-[11px] text-gray-900 uppercase tracking-tight">KETENTUAN PEMASOK & TIMBANG</div>
-                  <div className="text-[9px] text-gray-500">PR. SEKAR ANOM - SENTRA TEMBAKAU MADURA</div>
+                  <div className="text-[9px] text-gray-500">PR. SEKAR MAJU SEJAHTERA - SENTRA TEMBAKAU MADURA</div>
                 </div>
 
                 <div className="text-[9px] text-gray-700 space-y-1.5 leading-tight my-1">
                   <p>1. Kartu ini adalah tanda identitas resmi pemasok petani tembakau.</p>
                   <p>2. Wajib ditunjukkan kepada operator loket timbang saat proses penimbangan dan pembayaran bal.</p>
                   <p>3. Potongan resmi timbang: Tara keranjang 2 kg (bruto) dan potongan otomatis Rp 2.000 / bal.</p>
-                  <p>4. Hak cipta & verifikasi data terdaftar di Master Petani PR. Sekar Anom.</p>
+                  <p>4. Hak cipta & verifikasi data terdaftar di Master Petani PR. Sekar Maju Sejahtera.</p>
                 </div>
 
                 <div className="pt-2 border-t border-gray-200 flex items-center justify-between text-[9px] text-gray-500">

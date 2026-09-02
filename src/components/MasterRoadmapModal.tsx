@@ -1,20 +1,9 @@
 import React from 'react';
 import { 
-  X, 
   Layers, 
+  ArrowLeft, 
   CheckCircle2, 
-  Clock, 
-  Database, 
-  ArrowRight, 
-  Building2,
-  Users,
-  Package,
-  Tag,
-  FlaskConical,
-  Truck,
-  BarChart3,
-  Scale,
-  ArrowLeft
+  Database
 } from 'lucide-react';
 
 interface MasterRoadmapModalProps {
@@ -31,7 +20,7 @@ export const MasterRoadmapModal: React.FC<MasterRoadmapModalProps> = ({
   const prdSequence = [
     {
       no: 1,
-      name: 'Tabel Petani (PRD 01)',
+      name: 'Data Petani (PRD 01)',
       status: 'Selesai & Aktif',
       desc: 'Master data dasar. Semua transaksi pembelian & pengiriman merujuk ke petani_id.',
     },
@@ -39,7 +28,7 @@ export const MasterRoadmapModal: React.FC<MasterRoadmapModalProps> = ({
       no: 2,
       name: 'Data Barang / Bal (PRD 02)',
       status: 'Selesai & Aktif',
-      desc: 'Master tembakau per grade + barcode bal fisik, lokasi gudang, dan kartu visual bal.',
+      desc: 'Master tembakau per grade + nomor bal fisik, lokasi gudang, dan rincian data bal.',
     },
     {
       no: 3,
@@ -57,7 +46,7 @@ export const MasterRoadmapModal: React.FC<MasterRoadmapModalProps> = ({
       no: 5,
       name: 'Pengiriman Barang (PRD 05)',
       status: 'Selesai & Aktif',
-      desc: 'Scan barcode bal fisik saat keluar gudang & cetak surat jalan / DO.',
+      desc: 'Input bal fisik saat keluar gudang & cetak surat jalan / DO.',
     },
     {
       no: 6,
@@ -74,7 +63,7 @@ export const MasterRoadmapModal: React.FC<MasterRoadmapModalProps> = ({
         {/* Header */}
         <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-white">
           <div className="flex items-center space-x-2">
-            <Layers className="w-4 h-4 text-[#b81d24]" />
+            <Layers className="w-4 h-4 text-gray-700" />
             <div>
               <h2 className="text-sm font-bold text-gray-900 tracking-tight">
                 Master Roadmap & Arsitektur ERP Gudang Tembakau
@@ -88,7 +77,7 @@ export const MasterRoadmapModal: React.FC<MasterRoadmapModalProps> = ({
           <div className="flex items-center space-x-2">
             <button
               onClick={onClose}
-              className="px-3 py-1.5 text-xs font-semibold text-white bg-[#545b62] hover:bg-[#464c52] rounded-sm transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
+              className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-none transition flex items-center space-x-1.5 cursor-pointer shadow-xs"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Tutup</span>
@@ -105,7 +94,7 @@ export const MasterRoadmapModal: React.FC<MasterRoadmapModalProps> = ({
               <span>Arsitektur Sistem ERP Tembakau Terintegrasi Lengkap</span>
             </div>
             <p className="text-[11px] text-gray-600">
-              Semua entitas data (<code className="text-gray-900 font-mono">petani_id</code>, <code className="text-gray-900 font-mono">nomor_kartu</code>, <code className="text-gray-900 font-mono">barcode</code> bal tembakau, <code className="text-gray-900 font-mono">gudang_id</code>) tersambung secara mulus tanpa konflik data.
+              Semua entitas data (<code className="text-gray-900 font-mono">petani_id</code>, <code className="text-gray-900 font-mono">no_bal</code>, <code className="text-gray-900 font-mono">gudang_id</code>) tersambung secara presisi.
             </p>
           </div>
 
@@ -123,7 +112,7 @@ export const MasterRoadmapModal: React.FC<MasterRoadmapModalProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-gray-900 flex items-center space-x-1.5">
-                      <span className="w-4 h-4 text-white text-[10px] font-bold flex items-center justify-center bg-[#b81d24]">
+                      <span className="w-4 h-4 text-white text-[10px] font-bold flex items-center justify-center bg-gray-900">
                         {step.no}
                       </span>
                       <span>{step.name}</span>
@@ -145,23 +134,23 @@ export const MasterRoadmapModal: React.FC<MasterRoadmapModalProps> = ({
           {/* Key Integration Box */}
           <div className="bg-[#f8f9fa] p-3.5 border border-gray-300 space-y-2">
             <div className="flex items-center space-x-1.5 text-xs font-bold text-gray-900 uppercase tracking-wider">
-              <Database className="w-3.5 h-3.5 text-[#b81d24]" />
+              <Database className="w-3.5 h-3.5 text-gray-700" />
               <span>Dua Kunci Integrasi Utama</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="bg-white p-2.5 border border-gray-200 space-y-1">
-                <span className="font-mono text-[#b81d24] font-bold block text-xs">
+                <span className="font-mono text-gray-900 font-bold block text-xs">
                   1. petani_id
                 </span>
                 <p className="text-gray-600 text-[11px]">
-                  Menghubungkan <strong>Master Petani</strong> ↔ <strong>Loket Timbang</strong> ↔ <strong>Kartu Barcode</strong> ↔ <strong>Analitik</strong>.
+                  Menghubungkan <strong>Master Petani</strong> ↔ <strong>Loket Timbang</strong> ↔ <strong>Buku Kas</strong> ↔ <strong>Analitik</strong>.
                 </p>
               </div>
 
               <div className="bg-white p-2.5 border border-gray-200 space-y-1">
-                <span className="font-mono text-[#b81d24] font-bold block text-xs">
-                  2. barcode (Barang)
+                <span className="font-mono text-gray-900 font-bold block text-xs">
+                  2. no_bal (Barang)
                 </span>
                 <p className="text-gray-600 text-[11px]">
                   Menghubungkan <strong>Master Barang</strong> ↔ <strong>Pengiriman Sample</strong> ↔ <strong>Surat Jalan Muatan Pabrik</strong>.
